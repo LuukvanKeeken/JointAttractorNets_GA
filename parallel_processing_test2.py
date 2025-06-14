@@ -58,7 +58,7 @@ else:
 
 
 # GA hyperparameters
-population_size = 10
+population_size = 4
 num_generations = 2
 num_parents_mating = 2
 mutation_type = "random" # Options: "random", "swap", "inversion", "scramble", "adaptive", or a custom function
@@ -89,7 +89,7 @@ def on_generation(ga_instance):
     elif not second_generation_passed:
         second_generation_passed = True
         # Write times to a file
-        with open('times.txt', 'a') as f:
+        with open(f'times{population_size}.txt', 'a') as f:
             f.write(f"Processes: {num_processes}, Time: {time.time() - first_generation_end_time:.2f} seconds\n")
     
     print(f"Generation {ga_instance.generations_completed} - Best composite error: {1/(ga_instance.best_solution()[1])}")

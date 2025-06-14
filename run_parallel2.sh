@@ -14,5 +14,5 @@ size=5
 for num in "${nums[@]}"
 do
     echo "Running script for num: $num"
-    python3 parallel_processing_test2.py "$num" "$size"
+    python3 parallel_processing_test3.py "$num" "$size"
 done

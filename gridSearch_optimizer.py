@@ -11,24 +11,30 @@ from utils import *
 
 # Set the connectivity profile to optimize
 # Options: 'mexican_hat', 'cosine'
-connectivity_profile = 'cosine'  # Change this to 'cosine' to optimize the cosine profile
+connectivity_profile = 'mexican_hat'  # Change this to 'cosine' to optimize the cosine profile
 
 # Define the parameter grids based on the connectivity profile
 if connectivity_profile == 'mexican_hat':
     # Mexican hat profile parameters
-    sigma_exc_range = np.linspace(0.05, 0.2, 5)   # excitatory spread
-    sigma_inh_range = np.linspace(0.1, 0.3, 5)    # inhibitory spread
-    g_exc_range   = np.linspace(0.5, 1.0, 5)*mV      # excitatory gain
-    g_inh_range   = np.linspace(-1.0, -0.3, 5)*mV    # inhibitory gain
+    # sigma_exc_range = np.linspace(0.05, 0.2, 5)   # excitatory spread
+    sigma_exc_range = np.array([0.5])
+    # sigma_inh_range = np.linspace(0.1, 0.3, 5)    # inhibitory spread
+    sigma_inh_range = np.array([0.1])
+    # g_exc_range   = np.linspace(0.5, 1.0, 5)*mV      # excitatory gain
+    g_exc_range = np.array([0.5])*mV
+    # g_inh_range   = np.linspace(-1.0, -0.3, 5)*mV    # inhibitory gain
+    g_inh_range = np.array([-0.5])*mV
     
     # Prepare list of parameter combinations (each is a 4-tuple).
     param_grid = list(itertools.product(sigma_exc_range, sigma_inh_range, g_exc_range, g_inh_range))
     
 elif connectivity_profile == 'cosine':
     # Cosine profile parameters - optimize g_cosine, glob_inh, and w_inh
-    g_cosine_range = np.linspace(0.01, 0.1, 50)*mV   # cosine gain with smaller scale
+    # g_cosine_range = np.linspace(0.01, 0.1, 50)*mV   # cosine gain with smaller scale
+    g_cosine_range = np.array([0.01, 0.05])*mV
     glob_inh_range = [True, False]                # global inhibition flag
-    w_inh_range = np.linspace(-2.0, -0.5, 500)*mV    # global inhibition weight
+    # w_inh_range = np.linspace(-2.0, -0.5, 500)*mV    # global inhibition weight
+    w_inh_range = np.array([-1.0, -0.5])*mV
     
     # Create parameter grid with conditional logic
     param_grid = []
@@ -84,7 +90,7 @@ def worker_run(params_tuple):
     try:
         # Run the simulation.
         # opt_ring_attractor returns: (GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude)
-        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude = opt_ring_attractor(params)
+        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude = opt_ring_attractor(params, stim_center=1.57)
         
         # Compute the circular standard deviation (spread) from the PVA magnitude.
         circular_std = np.sqrt(-2 * np.log(out_pva_magnitude + 1e-8))

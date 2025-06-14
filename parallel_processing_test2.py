@@ -1,6 +1,5 @@
 import itertools
 import pandas as pd
-from tqdm import tqdm
 import multiprocessing as mp
 from brian2 import *  # Brian2 must be imported for the simulation
 import pygad
@@ -204,25 +203,5 @@ if __name__ == '__main__':
 
     print(f"Total time taken for optimization: {time.time() - start_time:.2f} seconds")
     exit()
-    # Convert results to a pandas DataFrame for easier sorting and saving.
-    results_df = pd.DataFrame(results)
-    
-    # Save the complete results to a CSV file with profile name in the filename
-    results_filename = f"optimization_results_{connectivity_profile}.csv"
-    results_df.to_csv(results_filename, index=False)
-    print(f"Results saved to {results_filename}")
-    
-    # Results Analysis
-    # If there are any errors, you might want to filter them out for selecting the best parameters.
-    valid_results = results_df[~results_df['composite_error'].isna()]
-    
-    if not valid_results.empty:
-        sortBy = 'composite_error'
-        # Sort the DataFrame based on composite_error (lower is better).
-        best_result = valid_results.sort_values(by=[sortBy], ascending=[True]).iloc[0]
-        print(f"Best parameter set found for {connectivity_profile} profile (sorted by {sortBy}):")
-        print(best_result)
-    else:
-        print("No valid simulation results found.")
 
 

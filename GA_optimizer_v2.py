@@ -200,7 +200,9 @@ if __name__ == '__main__':
     
     ga_instance.run()
 
+    start_time = time.time()  
     solution, solution_fitness, solution_idx = ga_instance.best_solution()
+    print(f"Retrieving best solution took {time.time() - start_time:.2f} seconds")
     print(f"""Best solution found:
     composite error: {1/solution_fitness}
     sigma_exc: {solution[0]}

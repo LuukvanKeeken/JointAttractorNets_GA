@@ -181,6 +181,8 @@ if __name__ == '__main__':
     num_proc = 4
     print(f"Using {num_proc} parallel processes for grid search.")
     results = []
+    from brian2 import prefs
+    print("Brian2 codegen target:", prefs.codegen.target)
     
     for i in range(10):
         print()

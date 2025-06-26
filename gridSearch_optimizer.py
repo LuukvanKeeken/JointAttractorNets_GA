@@ -176,7 +176,8 @@ if __name__ == '__main__':
     print(f"Starting grid search optimization for {connectivity_profile} connectivity profile")
     print(f"Total parameter combinations to evaluate: {total_runs}")
     
-    num_proc = mp.cpu_count()   # Adjust the number of worker processes based on your system
+    # num_proc = mp.cpu_count()   # Adjust the number of worker processes based on your system
+    num_proc = 16
     print(f"Using {num_proc} parallel processes for grid search.")
     results = []
     

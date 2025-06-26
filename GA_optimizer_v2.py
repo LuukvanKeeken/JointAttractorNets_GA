@@ -201,7 +201,7 @@ else:
 if __name__ == '__main__':
     print(f"Starting optimization for {connectivity_profile} connectivity profile")
     
-    print(f"Mean INITIAL last generation fitness: {np.mean(ga_instance.last_generation_fitness):.4f} +/- {np.std(ga_instance.last_generation_fitness):.4f}")
+    # print(f"Mean INITIAL last generation fitness: {np.mean(ga_instance.last_generation_fitness):.4f} +/- {np.std(ga_instance.last_generation_fitness):.4f}")
     print(f"Mean INITIAL previous generation fitness: {np.mean(ga_instance.previous_generation_fitness):.4f} +/- {np.std(ga_instance.previous_generation_fitness):.4f}")
 
 

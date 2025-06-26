@@ -109,8 +109,8 @@ def on_generation(ga_instance):
 
 
 def fitness_func(ga_instance, solution, solution_idx):
-    np.random.seed(rand_seed + solution_idx)
-    seed(rand_seed + solution_idx)
+    np.random.seed(rand_seed)
+    seed(rand_seed)
 
     params = fixed_params.copy()
 

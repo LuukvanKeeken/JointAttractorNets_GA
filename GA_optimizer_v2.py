@@ -62,8 +62,8 @@ else:
 # GA hyperparameters
 num_generations = 10
 num_parents_mating = 2
-mutation_type = "adaptive" # Options: "random", "swap", "inversion", "scramble", "adaptive", or a custom function
-mutation_num_genes = [3,1] # Number of genes to mutate in each solution. If using mutation_type="adaptive", this should be a list of 2 numbers: the first for lower-than-average fitness solutions, the second for higher-than-average fitness solutions.
+mutation_type = "random" # Options: "random", "swap", "inversion", "scramble", "adaptive", or a custom function
+mutation_num_genes = 1 # Number of genes to mutate in each solution. If using mutation_type="adaptive", this should be a list of 2 numbers: the first for lower-than-average fitness solutions, the second for higher-than-average fitness solutions.
 
 parent_selection_type = "rank" # Options: "sss" (steady state selection), "rws" (roulette wheel selection),
                               # "sus" (stochastic universal selection), "rank", "tournament", "random", or a custom function

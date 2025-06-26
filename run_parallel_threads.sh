@@ -8,9 +8,9 @@ pip install pygad
 pip install brian2
 pip install lmfit
 
-nums=(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
+nums=(4)
 size=100
-num_cpu=1
+num_cpu=4
 
 for num in "${nums[@]}"
 do

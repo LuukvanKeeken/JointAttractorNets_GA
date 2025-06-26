@@ -13,5 +13,5 @@ pip install brian2
 
 
 #for 1 run:
-python3 parallel_processing_test.py
+python3 GA_optimizer.py
 

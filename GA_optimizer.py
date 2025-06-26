@@ -45,7 +45,7 @@ else:
 
 
 # GA hyperparameters
-population_size = 200
+population_size = 100
 num_generations = 2
 num_parents_mating = 2
 mutation_type = "random" # Options: "random", "swap", "inversion", "scramble", "adaptive", or a custom function

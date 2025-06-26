@@ -21,7 +21,7 @@ from utils import *
 
 if len(sys.argv) > 1:
     num_threads = int(sys.argv[1])
-    print(f"Using {num_threads} processes for parallel processing.")
+    print(f"Using {num_threads} threads for parallel processing.")
     population_size = int(sys.argv[2])
     print(f"Using population size: {population_size}")
 else:
@@ -92,7 +92,7 @@ def on_generation(ga_instance):
         second_generation_passed = True
         # Write times to a file
         with open(f'times{population_size}.txt', 'a') as f:
-            f.write(f"Processes: {num_threads}, Time: {time.time() - first_generation_end_time:.2f} seconds\n")
+            f.write(f"Threads: {num_threads}, Time: {time.time() - first_generation_end_time:.2f} seconds\n")
     
     print(f"Generation {ga_instance.generations_completed} - Best composite error: {1/(ga_instance.best_solution()[1])}")
     print(f"Time elapsed: {time.time() - start_time:.2f} seconds")

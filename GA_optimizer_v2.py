@@ -101,13 +101,13 @@ def on_generation(ga_instance):
         with open(f'times{population_size}.txt', 'a') as f:
             f.write(f"Processes: {num_processes}, Time: {time.time() - first_generation_end_time:.2f} seconds\n")
 
-    print(f"Generation mean error: {np.mean(1/np.array(ga_instance.last_generation_fitness)):.4f} +/- {np.std(1/np.array(ga_instance.last_generation_fitness)):.4f}")
+    print(f"Generation mean FITNESS: {np.mean(ga_instance.last_generation_fitness):.4f} +/- {np.std(ga_instance.last_generation_fitness):.4f}")
 
     solution, solution_fitness, solution_idx = ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)
     gens_completed = ga_instance.generations_completed
     with open(f"exp_results.txt", "a") as f:
         f.write(f"Generation {gens_completed} - Best composite error: {1/(solution_fitness)} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)\n")
-        f.write(f"Generation mean error: {np.mean(1/np.array(ga_instance.last_generation_fitness)):.4f} +/- {np.std(1/np.array(ga_instance.last_generation_fitness)):.4f}\n")
+        f.write(f"Generation mean FITNESS: {np.mean(ga_instance.last_generation_fitness):.4f} +/- {np.std(ga_instance.last_generation_fitness):.4f}\n")
         f.write(f"Time elapsed: {time.time() - start_time:.2f} seconds\n")
     print(f"Generation {gens_completed} - Best composite error: {1/(solution_fitness)} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)")
     print(f"Time elapsed: {time.time() - start_time:.2f} seconds")

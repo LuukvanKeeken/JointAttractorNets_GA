@@ -63,7 +63,7 @@ else:
 num_generations = 10
 num_parents_mating = 2
 mutation_type = "adaptive" # Options: "random", "swap", "inversion", "scramble", "adaptive", or a custom function
-mutation_num_genes = [2,1] # Number of genes to mutate in each solution. If using mutation_type="adaptive", this should be a list of 2 numbers: the first for lower-than-average fitness solutions, the second for higher-than-average fitness solutions.
+mutation_num_genes = [3,1] # Number of genes to mutate in each solution. If using mutation_type="adaptive", this should be a list of 2 numbers: the first for lower-than-average fitness solutions, the second for higher-than-average fitness solutions.
 
 parent_selection_type = "rank" # Options: "sss" (steady state selection), "rws" (roulette wheel selection),
                               # "sus" (stochastic universal selection), "rank", "tournament", "random", or a custom function
@@ -96,8 +96,6 @@ def on_generation(ga_instance):
         with open(f'times{population_size}.txt', 'a') as f:
             f.write(f"Processes: {num_processes}, Time: {time.time() - first_generation_end_time:.2f} seconds\n")
     
-    print(f"Mean last generation fitness: {np.mean(ga_instance.last_generation_fitness):.4f} +/- {np.std(ga_instance.last_generation_fitness):.4f}")
-    print(f"Mean previous generation fitness: {np.mean(ga_instance.previous_generation_fitness):.4f} +/- {np.std(ga_instance.previous_generation_fitness):.4f}")
     solution, solution_fitness, solution_idx = ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)
     gens_completed = ga_instance.generations_completed
     print(f"Generation {gens_completed} - Best composite error: {1/(solution_fitness)} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)")
@@ -176,7 +174,6 @@ ga_instance = pygad.GA(num_generations=num_generations,
                        keep_elitism=keep_elitism)
 
 
-
 # Initialize the population with random values within the specified ranges
 if connectivity_profile == 'mexican_hat':
     sigma_exc_range = [0.05, 0.2]   # excitatory spread
@@ -201,10 +198,6 @@ else:
 if __name__ == '__main__':
     print(f"Starting optimization for {connectivity_profile} connectivity profile")
     
-    # print(f"Mean INITIAL last generation fitness: {np.mean(ga_instance.last_generation_fitness):.4f} +/- {np.std(ga_instance.last_generation_fitness):.4f}")
-    print(f"Mean INITIAL previous generation fitness: {np.mean(ga_instance.previous_generation_fitness):.4f} +/- {np.std(ga_instance.previous_generation_fitness):.4f}")
-
-
     ga_instance.run()
 
     start_time = time.time()  

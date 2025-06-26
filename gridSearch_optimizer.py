@@ -182,7 +182,11 @@ if __name__ == '__main__':
     print(f"Using {num_proc} parallel processes for grid search.")
     results = []
     from brian2 import prefs
+    from brian2.devices.device import get_device
+
+    prefs.codegen.target = 'cython'
     print("Brian2 codegen target:", prefs.codegen.target)
+    print("Brian2 device:", get_device().codegen_target)
     
     for i in range(10):
         print()

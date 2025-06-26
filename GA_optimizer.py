@@ -53,8 +53,7 @@ parent_selection_type = "sss" # Options: "sss" (steady state selection), "rws" (
                               # "sus" (stochastic universal selection), "rank", "tournament", "random", or a custom function
 crossover_type = "single_point" # Options: "single_point", "two_points", "uniform", "scattered", or a custom function
 
-# parallel processing
-num_processes = 12
+
 
 # Number of genes based on the connectivity profile
 if connectivity_profile == 'mexican_hat':
@@ -136,8 +135,7 @@ ga_instance = pygad.GA(num_generations=num_generations,
                        mutation_type=mutation_type,
                        on_generation=on_generation,
                        parent_selection_type=parent_selection_type,
-                       crossover_type=crossover_type,
-                       parallel_processing=["process", num_processes])
+                       crossover_type=crossover_type)
 
 
 # Initialize the population with random values within the specified ranges

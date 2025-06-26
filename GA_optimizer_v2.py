@@ -5,7 +5,6 @@ from brian2 import *  # Brian2 must be imported for the simulation
 import pygad
 import time
 import sys
-import random
 
 start_time = time.time()
 first_generation_passed = False
@@ -20,7 +19,6 @@ from utils import *
 
 rand_seed = 42
 np.random.seed(rand_seed)
-random.seed(rand_seed)
 seed(rand_seed)
 
 
@@ -111,8 +109,7 @@ def on_generation(ga_instance):
 
 
 def fitness_func(ga_instance, solution, solution_idx):
-    np.random.seed(rand_seed + solution_idx)  
-    random.seed(rand_seed + solution_idx)
+    np.random.seed(rand_seed + solution_idx)
     seed(rand_seed + solution_idx)
 
     params = fixed_params.copy()

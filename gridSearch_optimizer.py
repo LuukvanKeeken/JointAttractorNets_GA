@@ -3,6 +3,7 @@ import pandas as pd
 from tqdm import tqdm
 import multiprocessing as mp
 from brian2 import *  # Brian2 must be imported for the simulation
+import os
 
 # Import the simulation function from your model file
 from optimization_model import opt_ring_attractor  # your simulation function
@@ -181,12 +182,28 @@ if __name__ == '__main__':
     num_proc = 4
     print(f"Using {num_proc} parallel processes for grid search.")
     results = []
+
+
+    start_time = time.time()
+    # check if directory 'filesystemtest' exists, if not create it
+    if not os.path.exists('filesystemtest'):
+        os.makedirs('filesystemtest')
+    
+    for i in range(100):
+        with open(f'filesystemtest/testfile_{i}.txt', 'w') as f:
+            f.write(f"hello\n"*1000)
+        os.remove(f'filesystemtest/testfile_{i}.txt')
+    print("Elapsed time for filesystem test:", time.time() - start_time, "seconds")
+
+
+
+
     from brian2 import prefs
     from brian2.devices.device import get_device
 
     prefs.codegen.target = 'cython'
     print("Brian2 codegen target:", prefs.codegen.target)
-    print("Brian2 device:", get_device().codegen_target)
+    # print("Brian2 device:", get_device().codegen.target)
     
     for i in range(10):
         print()

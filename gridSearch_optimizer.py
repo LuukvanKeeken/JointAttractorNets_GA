@@ -177,7 +177,8 @@ if __name__ == '__main__':
     print(f"Total parameter combinations to evaluate: {total_runs}")
     
     # num_proc = mp.cpu_count()   # Adjust the number of worker processes based on your system
-    num_proc = 16
+    print(f"CPU count: {mp.cpu_count()}")
+    num_proc = 4
     print(f"Using {num_proc} parallel processes for grid search.")
     results = []
     

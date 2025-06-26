@@ -179,7 +179,7 @@ if __name__ == '__main__':
     
     # num_proc = mp.cpu_count()   # Adjust the number of worker processes based on your system
     print(f"CPU count: {mp.cpu_count()}")
-    num_proc = 1
+    num_proc = 4
     print(f"Using {num_proc} parallel processes for grid search.")
     results = []
 
@@ -198,16 +198,16 @@ if __name__ == '__main__':
 
 
 
-    from brian2 import prefs
-    from brian2.devices.device import get_device
+    # from brian2 import prefs
+    # from brian2.devices.device import get_device
 
-    prefs.codegen.target = 'cython'
-    print("Brian2 codegen target:", prefs.codegen.target)
-    device = get_device()
-    if hasattr(device, 'codegen'):
-        print("Brian2 device codegen target:", device.codegen.target)
-    else:
-        print("Brian2 device does not have a 'codegen' attribute (likely using RuntimeDevice).")
+    # prefs.codegen.target = 'cython'
+    # print("Brian2 codegen target:", prefs.codegen.target)
+    # device = get_device()
+    # if hasattr(device, 'codegen'):
+    #     print("Brian2 device codegen target:", device.codegen.target)
+    # else:
+    #     print("Brian2 device does not have a 'codegen' attribute (likely using RuntimeDevice).")
     
     for i in range(10):
         print()

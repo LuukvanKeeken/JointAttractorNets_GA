@@ -24,6 +24,8 @@ if len(sys.argv) > 1:
     print(f"Using {num_threads} threads for parallel processing.")
     population_size = int(sys.argv[2])
     print(f"Using population size: {population_size}")
+    num_cpu = int(sys.argv[3])
+    print(f"Using {num_cpu} CPU cores for parallel processing.")
 else:
     print("COMMAND LINE THINGY NOT WORKING")
     exit()
@@ -91,7 +93,7 @@ def on_generation(ga_instance):
     elif not second_generation_passed:
         second_generation_passed = True
         # Write times to a file
-        with open(f'times{population_size}.txt', 'a') as f:
+        with open(f'times_{population_size}pop_{num_cpu}cpus.txt', 'a') as f:
             f.write(f"Threads: {num_threads}, Time: {time.time() - first_generation_end_time:.2f} seconds\n")
     
     print(f"Generation {ga_instance.generations_completed} - Best composite error: {1/(ga_instance.best_solution()[1])}")

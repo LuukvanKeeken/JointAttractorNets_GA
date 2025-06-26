@@ -17,6 +17,9 @@ from optimization_model import opt_ring_attractor  # your simulation function
 from utils import *
 
 
+rand_seed = 42
+seed(rand_seed)
+
 
 
 if len(sys.argv) > 1:
@@ -171,7 +174,8 @@ ga_instance = pygad.GA(num_generations=num_generations,
                        parent_selection_type=parent_selection_type,
                        crossover_type=crossover_type,
                        parallel_processing=["process", num_processes],
-                       keep_elitism=keep_elitism)
+                       keep_elitism=keep_elitism,
+                       random_seed=rand_seed)
 
 
 # Initialize the population with random values within the specified ranges

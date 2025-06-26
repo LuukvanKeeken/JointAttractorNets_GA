@@ -180,6 +180,9 @@ if __name__ == '__main__':
     print(f"Using {num_proc} parallel processes for grid search.")
     results = []
     
+    for i in range(10):
+        print()
+
     # Use Pool.imap_unordered with tqdm for progress tracking.
     with mp.Pool(processes=num_proc) as pool:
         for res in tqdm(pool.imap_unordered(worker_run, param_grid), total=total_runs, desc="Grid Search"):

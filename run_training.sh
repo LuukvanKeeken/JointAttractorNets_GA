@@ -10,6 +10,7 @@ python -m pip install -U pip
 pip3 install pandas
 pip install pygad
 pip install brian2
+pip install lmfit
 
 
 #for 1 run:

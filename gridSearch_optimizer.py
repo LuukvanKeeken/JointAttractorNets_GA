@@ -16,14 +16,14 @@ connectivity_profile = 'mexican_hat'  # Change this to 'cosine' to optimize the 
 # Define the parameter grids based on the connectivity profile
 if connectivity_profile == 'mexican_hat':
     # Mexican hat profile parameters
-    # sigma_exc_range = np.linspace(0.05, 0.2, 5)   # excitatory spread
-    sigma_exc_range = np.array([0.5])
-    # sigma_inh_range = np.linspace(0.1, 0.3, 5)    # inhibitory spread
-    sigma_inh_range = np.array([0.1])
-    # g_exc_range   = np.linspace(0.5, 1.0, 5)*mV      # excitatory gain
-    g_exc_range = np.array([0.5])*mV
-    # g_inh_range   = np.linspace(-1.0, -0.3, 5)*mV    # inhibitory gain
-    g_inh_range = np.array([-0.5])*mV
+    sigma_exc_range = np.linspace(0.05, 0.2, 5)   # excitatory spread
+    # sigma_exc_range = np.array([0.5])
+    sigma_inh_range = np.linspace(0.1, 0.3, 5)    # inhibitory spread
+    # sigma_inh_range = np.array([0.1])
+    g_exc_range   = np.linspace(0.5, 1.0, 5)*mV      # excitatory gain
+    # g_exc_range = np.array([0.5])*mV
+    g_inh_range   = np.linspace(-1.0, -0.3, 5)*mV    # inhibitory gain
+    # g_inh_range = np.array([-0.5])*mV
     
     # Prepare list of parameter combinations (each is a 4-tuple).
     param_grid = list(itertools.product(sigma_exc_range, sigma_inh_range, g_exc_range, g_inh_range))
@@ -177,6 +177,7 @@ if __name__ == '__main__':
     print(f"Total parameter combinations to evaluate: {total_runs}")
     
     num_proc = mp.cpu_count()   # Adjust the number of worker processes based on your system
+    print(f"Using {num_proc} parallel processes for grid search.")
     results = []
     
     # Use Pool.imap_unordered with tqdm for progress tracking.

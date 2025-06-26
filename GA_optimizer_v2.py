@@ -96,7 +96,7 @@ def on_generation(ga_instance):
         with open(f'times{population_size}.txt', 'a') as f:
             f.write(f"Processes: {num_processes}, Time: {time.time() - first_generation_end_time:.2f} seconds\n")
     
-    solution, solution_fitness, solution_idx = ga_instance.best_solution()
+    solution, solution_fitness, solution_idx = ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)
     gens_completed = ga_instance.generations_completed
     print(f"Generation {gens_completed} - Best composite error: {1/(solution_fitness)} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)")
     print(f"Time elapsed: {time.time() - start_time:.2f} seconds")
@@ -201,7 +201,7 @@ if __name__ == '__main__':
     ga_instance.run()
 
     start_time = time.time()  
-    solution, solution_fitness, solution_idx = ga_instance.best_solution()
+    solution, solution_fitness, solution_idx = ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)
     print(f"Retrieving best solution took {time.time() - start_time:.2f} seconds")
     print(f"""Best solution found:
     composite error: {1/solution_fitness}

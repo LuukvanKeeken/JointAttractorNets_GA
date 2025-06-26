@@ -1,7 +1,7 @@
-import itertools
+# import itertools
 import pandas as pd
-from tqdm import tqdm
-import multiprocessing as mp
+# from tqdm import tqdm
+# import multiprocessing as mp
 from brian2 import *  # Brian2 must be imported for the simulation
 import pygad
 import time

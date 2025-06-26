@@ -176,8 +176,6 @@ ga_instance = pygad.GA(num_generations=num_generations,
                        keep_elitism=keep_elitism)
 
 
-print(f"Mean INITIAL last generation fitness: {np.mean(ga_instance.last_generation_fitness):.4f} +/- {np.std(ga_instance.last_generation_fitness):.4f}")
-print(f"Mean INITIAL previous generation fitness: {np.mean(ga_instance.previous_generation_fitness):.4f} +/- {np.std(ga_instance.previous_generation_fitness):.4f}")
 
 # Initialize the population with random values within the specified ranges
 if connectivity_profile == 'mexican_hat':
@@ -203,6 +201,10 @@ else:
 if __name__ == '__main__':
     print(f"Starting optimization for {connectivity_profile} connectivity profile")
     
+    print(f"Mean INITIAL last generation fitness: {np.mean(ga_instance.last_generation_fitness):.4f} +/- {np.std(ga_instance.last_generation_fitness):.4f}")
+    print(f"Mean INITIAL previous generation fitness: {np.mean(ga_instance.previous_generation_fitness):.4f} +/- {np.std(ga_instance.previous_generation_fitness):.4f}")
+
+
     ga_instance.run()
 
     start_time = time.time()  

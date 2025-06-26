@@ -18,6 +18,7 @@ from utils import *
 
 
 rand_seed = 42
+np.random.seed(rand_seed)
 seed(rand_seed)
 
 

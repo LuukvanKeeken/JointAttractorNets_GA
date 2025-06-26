@@ -9,7 +9,7 @@ pip install brian2
 pip install lmfit
 
 nums=(16)
-size=100
+size=200
 
 for num in "${nums[@]}"
 do

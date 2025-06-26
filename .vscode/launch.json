@@ -8,8 +8,8 @@
             "name": "Python Debugger: Module",
             "type": "debugpy",
             "request": "launch",
-            "module": "parallel_processing_test2",
-            "args": ["2"]
+            "module": "GA_optimizer_v2",
+            "args": ["16", "200"]
         }
     ]
 }

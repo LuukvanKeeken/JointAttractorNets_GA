@@ -8,7 +8,7 @@ pip install pygad
 pip install brian2
 pip install lmfit
 
-nums=(8)
+nums=(4)
 size=100
 
 for num in "${nums[@]}"

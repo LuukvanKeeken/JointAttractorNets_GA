@@ -147,7 +147,7 @@ def on_generation(ga_instance):
     positive_fitnesses = pop_fitnesses[pop_fitnesses >= 0]
     negative_fitnesses = pop_fitnesses[pop_fitnesses < 0]
 
-    print(f"Generation mean FITNESS: {np.mean(positive_fitnesses):.4f} +/- {np.std(positive_fitnesses):.4f} | {len(positive_fitnesses)} working, {len(negative_fitnesses)} failed solutions")
+    print(f"Generation mean FITNESS (working solutions): {np.mean(positive_fitnesses):.4f} +/- {np.std(positive_fitnesses):.4f} | {len(positive_fitnesses)} working, {len(negative_fitnesses)} failed solutions")
 
     solution, solution_fitness, solution_idx = ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)
     gens_completed = ga_instance.generations_completed

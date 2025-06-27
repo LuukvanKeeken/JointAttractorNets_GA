@@ -14,11 +14,14 @@ pip install lmfit
 
 
 nums=(16)
-size=100
+pop_size=200
+num_parents_mating=100
+mut_prob1=0.5
+mut_prob2=0.25
 
 for num in "${nums[@]}"
 do
     echo "Running script for num: $num"
-    python3 GA_optimizer_v2.py --num_processes "$num" --population_size "$size"
+    python3 GA_optimizer_v2.py --num_processes "$num" --population_size "$pop_size" --num_parents_mating "$num_parents_mating" --mutation_probability "$mut_prob1" "$mut_prob2"
 done
 

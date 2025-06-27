@@ -55,7 +55,7 @@ def adaptive_perturbation_mutation(offspring, ga_instance):
                 mutation_indices = numpy.array(random.sample(range(0, ga_instance.num_genes), adaptive_mutation_num_genes))
                 for gene_idx in mutation_indices:
 
-                    range_min, range_max = ga_instance.get_mutation_range(gene_idx)
+                    range_min, range_max = ga_instance.random_mutation_min_val, ga_instance.random_mutation_max_val
 
                     # Generating a random value.
                     random_value = numpy.random.uniform(low=range_min, 
@@ -118,7 +118,7 @@ def adaptive_perturbation_mutation(offspring, ga_instance):
                 probs = numpy.random.random(size=offspring.shape[1])
                 for gene_idx in range(offspring.shape[1]):
 
-                    range_min, range_max = ga_instance.get_mutation_range(gene_idx)
+                    range_min, range_max = ga_instance.random_mutation_min_val, ga_instance.random_mutation_max_val
 
                     if probs[gene_idx] <= adaptive_mutation_probability:
                         # Generating a random value.
@@ -163,7 +163,7 @@ def random_perturbation_mutation(offspring, ga_instance):
                 mutation_indices = numpy.array(random.sample(range(0, ga_instance.num_genes), ga_instance.mutation_num_genes))
                 for gene_idx in mutation_indices:
 
-                    range_min, range_max = ga_instance.get_mutation_range(gene_idx)
+                    range_min, range_max = ga_instance.random_mutation_min_val, ga_instance.random_mutation_max_val
 
                     # Generating a random value.
                     random_value = numpy.random.uniform(low=range_min, 
@@ -198,7 +198,7 @@ def random_perturbation_mutation(offspring, ga_instance):
                 probs = numpy.random.random(size=offspring.shape[1])
                 for gene_idx in range(offspring.shape[1]):
 
-                    range_min, range_max = ga_instance.get_mutation_range(gene_idx)
+                    range_min, range_max = ga_instance.random_mutation_min_val, ga_instance.random_mutation_max_val
 
                     if probs[gene_idx] <= ga_instance.mutation_probability:
                         # Generating a random value.

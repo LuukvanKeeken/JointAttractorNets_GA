@@ -32,9 +32,13 @@ parser.add_argument('--population_size', type=int, default=100, help='Population
 parser.add_argument('--random_seed', type=int, default=24, help='Random seed for reproducibility.')
 
 
+args = parser.parse_args()
+
+rand_seed = args.random_seed
+num_processes = args.num_processes
+population_size = args.population_size
 
 
-rand_seed = 42
 np.random.seed(rand_seed)
 seed(rand_seed)
 

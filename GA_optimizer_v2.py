@@ -86,10 +86,13 @@ with open(f"{current_results_dirname}/exp_params.txt", "w") as f:
 if not (mutation_type in ['adaptive', 'adaptive_perturbation']):
     mutation_probability = mutation_probability[0]  # Use the first value for all solutions
 
+actual_mutation_type = None
 if mutation_type == 'random_perturbation':
     mutation_type = random_perturbation_mutation
 elif mutation_type == 'adaptive_perturbation':
-    mutation_type = adaptive_perturbation_mutation
+    mutation_type = 'adaptive'
+    actual_mutation_type = adaptive_perturbation_mutation
+
 
 
 
@@ -238,6 +241,13 @@ ga_instance = pygad.GA(num_generations=num_generations,
                        random_seed=rand_seed,
                        random_mutation_min_val= rand_mut_min_val,
                        random_mutation_max_val= rand_mut_max_val)
+
+
+# Check if actual_mutation_type is not None
+# Circumvent the issue of pygad not accepting lists for mutation_probability
+# if the mutation type is not exactly 'adaptive'
+if actual_mutation_type is not None:
+    ga_instance.mutation_type = actual_mutation_type
 
 
 # Initialize the population with random values within the specified ranges

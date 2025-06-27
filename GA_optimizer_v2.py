@@ -5,6 +5,8 @@ from brian2 import *  # Brian2 must be imported for the simulation
 import pygad
 import time
 import sys
+import os
+import argparse
 
 start_time = time.time()
 first_generation_passed = False
@@ -17,21 +19,27 @@ from optimization_model import opt_ring_attractor  # your simulation function
 from utils import *
 
 
+# Check if directory 'GA_results' exists, if not create it
+if not os.path.exists('GA_results'):
+    os.makedirs('GA_results')
+
+
+# Set up argparse
+parser = argparse.ArgumentParser(description='Run GA optimization for ring attractor model.')
+
+parser.add_argument('--num_processes', type=int, default=1, help='Number of processes for parallel processing.')
+parser.add_argument('--population_size', type=int, default=100, help='Population size for the genetic algorithm.')
+parser.add_argument('--random_seed', type=int, default=24, help='Random seed for reproducibility.')
+
+
+
+
 rand_seed = 42
 np.random.seed(rand_seed)
 seed(rand_seed)
 
 
 
-
-if len(sys.argv) > 1:
-    num_processes = int(sys.argv[1])
-    print(f"Using {num_processes} processes for parallel processing.")
-    population_size = int(sys.argv[2])
-    print(f"Using population size: {population_size}")
-else:
-    print("COMMAND LINE THINGY NOT WORKING")
-    exit()
 
 
 # Set the connectivity profile to optimize
@@ -111,7 +119,7 @@ def on_generation(ga_instance):
     gens_completed = ga_instance.generations_completed
     with open(f"exp_results.txt", "a") as f:
         f.write(f"Generation {gens_completed} - Best composite error: {1/(solution_fitness)} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)\n")
-        f.write(f"Generation mean FITNESS: {np.mean(positive_fitnesses):.4f} +/- {np.std(positive_fitnesses):.4f} | {len(positive_fitnesses)} working, {len(negative_fitnesses)} failed solutions")
+        f.write(f"Generation mean FITNESS: {np.mean(positive_fitnesses):.4f} +/- {np.std(positive_fitnesses):.4f} | {len(positive_fitnesses)} working, {len(negative_fitnesses)} failed solutions\n")
         f.write(f"Time elapsed: {time.time() - start_time:.2f} seconds\n")
     print(f"Generation {gens_completed} - Best composite error: {1/(solution_fitness)} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)")
     print(f"Time elapsed: {time.time() - start_time:.2f} seconds")
@@ -168,7 +176,7 @@ def fitness_func(ga_instance, solution, solution_idx):
 
     # For now, if there is any exception raised, just give very low fitness value to this solution.
     except Exception as e:
-        composite_error = 1e10
+        composite_error = -1
 
 
     fitness_value = 1.0 / (composite_error + 1e-8)  # Avoid division by zero

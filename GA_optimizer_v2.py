@@ -91,7 +91,7 @@ if mutation_type == 'random_perturbation':
     mutation_type = random_perturbation_mutation
 elif mutation_type == 'adaptive_perturbation':
     mutation_type = 'adaptive'
-    actual_mutation_type = adaptive_perturbation_mutation
+    actual_mutation_type = 'adaptive_perturbation'
 
 
 
@@ -248,6 +248,7 @@ ga_instance = pygad.GA(num_generations=num_generations,
 # if the mutation type is not exactly 'adaptive'
 if actual_mutation_type is not None:
     ga_instance.mutation_type = actual_mutation_type
+    ga_instance.mutation = adaptive_perturbation_mutation
 
 
 # Initialize the population with random values within the specified ranges

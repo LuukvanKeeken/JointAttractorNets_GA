@@ -7,7 +7,6 @@ import time
 import sys
 import os
 import argparse
-from custom_mutation_funcs import adaptive_perturbation_mutation, random_perturbation_mutation
 
 start_time = time.time()
 previous_gen_start_time = start_time
@@ -36,8 +35,8 @@ parser.add_argument('--population_size', type=int, default=100, help='Population
 parser.add_argument('--random_seed', type=int, default=24, help='Random seed for reproducibility.')
 parser.add_argument('--num_generations', type=int, default=500, help='Number of generations for the genetic algorithm.')
 parser.add_argument('--num_parents_mating', type=int, default=50, help='Number of parents mating in each generation.')
-parser.add_argument('--mutation_type', type=str, default='adaptive_perturbation', choices=['random', 'random_perturbation', 'swap', 'inversion', 'scramble', 'adaptive', 'adaptive_perturbation'], help='Type of mutation to use in the genetic algorithm.') # Options: "random", "swap", "inversion", "scramble", "adaptive", or a custom function
-parser.add_argument('--mutation_probability', type=float, default=[0.5, 0.25], nargs=2, help='Probability of mutation for each gene. If using adaptive perturbation, this should be a list of two values: the first for lower-than-average fitness solutions, the second for higher-than-average fitness solutions. If using random perturbation, this should be a single value for all solutions.')
+parser.add_argument('--mutation_type', type=str, default='adaptive', choices=['random', 'swap', 'inversion', 'scramble', 'adaptive', ], help='Type of mutation to use in the genetic algorithm.') # Options: "random", "swap", "inversion", "scramble", "adaptive", or a custom function
+parser.add_argument('--mutation_probability', type=float, default=[0.5, 0.25], nargs=2, help='Probability of mutation for each gene. If using adaptive mutation, this should be a list of two values: the first for lower-than-average fitness solutions, the second for higher-than-average fitness solutions. If using random mutation, this should be a single value for all solutions.')
 parser.add_argument('--parent_selection_type', type=str, default='rws', choices=['sss', 'rws', 'sus', 'rank', 'tournament', 'random'], help='Parent selection method for the genetic algorithm.')
 parser.add_argument('--connectivity_profile', type=str, default='mexican_hat', choices=['mexican_hat', 'cosine'], help='Connectivity profile to optimize.')
 parser.add_argument('--crossover_type', type=str, default='single_point', choices=['single_point', 'two_points', 'uniform', 'scattered'], help='Crossover type for the genetic algorithm.')
@@ -83,15 +82,9 @@ with open(f"{current_results_dirname}/exp_params.txt", "w") as f:
     f.write(f"Random mutation max value: {rand_mut_max_val}\n")
 
 
-if not (mutation_type in ['adaptive', 'adaptive_perturbation']):
+if not (mutation_type in ['adaptive']):
     mutation_probability = mutation_probability[0]  # Use the first value for all solutions
 
-actual_mutation_type = None
-if mutation_type == 'random_perturbation':
-    mutation_type = random_perturbation_mutation
-elif mutation_type == 'adaptive_perturbation':
-    mutation_type = 'adaptive'
-    actual_mutation_type = adaptive_perturbation_mutation
 
 
 
@@ -242,13 +235,6 @@ ga_instance = pygad.GA(num_generations=num_generations,
                        random_mutation_min_val= rand_mut_min_val,
                        random_mutation_max_val= rand_mut_max_val)
 
-
-# Check if actual_mutation_type is not None
-# Circumvent the issue of pygad not accepting lists for mutation_probability
-# if the mutation type is not exactly 'adaptive'
-if actual_mutation_type is not None:
-    ga_instance.mutation_type = actual_mutation_type
-    ga_instance.mutation = actual_mutation_type
 
 
 # Initialize the population with random values within the specified ranges

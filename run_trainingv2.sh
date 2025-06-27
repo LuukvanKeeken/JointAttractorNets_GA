@@ -16,8 +16,8 @@ pip install lmfit
 nums=(16)
 pop_size=200
 num_parents_mating=100
-mut_prob1=0.5
-mut_prob2=0.25
+mut_prob1=0.6
+mut_prob2=0.2
 
 for num in "${nums[@]}"
 do

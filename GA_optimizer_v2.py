@@ -83,13 +83,15 @@ with open(f"{current_results_dirname}/exp_params.txt", "w") as f:
     f.write(f"Random mutation max value: {rand_mut_max_val}\n")
 
 
+if not (mutation_type in ['adaptive', 'adaptive_perturbation']):
+    mutation_probability = mutation_probability[0]  # Use the first value for all solutions
+
 if mutation_type == 'random_perturbation':
     mutation_type = random_perturbation_mutation
 elif mutation_type == 'adaptive_perturbation':
     mutation_type = adaptive_perturbation_mutation
 
-if not (mutation_type in ['adaptive', 'adaptive_perturbation']):
-    mutation_probability = mutation_probability[0]  # Use the first value for all solutions
+
 
 np.random.seed(rand_seed)
 seed(rand_seed)

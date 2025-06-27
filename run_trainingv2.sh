@@ -19,6 +19,6 @@ size=100
 for num in "${nums[@]}"
 do
     echo "Running script for num: $num"
-    python3 GA_optimizer_v2.py "$num" "$size"
+    python3 GA_optimizer_v2.py --num_processes "$num" --population_size "$size"
 done
 

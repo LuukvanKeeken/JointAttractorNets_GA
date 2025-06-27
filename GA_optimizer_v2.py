@@ -7,11 +7,10 @@ import time
 import sys
 import os
 import argparse
+from custom_mutation_funcs import adaptive_perturbation_mutation, random_perturbation_mutation
 
 start_time = time.time()
-first_generation_passed = False
-second_generation_passed = False
-first_generation_end_time = None
+previous_gen_start_time = start_time
 
 # Import the simulation function from your model file
 from optimization_model import opt_ring_attractor  # your simulation function
@@ -23,6 +22,11 @@ from utils import *
 if not os.path.exists('GA_results'):
     os.makedirs('GA_results')
 
+# Create a unique directory for the current run based on the timestamp
+current_results_dirname = f"GA_results/GA_run_{time.strftime('%Y%m%d_%H%M%S')}"
+if not os.path.exists(current_results_dirname):
+    os.makedirs(current_results_dirname)
+
 
 # Set up argparse
 parser = argparse.ArgumentParser(description='Run GA optimization for ring attractor model.')
@@ -30,6 +34,16 @@ parser = argparse.ArgumentParser(description='Run GA optimization for ring attra
 parser.add_argument('--num_processes', type=int, default=1, help='Number of processes for parallel processing.')
 parser.add_argument('--population_size', type=int, default=100, help='Population size for the genetic algorithm.')
 parser.add_argument('--random_seed', type=int, default=24, help='Random seed for reproducibility.')
+parser.add_argument('--num_generations', type=int, default=500, help='Number of generations for the genetic algorithm.')
+parser.add_argument('--num_parents_mating', type=int, default=50, help='Number of parents mating in each generation.')
+parser.add_argument('--mutation_type', type=str, default='adaptive_perturbation', choices=['random', 'random_perturbation', 'swap', 'inversion', 'scramble', 'adaptive', 'adaptive_perturbation'], help='Type of mutation to use in the genetic algorithm.') # Options: "random", "swap", "inversion", "scramble", "adaptive", or a custom function
+parser.add_argument('--mutation_probability', type=float, default=[0.5, 0.25], nargs='2', help='Probability of mutation for each gene. If using adaptive perturbation, this should be a list of two values: the first for lower-than-average fitness solutions, the second for higher-than-average fitness solutions. If using random perturbation, this should be a single value for all solutions.')
+parser.add_argument('--parent_selection_type', type=str, default='rws', choices=['sss', 'rws', 'sus', 'rank', 'tournament', 'random'], help='Parent selection method for the genetic algorithm.')
+parser.add_argument('--connectivity_profile', type=str, default='mexican_hat', choices=['mexican_hat', 'cosine'], help='Connectivity profile to optimize.')
+parser.add_argument('--crossover_type', type=str, default='single_point', choices=['single_point', 'two_points', 'uniform', 'scattered'], help='Crossover type for the genetic algorithm.')
+parser.add_argument('--keep_elitism', type=int, default=1, help='Number of best solutions to keep in the next generation.')
+parser.add_argument('--rand_mut_min_val', type=float, default=-0.1, help='Minimum value for random mutation.')
+parser.add_argument('--rand_mut_max_val', type=float, default=0.1, help='Maximum value for random mutation.')
 
 
 args = parser.parse_args()
@@ -37,18 +51,51 @@ args = parser.parse_args()
 rand_seed = args.random_seed
 num_processes = args.num_processes
 population_size = args.population_size
+num_generations = args.num_generations
+num_parents_mating = args.num_parents_mating
+mutation_type = args.mutation_type
+mutation_probability = args.mutation_probability
 
+
+
+connectivity_profile = args.connectivity_profile
+parent_selection_type = args.parent_selection_type
+crossover_type = args.crossover_type
+keep_elitism = args.keep_elitism
+rand_mut_min_val = args.rand_mut_min_val
+rand_mut_max_val = args.rand_mut_max_val
+
+
+# Write the parameters to a file
+with open(f"{current_results_dirname}/exp_params.txt", "w") as f:
+    f.write(f"Random seed: {rand_seed}\n")
+    f.write(f"Number of processes: {num_processes}\n")
+    f.write(f"Population size: {population_size}\n")
+    f.write(f"Number of generations: {num_generations}\n")
+    f.write(f"Number of parents mating: {num_parents_mating}\n")
+    f.write(f"Mutation type: {mutation_type}\n")
+    f.write(f"Mutation probability: {mutation_probability}\n")
+    f.write(f"Parent selection type: {parent_selection_type}\n")
+    f.write(f"Connectivity profile: {connectivity_profile}\n")
+    f.write(f"Crossover type: {crossover_type}\n")
+    f.write(f"Keep elitism: {keep_elitism}\n")
+    f.write(f"Random mutation min value: {rand_mut_min_val}\n")
+    f.write(f"Random mutation max value: {rand_mut_max_val}\n")
+
+
+if mutation_type == 'random_perturbation':
+    mutation_type = random_perturbation_mutation
+elif mutation_type == 'adaptive_perturbation':
+    mutation_type = adaptive_perturbation_mutation
+
+if not (mutation_type in ['adaptive', 'adaptive_perturbation']):
+    mutation_probability = mutation_probability[0]  # Use the first value for all solutions
 
 np.random.seed(rand_seed)
 seed(rand_seed)
 
 
 
-
-
-# Set the connectivity profile to optimize
-# Options: 'mexican_hat', 'cosine'
-connectivity_profile = 'mexican_hat'  # Change this to 'cosine' to optimize the cosine profile
 
 stim_center = 1.571
 stim_width = 0.5
@@ -76,16 +123,10 @@ else:
     raise ValueError("Unsupported connectivity profile. Choose 'mexican_hat' or 'cosine'.")
 
 
-# GA hyperparameters
-num_generations = 500
-num_parents_mating = 50
-mutation_type = "adaptive" # Options: "random", "swap", "inversion", "scramble", "adaptive", or a custom function
-mutation_num_genes = [2,1] # Number of genes to mutate in each solution. If using mutation_type="adaptive", this should be a list of 2 numbers: the first for lower-than-average fitness solutions, the second for higher-than-average fitness solutions.
 
-parent_selection_type = "rws" # Options: "sss" (steady state selection), "rws" (roulette wheel selection),
-                              # "sus" (stochastic universal selection), "rank", "tournament", "random", or a custom function
-crossover_type = "single_point" # Options: "single_point", "two_points", "uniform", "scattered", or a custom function
-keep_elitism = 1
+
+
+
 
 
 
@@ -99,19 +140,10 @@ else:
 
 
 def on_generation(ga_instance):
-    global first_generation_passed
-    global first_generation_end_time
-    global second_generation_passed
+    global previous_gen_start_time
+    
 
-    if not first_generation_passed:
-        first_generation_passed = True
-        first_generation_end_time = time.time()
-        print(f"First generation completed in {first_generation_end_time - start_time:.2f} seconds")
-    elif not second_generation_passed:
-        second_generation_passed = True
-        # Write times to a file
-        with open(f'times{population_size}.txt', 'a') as f:
-            f.write(f"Processes: {num_processes}, Time: {time.time() - first_generation_end_time:.2f} seconds\n")
+    
 
     pop_fitnesses = np.array(ga_instance.last_generation_fitness)
     positive_fitnesses = pop_fitnesses[pop_fitnesses >= 0]
@@ -121,12 +153,12 @@ def on_generation(ga_instance):
 
     solution, solution_fitness, solution_idx = ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)
     gens_completed = ga_instance.generations_completed
-    with open(f"exp_results.txt", "a") as f:
+    with open(f"{current_results_dirname}/exp_results.txt", "a") as f:
         f.write(f"Generation {gens_completed} - Best composite error: {1/(solution_fitness)} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)\n")
         f.write(f"Generation mean FITNESS: {np.mean(positive_fitnesses):.4f} +/- {np.std(positive_fitnesses):.4f} | {len(positive_fitnesses)} working, {len(negative_fitnesses)} failed solutions\n")
-        f.write(f"Time elapsed: {time.time() - start_time:.2f} seconds\n")
+        f.write(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")
     print(f"Generation {gens_completed} - Best composite error: {1/(solution_fitness)} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)")
-    print(f"Time elapsed: {time.time() - start_time:.2f} seconds")
+    print(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")
 
 
 def fitness_func(ga_instance, solution, solution_idx):
@@ -195,13 +227,15 @@ ga_instance = pygad.GA(num_generations=num_generations,
                        num_genes=num_genes,
                        num_parents_mating=num_parents_mating,
                        mutation_type=mutation_type,
-                       mutation_num_genes=mutation_num_genes,
+                       mutation_probability=mutation_probability,
                        on_generation=on_generation,
                        parent_selection_type=parent_selection_type,
                        crossover_type=crossover_type,
                        parallel_processing=["process", num_processes],
                        keep_elitism=keep_elitism,
-                       random_seed=rand_seed)
+                       random_seed=rand_seed,
+                       random_mutation_min_val= rand_mut_min_val,
+                       random_mutation_max_val= rand_mut_max_val)
 
 
 # Initialize the population with random values within the specified ranges

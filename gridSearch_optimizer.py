@@ -17,13 +17,13 @@ connectivity_profile = 'mexican_hat'  # Change this to 'cosine' to optimize the 
 # Define the parameter grids based on the connectivity profile
 if connectivity_profile == 'mexican_hat':
     # Mexican hat profile parameters
-    sigma_exc_range = np.linspace(0.05, 0.2, 2)   # excitatory spread
+    sigma_exc_range = np.linspace(0.05, 0.2, 15)   # excitatory spread
     # sigma_exc_range = np.array([0.5])
-    sigma_inh_range = np.linspace(0.1, 0.3, 2)    # inhibitory spread
+    sigma_inh_range = np.linspace(0.1, 0.3, 15)    # inhibitory spread
     # sigma_inh_range = np.array([0.1])
-    g_exc_range   = np.linspace(0.5, 1.0, 5)*mV      # excitatory gain
+    g_exc_range   = np.linspace(0.5, 1.0, 15)*mV      # excitatory gain
     # g_exc_range = np.array([0.5])*mV
-    g_inh_range   = np.linspace(-1.0, -0.3, 5)*mV    # inhibitory gain
+    g_inh_range   = np.linspace(-1.0, -0.3, 15)*mV    # inhibitory gain
     # g_inh_range = np.array([-0.5])*mV
     
     # Prepare list of parameter combinations (each is a 4-tuple).

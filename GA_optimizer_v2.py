@@ -48,7 +48,10 @@ parser.add_argument('--crossover_type', type=str, default='single_point', choice
 parser.add_argument('--keep_elitism', type=int, default=1, help='Number of best solutions to keep in the next generation.')
 parser.add_argument('--rand_mut_min_val', type=float, default=-0.1, help='Minimum value for random mutation.')
 parser.add_argument('--rand_mut_max_val', type=float, default=0.1, help='Maximum value for random mutation.')
-
+parser.add_argument('--w_center', type=float, default=0.3, help='Weight for center error in composite error calculation.')
+parser.add_argument('--w_Zscore', type=float, default=0.2, help='Weight for angular Z-score in composite error calculation.')
+parser.add_argument('--w_nmse', type=float, default=0.5, help='Weight for NMSE in composite error calculation.')
+parser.add_argument('--initial_ranges_mex', type=int, nargs=8, default=[0.05, 0.2, 0.1, 0.3, 0.5, 1.0, -1.0, -0.3], help='Initial ranges for Mexican hat connectivity profile: sigma_exc_min, sigma_exc_max, sigma_inh_min, sigma_inh_max, g_exc_min, g_exc_max, g_inh_min, g_inh_max.')
 
 args = parser.parse_args()
 
@@ -69,6 +72,11 @@ keep_elitism = args.keep_elitism
 rand_mut_min_val = args.rand_mut_min_val
 rand_mut_max_val = args.rand_mut_max_val
 
+w_center = args.w_center
+w_Zscore = args.w_Zscore
+w_nmse = args.w_nmse
+
+initial_ranges_mex = args.initial_ranges_mex
 
 # Write the parameters to a file
 with open(f"{current_results_dirname}/exp_params.txt", "w") as f:
@@ -85,7 +93,9 @@ with open(f"{current_results_dirname}/exp_params.txt", "w") as f:
     f.write(f"Keep elitism: {keep_elitism}\n")
     f.write(f"Random mutation min value: {rand_mut_min_val}\n")
     f.write(f"Random mutation max value: {rand_mut_max_val}\n")
-
+    f.write(f"Weight for center error: {w_center}\n")
+    f.write(f"Weight for angular Z-score: {w_Zscore}\n")
+    f.write(f"Weight for NMSE: {w_nmse}\n")
 
 if not (mutation_type in ['adaptive']):
     mutation_probability = mutation_probability[0]  # Use the first value for all solutions
@@ -114,10 +124,10 @@ fixed_params = {
 # Note: during optimization, the values can go outside these ranges,
 # but it is possible to set limits for that as well.
 if connectivity_profile == 'mexican_hat':
-    sigma_exc_range = [0.05, 0.2]   # excitatory spread
-    sigma_inh_range = [0.1, 0.3]    # inhibitory spread
-    g_exc_range   = [0.5, 1.0]      # excitatory gain
-    g_inh_range   = [-1.0, -0.3]    # inhibitory gain
+    sigma_exc_range = initial_ranges_mex[:2]  # Use the first two values for sigma_exc
+    sigma_inh_range = initial_ranges_mex[2:4]  # Use the next two values for sigma_inh
+    g_exc_range   = initial_ranges_mex[4:6]    # Use the next two values for g_exc
+    g_inh_range   = initial_ranges_mex[6:8]    # Use the last two values for g_inh
     gene_0_stddevs = []
     gene_1_stddevs = []
     gene_2_stddevs = []
@@ -200,6 +210,7 @@ def on_generation(ga_instance):
 
     print(f"Generation mean FITNESS (working solutions): {np.mean(positive_fitnesses):.4f} +/- {np.std(positive_fitnesses):.4f} | {len(positive_fitnesses)} working, {len(negative_fitnesses)} failed solutions")
     print(f"Generation mean ERROR (working solutions): {mean_working_error:.4f} +/- {std_working_error:.4f}")
+    print(f"Generation mean gene standard deviations: {np.mean(gene_std_devs):.4f}")
 
     solution, solution_fitness, solution_idx = ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)
     best_errors.append(1/(solution_fitness) - 1e-8)
@@ -210,9 +221,12 @@ def on_generation(ga_instance):
         f.write(f"Generation {gens_completed} - Best composite error: {1/(solution_fitness) - 1e-8} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)\n")
         f.write(f"Generation mean FITNESS: {np.mean(positive_fitnesses):.4f} +/- {np.std(positive_fitnesses):.4f} | {len(positive_fitnesses)} working, {len(negative_fitnesses)} failed solutions\n")
         f.write(f"Generation mean ERROR (working solutions): {mean_working_error:.4f} +/- {std_working_error:.4f}\n")
+        f.write(f"Generation mean gene standard deviations: {np.mean(gene_std_devs):.4f}\n")
         f.write(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")
     print(f"Generation {gens_completed} - Best composite error: {1/(solution_fitness) - 1e-8} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)")
     print(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")
+
+    previous_gen_start_time = time.time()
 
 
 def fitness_func(ga_instance, solution, solution_idx):
@@ -254,9 +268,6 @@ def fitness_func(ga_instance, solution, solution_idx):
         
         # Combine the errors into one composite score.
         # Adjust weights to prioritize center accuracy if desired
-        w_center = 0.3
-        w_Zscore = 0.2
-        w_nmse = 0.5
         composite_error = w_center * cwce + w_Zscore * angular_Zscore + w_nmse * nmse
 
         # Check if the composite error is NaN or infinite. In that case, set it to a very high value,
@@ -319,9 +330,9 @@ if __name__ == '__main__':
     
     ga_instance.run()
 
-    start_time = time.time()  
+     
     solution, solution_fitness, solution_idx = ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)
-    print(f"Retrieving best solution took {time.time() - start_time:.2f} seconds")
+    
     print(f"""Best solution found:
     composite error: {1/solution_fitness}
     sigma_exc: {solution[0]}

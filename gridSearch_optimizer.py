@@ -179,38 +179,11 @@ if __name__ == '__main__':
     
     # num_proc = mp.cpu_count()   # Adjust the number of worker processes based on your system
     print(f"CPU count: {mp.cpu_count()}")
-    num_proc = 4
+    num_proc = 16
     print(f"Using {num_proc} parallel processes for grid search.")
     results = []
 
 
-    start_time = time.time()
-    # check if directory 'filesystemtest' exists, if not create it
-    if not os.path.exists('filesystemtest'):
-        os.makedirs('filesystemtest')
-    
-    for i in range(100):
-        with open(f'filesystemtest/testfile_{i}.txt', 'w') as f:
-            f.write(f"hello\n"*1000)
-        os.remove(f'filesystemtest/testfile_{i}.txt')
-    print("Elapsed time for filesystem test:", time.time() - start_time, "seconds")
-
-
-
-
-    # from brian2 import prefs
-    # from brian2.devices.device import get_device
-
-    # prefs.codegen.target = 'cython'
-    # print("Brian2 codegen target:", prefs.codegen.target)
-    # device = get_device()
-    # if hasattr(device, 'codegen'):
-    #     print("Brian2 device codegen target:", device.codegen.target)
-    # else:
-    #     print("Brian2 device does not have a 'codegen' attribute (likely using RuntimeDevice).")
-    
-    for i in range(10):
-        print()
 
     # Use Pool.imap_unordered with tqdm for progress tracking.
     with mp.Pool(processes=num_proc) as pool:

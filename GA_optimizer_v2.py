@@ -96,6 +96,7 @@ with open(f"{current_results_dirname}/exp_params.txt", "w") as f:
     f.write(f"Weight for center error: {w_center}\n")
     f.write(f"Weight for angular Z-score: {w_Zscore}\n")
     f.write(f"Weight for NMSE: {w_nmse}\n")
+    f.write(f"Initial ranges for Mexican hat connectivity profile: {initial_ranges_mex}\n")
 
 if not (mutation_type in ['adaptive']):
     mutation_probability = mutation_probability[0]  # Use the first value for all solutions

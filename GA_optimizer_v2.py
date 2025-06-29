@@ -7,9 +7,13 @@ import time
 import sys
 import os
 import argparse
+import matplotlib.pyplot as plt
 
 start_time = time.time()
 previous_gen_start_time = start_time
+best_errors = []
+mean_errors_working_specimens = []
+std_errors_working_specimens = []
 
 # Import the simulation function from your model file
 from optimization_model import opt_ring_attractor  # your simulation function
@@ -139,23 +143,40 @@ else:
 
 def on_generation(ga_instance):
     global previous_gen_start_time
+    global best_errors
+    global mean_errors_working_specimens
+    global std_errors_working_specimens
+    global current_results_dirname
     
 
-    
-
+    # Retrieve the fitnesses of working and failed specimens
     pop_fitnesses = np.array(ga_instance.last_generation_fitness)
     positive_fitnesses = pop_fitnesses[pop_fitnesses >= 0]
     negative_fitnesses = pop_fitnesses[pop_fitnesses < 0]
 
+    # Calculate the errors for working specimens
+    working_errors = (1.0 / positive_fitnesses) - 1e-8
+    mean_working_error = np.mean(working_errors)
+    std_working_error = np.std(working_errors)
+    mean_errors_working_specimens.append(mean_working_error)
+    std_errors_working_specimens.append(std_working_error)
+
+    np.savetxt(f"{current_results_dirname}/mean_errors_working_specimens.txt", np.array(mean_errors_working_specimens))
+    np.savetxt(f"{current_results_dirname}/std_errors_working_specimens.txt", np.array(std_errors_working_specimens))
+
     print(f"Generation mean FITNESS (working solutions): {np.mean(positive_fitnesses):.4f} +/- {np.std(positive_fitnesses):.4f} | {len(positive_fitnesses)} working, {len(negative_fitnesses)} failed solutions")
+    print(f"Generation mean ERROR (working solutions): {mean_working_error:.4f} +/- {std_working_error:.4f}")
 
     solution, solution_fitness, solution_idx = ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)
+    best_errors.append(1/(solution_fitness) - 1e-8)
+    np.savetxt(f"{current_results_dirname}/best_errors.txt", np.array(best_errors))
+    
     gens_completed = ga_instance.generations_completed
     with open(f"{current_results_dirname}/exp_results.txt", "a") as f:
-        f.write(f"Generation {gens_completed} - Best composite error: {1/(solution_fitness)} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)\n")
+        f.write(f"Generation {gens_completed} - Best composite error: {1/(solution_fitness) - 1e-8} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)\n")
         f.write(f"Generation mean FITNESS: {np.mean(positive_fitnesses):.4f} +/- {np.std(positive_fitnesses):.4f} | {len(positive_fitnesses)} working, {len(negative_fitnesses)} failed solutions\n")
         f.write(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")
-    print(f"Generation {gens_completed} - Best composite error: {1/(solution_fitness)} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)")
+    print(f"Generation {gens_completed} - Best composite error: {1/(solution_fitness) - 1e-8} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)")
     print(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")
 
 
@@ -275,6 +296,22 @@ if __name__ == '__main__':
 """)
 
     print(f"Total time taken for optimization: {time.time() - start_time:.2f} seconds")
-    exit()
+
+    np.savetxt(f"{current_results_dirname}/mean_errors_working_specimens.txt", np.array(mean_errors_working_specimens))
+    np.savetxt(f"{current_results_dirname}/std_errors_working_specimens.txt", np.array(std_errors_working_specimens))
+    np.savetxt(f"{current_results_dirname}/best_errors.txt", np.array(best_errors))
 
 
+    plt.figure()
+    plt.plot(best_errors, label='Best Errors')
+    plt.plot(mean_errors_working_specimens, label='Mean Errors (Working Specimens)')
+    plt.fill_between(range(len(mean_errors_working_specimens)), 
+                     np.array(mean_errors_working_specimens) - np.array(std_errors_working_specimens), 
+                     np.array(mean_errors_working_specimens) + np.array(std_errors_working_specimens), 
+                     alpha=0.2)
+    plt.xlabel('Generation')
+    plt.ylabel('Error')
+    plt.title('Best Errors Over Generations')
+    plt.legend()
+    plt.savefig(f"{current_results_dirname}/best_errors.png")
+    

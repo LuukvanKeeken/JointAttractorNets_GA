@@ -14,6 +14,7 @@ previous_gen_start_time = start_time
 best_errors = []
 mean_errors_working_specimens = []
 std_errors_working_specimens = []
+mean_gene_stddevs = []
 
 # Import the simulation function from your model file
 from optimization_model import opt_ring_attractor  # your simulation function
@@ -117,6 +118,10 @@ if connectivity_profile == 'mexican_hat':
     sigma_inh_range = [0.1, 0.3]    # inhibitory spread
     g_exc_range   = [0.5, 1.0]      # excitatory gain
     g_inh_range   = [-1.0, -0.3]    # inhibitory gain
+    gene_0_stddevs = []
+    gene_1_stddevs = []
+    gene_2_stddevs = []
+    gene_3_stddevs = []
 elif connectivity_profile == 'cosine':
     g_cosine_range = [0.01, 0.1]    # cosine gain
     glob_inh_range = [True, False]  # global inhibition flag
@@ -147,7 +152,36 @@ def on_generation(ga_instance):
     global mean_errors_working_specimens
     global std_errors_working_specimens
     global current_results_dirname
+    global gene_0_stddevs, gene_1_stddevs, gene_2_stddevs, gene_3_stddevs
+    global mean_gene_stddevs
     
+
+    # Calculate the population standard deviation for each gene
+    all_genomes = ga_instance.population
+    gene_std_devs = np.std(all_genomes, axis=0)
+    mean_gene_stddevs.append(np.mean(gene_std_devs))
+    if connectivity_profile == 'mexican_hat':
+        gene_0_stddevs.append(gene_std_devs[0])
+        gene_1_stddevs.append(gene_std_devs[1])
+        gene_2_stddevs.append(gene_std_devs[2])
+        gene_3_stddevs.append(gene_std_devs[3])
+        np.savetxt(f"{current_results_dirname}/gene_0_stddevs.txt", np.array(gene_0_stddevs))
+        np.savetxt(f"{current_results_dirname}/gene_1_stddevs.txt", np.array(gene_1_stddevs))
+        np.savetxt(f"{current_results_dirname}/gene_2_stddevs.txt", np.array(gene_2_stddevs))
+        np.savetxt(f"{current_results_dirname}/gene_3_stddevs.txt", np.array(gene_3_stddevs))
+    elif connectivity_profile == 'cosine':
+        gene_0_stddevs.append(gene_std_devs[0])
+        gene_1_stddevs.append(gene_std_devs[1])
+        gene_2_stddevs.append(gene_std_devs[2])
+        np.savetxt(f"{current_results_dirname}/gene_0_stddevs.txt", np.array(gene_0_stddevs))
+        np.savetxt(f"{current_results_dirname}/gene_1_stddevs.txt", np.array(gene_1_stddevs))
+        np.savetxt(f"{current_results_dirname}/gene_2_stddevs.txt", np.array(gene_2_stddevs))
+    else:
+        raise ValueError("Unsupported connectivity profile. Choose 'mexican_hat' or 'cosine'.")
+    
+    np.savetxt(f"{current_results_dirname}/mean_gene_stddevs.txt", np.array(mean_gene_stddevs))
+
+
 
     # Retrieve the fitnesses of working and failed specimens
     pop_fitnesses = np.array(ga_instance.last_generation_fitness)
@@ -295,24 +329,80 @@ if __name__ == '__main__':
     g_exc: {solution[2]} mV
     g_inh: {solution[3]} mV
 """)
+    
+    ga_instance.save(f"{current_results_dirname}/ga_instance_final")
 
     print(f"Total time taken for optimization: {time.time() - start_time:.2f} seconds")
 
     np.savetxt(f"{current_results_dirname}/mean_errors_working_specimens.txt", np.array(mean_errors_working_specimens))
     np.savetxt(f"{current_results_dirname}/std_errors_working_specimens.txt", np.array(std_errors_working_specimens))
     np.savetxt(f"{current_results_dirname}/best_errors.txt", np.array(best_errors))
+    np.savetxt(f"{current_results_dirname}/mean_gene_stddevs.txt", np.array(mean_gene_stddevs))
+    np.savetxt(f"{current_results_dirname}/gene_0_stddevs.txt", np.array(gene_0_stddevs))
+    np.savetxt(f"{current_results_dirname}/gene_1_stddevs.txt", np.array(gene_1_stddevs))
+    np.savetxt(f"{current_results_dirname}/gene_2_stddevs.txt", np.array(gene_2_stddevs))
+    if connectivity_profile == 'mexican_hat':
+        np.savetxt(f"{current_results_dirname}/gene_3_stddevs.txt", np.array(gene_3_stddevs))
 
 
     plt.figure()
     plt.plot(best_errors, label='Best Errors')
+    plt.xlabel('Generation')
+    plt.ylabel('Error')
+    plt.title('Best Errors Over Generations')
+    plt.legend()
+    plt.savefig(f"{current_results_dirname}/best_errors.png")
+
+
+    plt.figure()
     plt.plot(mean_errors_working_specimens, label='Mean Errors (Working Specimens)')
     plt.fill_between(range(len(mean_errors_working_specimens)), 
                      np.array(mean_errors_working_specimens) - np.array(std_errors_working_specimens), 
                      np.array(mean_errors_working_specimens) + np.array(std_errors_working_specimens), 
                      alpha=0.2)
     plt.xlabel('Generation')
-    plt.ylabel('Error')
-    plt.title('Best Errors Over Generations')
+    plt.ylabel('Mean Error')
+    plt.title('Mean Errors Over Generations')
     plt.legend()
-    plt.savefig(f"{current_results_dirname}/best_errors.png")
-    
+    plt.savefig(f"{current_results_dirname}/mean_errors.png")
+
+    plt.figure()
+    plt.plot(mean_gene_stddevs, label='Mean Gene Standard Deviations')
+    plt.xlabel('Generation')
+    plt.ylabel('Mean Gene Std Dev')
+    plt.title('Mean Gene Standard Deviations Over Generations')
+    plt.legend()
+    plt.savefig(f"{current_results_dirname}/mean_gene_stddevs.png")
+
+    plt.figure()
+    plt.plot(gene_0_stddevs, label='Gene 0 Std Dev')
+    plt.xlabel('Generation')
+    plt.ylabel('Gene 0 Std Dev')
+    plt.title('Gene 0 Standard Deviations Over Generations')
+    plt.legend()
+    plt.savefig(f"{current_results_dirname}/gene_0_stddevs.png")
+
+    plt.figure()
+    plt.plot(gene_1_stddevs, label='Gene 1 Std Dev')
+    plt.xlabel('Generation')
+    plt.ylabel('Gene 1 Std Dev')
+    plt.title('Gene 1 Standard Deviations Over Generations')
+    plt.legend()
+    plt.savefig(f"{current_results_dirname}/gene_1_stddevs.png")
+
+    plt.figure()
+    plt.plot(gene_2_stddevs, label='Gene 2 Std Dev')
+    plt.xlabel('Generation')
+    plt.ylabel('Gene 2 Std Dev')
+    plt.title('Gene 2 Standard Deviations Over Generations')
+    plt.legend()
+    plt.savefig(f"{current_results_dirname}/gene_2_stddevs.png")
+
+    if connectivity_profile == 'mexican_hat':
+        plt.figure()
+        plt.plot(gene_3_stddevs, label='Gene 3 Std Dev')
+        plt.xlabel('Generation')
+        plt.ylabel('Gene 3 Std Dev')
+        plt.title('Gene 3 Standard Deviations Over Generations')
+        plt.legend()
+        plt.savefig(f"{current_results_dirname}/gene_3_stddevs.png")

@@ -16,7 +16,7 @@ python -m pip install -U matplotlib
 
 num_processes=(16 16 16 16 16)
 pop_size=(16 16 16 16 16)
-num_parents_mating=(100 100 100 100 100)
+num_parents_mating=(8 8 8 8 8)
 mut_prob1=(0.1 0.15 0.2 0.5 0.5)
 mut_prob2=(0.05 0.1 0.1 0.3 0.2)
 num_gens=(2 2 2 2 2)

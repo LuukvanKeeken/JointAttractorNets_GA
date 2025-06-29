@@ -51,7 +51,7 @@ parser.add_argument('--rand_mut_max_val', type=float, default=0.1, help='Maximum
 parser.add_argument('--w_center', type=float, default=0.3, help='Weight for center error in composite error calculation.')
 parser.add_argument('--w_Zscore', type=float, default=0.2, help='Weight for angular Z-score in composite error calculation.')
 parser.add_argument('--w_nmse', type=float, default=0.5, help='Weight for NMSE in composite error calculation.')
-parser.add_argument('--initial_ranges_mex', type=int, nargs=8, default=[0.05, 0.2, 0.1, 0.3, 0.5, 1.0, -1.0, -0.3], help='Initial ranges for Mexican hat connectivity profile: sigma_exc_min, sigma_exc_max, sigma_inh_min, sigma_inh_max, g_exc_min, g_exc_max, g_inh_min, g_inh_max.')
+parser.add_argument('--initial_ranges_mex', type=float, nargs=8, default=[0.05, 0.2, 0.1, 0.3, 0.5, 1.0, -1.0, -0.3], help='Initial ranges for Mexican hat connectivity profile: sigma_exc_min, sigma_exc_max, sigma_inh_min, sigma_inh_max, g_exc_min, g_exc_max, g_inh_min, g_inh_max.')
 
 args = parser.parse_args()
 

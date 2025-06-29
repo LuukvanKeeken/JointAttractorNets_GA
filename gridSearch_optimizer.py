@@ -10,6 +10,10 @@ from optimization_model import opt_ring_attractor  # your simulation function
 # Also import any utility functions if needed (e.g., for computing firing rates, etc.)
 from utils import *
 
+rand_seed = 24
+np.random.seed(rand_seed)
+seed(rand_seed)
+
 # Set the connectivity profile to optimize
 # Options: 'mexican_hat', 'cosine'
 connectivity_profile = 'mexican_hat'  # Change this to 'cosine' to optimize the cosine profile
@@ -66,6 +70,8 @@ def worker_run(params_tuple):
     Worker function for a single simulation run on one set of parameters.
     Returns a dictionary with the parameters and performance metrics.
     """
+    np.random.seed(rand_seed)
+    seed(rand_seed)
     # Build the full parameter dictionary based on connectivity profile
     params = fixed_params.copy()
 

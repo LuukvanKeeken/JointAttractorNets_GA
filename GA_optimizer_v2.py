@@ -175,6 +175,7 @@ def on_generation(ga_instance):
     with open(f"{current_results_dirname}/exp_results.txt", "a") as f:
         f.write(f"Generation {gens_completed} - Best composite error: {1/(solution_fitness) - 1e-8} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)\n")
         f.write(f"Generation mean FITNESS: {np.mean(positive_fitnesses):.4f} +/- {np.std(positive_fitnesses):.4f} | {len(positive_fitnesses)} working, {len(negative_fitnesses)} failed solutions\n")
+        f.write(f"Generation mean ERROR (working solutions): {mean_working_error:.4f} +/- {std_working_error:.4f}\n")
         f.write(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")
     print(f"Generation {gens_completed} - Best composite error: {1/(solution_fitness) - 1e-8} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)")
     print(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")

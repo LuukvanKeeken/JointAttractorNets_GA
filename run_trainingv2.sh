@@ -15,8 +15,8 @@ python -m pip install -U matplotlib
 
 
 nums=(16)
-pop_size=200
-num_parents_mating=100
+pop_size=16
+num_parents_mating=8
 mut_prob1=0.25
 mut_prob2=0.1
 num_gens=10

@@ -14,12 +14,16 @@ pip install lmfit
 python -m pip install -U matplotlib
 
 
-num_processes=(16 16)
-pop_size=(200 200)
-num_parents_mating=(100 100)
-mut_prob1=(0.5 0.5)
-mut_prob2=(0.3 0.2)
-num_gens=(500 500)
+num_processes=(16 16 16 16 16 16 16)
+pop_size=(200 200 200 200 200 200 200)
+num_parents_mating=(100 100 100 100 100 100 100)
+mut_prob1=(0.5 0.5 0.5 0.5 0.5 0.5 0.5)
+mut_prob2=(0.3 0.3 0.3 0.3 0.3 0.3 0.3)
+num_gens=(500 500 500 500 500 500 500)
+w_center=(0.5 0.25 0.25 0.15 0.15 0.7 0.3333)
+w_Zscore=(0.25 0.5 0.25 0.15 0.7 0.15 0.3333)
+w_nmse=(0.25 0.25 0.5 0.7 0.15 0.15 0.3333)
+
 initial_ranges_mex=(0.05 0.3 0.05 0.3 0.5 1.0 -1.2 -0.3)  # Mexican hat profile ranges
 
 for i in "${!num_processes[@]}"; do
@@ -29,8 +33,11 @@ for i in "${!num_processes[@]}"; do
     mut_prob1="${mut_prob1[$i]}"
     mut_prob2="${mut_prob2[$i]}"
     num_gen="${num_gens[$i]}"
+    w_c="${w_center[$i]}"
+    w_z="${w_Zscore[$i]}"
+    w_nmse="${w_nmse[$i]}"
 
     echo "Running script for settings: $num_proc processes, $pop_size population, $num_parents_mating parents mating, $mut_prob1 mutation prob1, $mut_prob2 mutation prob2, $num_gen generations"
-    python3 GA_optimizer_v2.py --num_processes "$num_proc" --population_size "$pop_size" --num_parents_mating "$num_parents_mating" --mutation_probability "$mut_prob1" "$mut_prob2" --num_generations "$num_gen" --initial_ranges_mex "${initial_ranges_mex[@]}"
+    python3 GA_optimizer_v2.py --num_processes "$num_proc" --population_size "$pop_size" --num_parents_mating "$num_parents_mating" --mutation_probability "$mut_prob1" "$mut_prob2" --num_generations "$num_gen" --initial_ranges_mex "${initial_ranges_mex[@]}" --w_center "$w_c" --w_Zscore "$w_z" --w_nmse "$w_nmse"
 done
 

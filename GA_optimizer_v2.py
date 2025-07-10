@@ -307,7 +307,7 @@ ga_instance = pygad.GA(num_generations=num_generations,
 
 # Initialize the population with random values within the specified ranges
 if connectivity_profile == 'mexican_hat':
-
+    print([sigma_exc_range[0], sigma_inh_range[0], g_exc_range[0], g_inh_range[0]])
     ga_instance.initialize_population(low = [sigma_exc_range[0], sigma_inh_range[0], g_exc_range[0], g_inh_range[0]],
                                       high = [sigma_exc_range[1], sigma_inh_range[1], g_exc_range[1], g_inh_range[1]],
                                       allow_duplicate_genes=True,

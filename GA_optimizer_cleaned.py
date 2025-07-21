@@ -267,41 +267,43 @@ def fitness_func(ga_instance, solution, solution_idx):
     else:
         raise ValueError("Unsupported connectivity profile. Choose 'mexican_hat' or 'cosine'.")
     
+    print("test 9")
     try:
         # Run the simulation.
         # opt_ring_attractor returns: (GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude)
         GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude = opt_ring_attractor(params, stim_center=stim_center, stim_width=stim_width)
-        
+        print("test 10")
         # Compute the circular standard deviation (spread) from the PVA magnitude.
         circular_std = np.sqrt(-2 * np.log(out_pva_magnitude + 1e-8))
-        
+        print("test 11")
         # Compute the center error and the confidence weighted center error (CWCE).
         center_err, cwce = conf_weighted_CE(out_pva_angle, GT_center, out_pva_magnitude)
-        
+        print("test 12")
         # Compute the angular Z-score:
         # This expresses the misalignment (center_err) in units of the circular standard deviation,
         # analogous to a z-score in linear statistics.
         angular_Zscore = center_err / circular_std
-        
+        print("test 13")
         # Compute the NMSE between the observed firing rates and the ideal Gaussian profile.
         nmse = compute_nmse_normalized(out_rates, GT_input, norm_type='max')
-        
+        print("test 14")
         # Combine the errors into one composite score.
         # Adjust weights to prioritize center accuracy if desired
         composite_error = w_center * cwce + w_Zscore * angular_Zscore + w_nmse * nmse
-
+        print("test 15")
         # Check if the composite error is NaN or infinite. In that case, set it to a very high value,
         # so that the fitness value will be very low.
         if np.isnan(composite_error) or np.isinf(composite_error):
             print(f"Composite error is NaN or infinite for solution {solution_idx}. Setting composite error to -1.")
             composite_error = -1
-
+        print("test 16")
     # For now, if there is any exception raised, just give very low fitness value to this solution.
     except Exception as e:
         composite_error = -1
         print(f"Exception occurred for solution {solution_idx}: {e}. Setting composite error to -1.")
+        print("test 17")
 
-
+    print("test 18")
     fitness_value = 1.0 / (composite_error + 1e-8)  # Avoid division by zero
 
     return fitness_value
@@ -350,7 +352,6 @@ if __name__ == '__main__':
     
     ga_instance.run()
 
-    print("test 9")
      
     solution, solution_fitness, solution_idx = ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)
     

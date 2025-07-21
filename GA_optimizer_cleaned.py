@@ -249,6 +249,7 @@ print("test 5")
 # Specimens for which the simulation fails are given a composite error of -1,
 # so that they can easily be identified and excluded from the statistics.
 def fitness_func(ga_instance, solution, solution_idx):
+    print("test 8.5")
     np.random.seed(rand_seed)
     seed(rand_seed)
 

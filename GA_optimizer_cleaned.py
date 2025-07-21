@@ -26,17 +26,20 @@ from optimization_model import opt_ring_attractor  # your simulation function
 # Also import any utility functions if needed (e.g., for computing firing rates, etc.)
 from utils import *
 
+print("test 1")
 
 # Check if directory 'GA_results' exists, if not create it
 if not os.path.exists('GA_results'):
     os.makedirs('GA_results')
+
+print("test 2")
 
 # Create a unique directory for the current run based on the timestamp
 current_results_dirname = f"GA_results/GA_run_{time.strftime('%Y%m%d_%H%M%S')}"
 if not os.path.exists(current_results_dirname):
     os.makedirs(current_results_dirname)
 
-
+print("test 3")
 # Set up argparse. Read in settings from command line, or use defaults.
 parser = argparse.ArgumentParser(description='Run GA optimization for ring attractor model.')
 
@@ -111,7 +114,7 @@ with open(f"{current_results_dirname}/exp_params.txt", "w") as f:
     f.write(f"Weight for NMSE: {w_nmse}\n")
     f.write(f"Initial ranges for Mexican hat connectivity profile: {initial_ranges_mex}\n")
 
-
+print("test 4")
 # If adaptive mutation is used, there is a probability for lower-than-average fitness solutions 
 # and a probability for higher-than-average fitness solutions.
 if not (mutation_type in ['adaptive']):
@@ -239,7 +242,7 @@ def on_generation(ga_instance):
 
     previous_gen_start_time = time.time()
 
-
+print("test 5")
 # Function that takes the parameter values given by a specimen, runs a simulation
 # with those values, calculates the composite error, and returns the fitness value.
 # Basically the same as in the grid search code.
@@ -302,7 +305,7 @@ def fitness_func(ga_instance, solution, solution_idx):
 
     return fitness_value
 
-
+print("test 6")
 # Create the GA instance with the specified parameters
 ga_instance = pygad.GA(num_generations=num_generations,
                        sol_per_pop=population_size,
@@ -320,7 +323,7 @@ ga_instance = pygad.GA(num_generations=num_generations,
                        random_mutation_min_val= rand_mut_min_val,
                        random_mutation_max_val= rand_mut_max_val)
 
-
+print("test 7")
 
 # Initialize the population with random values within the specified ranges
 if connectivity_profile == 'mexican_hat':
@@ -336,7 +339,7 @@ else:
 
 
 
-
+print("test 8")
 
 if __name__ == '__main__':
 
@@ -346,6 +349,7 @@ if __name__ == '__main__':
     
     ga_instance.run()
 
+    print("test 9")
      
     solution, solution_fitness, solution_idx = ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)
     

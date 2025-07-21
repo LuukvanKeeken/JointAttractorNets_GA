@@ -20,9 +20,6 @@ num_parents_mating=(100)
 mut_prob1=(0.5)
 mut_prob2=(0.3)
 num_gens=(500)
-w_center=(0.3333)
-w_Zscore=(0.3333)
-w_nmse=(0.3333)
 
 initial_ranges_mex=(0.05 0.3 0.05 0.3 0.5 1.0 -1.2 -0.3)  # Mexican hat profile ranges
 

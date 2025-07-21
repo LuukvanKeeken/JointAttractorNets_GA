@@ -289,11 +289,13 @@ def fitness_func(ga_instance, solution, solution_idx):
         # Check if the composite error is NaN or infinite. In that case, set it to a very high value,
         # so that the fitness value will be very low.
         if np.isnan(composite_error) or np.isinf(composite_error):
+            print(f"Composite error is NaN or infinite for solution {solution_idx}. Setting composite error to -1.")
             composite_error = -1
 
     # For now, if there is any exception raised, just give very low fitness value to this solution.
     except Exception as e:
         composite_error = -1
+        print(f"Exception occurred for solution {solution_idx}: {e}. Setting composite error to -1.")
 
 
     fitness_value = 1.0 / (composite_error + 1e-8)  # Avoid division by zero

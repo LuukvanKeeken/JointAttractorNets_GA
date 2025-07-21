@@ -272,7 +272,7 @@ def on_generation(ga_instance):
     
     gens_completed = ga_instance.generations_completed
     with open(f"{current_results_dirname}/exp_results.txt", "a") as f:
-        f.write(f"Generation {gens_completed} - Best composite error: {1/(solution_fitness) - 1e-8} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)\n")
+        f.write(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)\n")
         f.write(f"Generation mean FITNESS: {np.mean(positive_fitnesses):.4f} +/- {np.std(positive_fitnesses):.4f} | {len(positive_fitnesses)} working, {len(negative_fitnesses)} failed solutions\n")
         f.write(f"Generation mean ERROR (working solutions): {mean_errors:.4f} +/- {std_errors:.4f}\n")
         f.write(f"      mean cwce: {mean_first_errors:.4f} +/- {std_first_errors:.4f}\n")
@@ -280,7 +280,7 @@ def on_generation(ga_instance):
         f.write(f"      mean NMSE: {mean_third_errors:.4f} +/- {std_third_errors:.4f}\n")
         f.write(f"Generation mean gene standard deviations: {np.mean(gene_std_devs):.4f}\n")
         f.write(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")
-    print(f"Generation {gens_completed} - Best composite error: {1/(solution_fitness) - 1e-8} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)")
+    print(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)")
     print(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")
 
     previous_gen_start_time = time.time()
@@ -399,7 +399,7 @@ if __name__ == '__main__':
     solution, solution_fitness, solution_idx = ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)
     
     print(f"""Best solution found:
-    composite error: {1/solution_fitness}
+    errors: {1/solution_fitness}
     sigma_exc: {solution[0]}
     sigma_inh: {solution[1]}
     g_exc: {solution[2]} mV

@@ -38,6 +38,6 @@ for i in "${!num_processes[@]}"; do
     w_nmse="${w_nmse[$i]}"
 
     echo "Running script for settings: $num_proc processes, $pop_size population, $num_parents_mating parents mating, $mut_prob1 mutation prob1, $mut_prob2 mutation prob2, $num_gen generations"
-    python3 GA_optimizer_v2.py --num_processes "$num_proc" --population_size "$pop_size" --num_parents_mating "$num_parents_mating" --mutation_probability "$mut_prob1" "$mut_prob2" --num_generations "$num_gen" --initial_ranges_mex "${initial_ranges_mex[@]}" --w_center "$w_c" --w_Zscore "$w_z" --w_nmse "$w_nmse"
+    python3 GA_optimizer_cleaned.py --num_processes "$num_proc" --population_size "$pop_size" --num_parents_mating "$num_parents_mating" --mutation_probability "$mut_prob1" "$mut_prob2" --num_generations "$num_gen" --initial_ranges_mex "${initial_ranges_mex[@]}" --w_center "$w_c" --w_Zscore "$w_z" --w_nmse "$w_nmse"
 done
 

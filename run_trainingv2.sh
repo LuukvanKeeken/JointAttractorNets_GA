@@ -14,15 +14,15 @@ pip install lmfit
 python -m pip install -U matplotlib
 
 
-num_processes=(16 16 16 16 16 16 16)
-pop_size=(200 200 200 200 200 200 200)
-num_parents_mating=(100 100 100 100 100 100 100)
-mut_prob1=(0.5 0.5 0.5 0.5 0.5 0.5 0.5)
-mut_prob2=(0.3 0.3 0.3 0.3 0.3 0.3 0.3)
-num_gens=(500 500 500 500 500 500 500)
-w_center=(0.5 0.25 0.25 0.15 0.15 0.7 0.3333)
-w_Zscore=(0.25 0.5 0.25 0.15 0.7 0.15 0.3333)
-w_nmse=(0.25 0.25 0.5 0.7 0.15 0.15 0.3333)
+num_processes=(16)
+pop_size=(200)
+num_parents_mating=(100)
+mut_prob1=(0.5)
+mut_prob2=(0.3)
+num_gens=(500)
+w_center=(0.3333)
+w_Zscore=(0.3333)
+w_nmse=(0.3333)
 
 initial_ranges_mex=(0.05 0.3 0.05 0.3 0.5 1.0 -1.2 -0.3)  # Mexican hat profile ranges
 

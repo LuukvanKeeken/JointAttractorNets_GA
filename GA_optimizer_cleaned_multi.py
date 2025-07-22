@@ -421,13 +421,32 @@ if __name__ == '__main__':
         np.savetxt(f"{current_results_dirname}/gene_3_stddevs.txt", np.array(gene_3_stddevs))
 
 
+    best_errors = np.array(best_errors)
+
     plt.figure()
-    plt.plot(best_errors, label='Best Errors')
+    plt.plot(best_errors[:, 0])
     plt.xlabel('Generation')
-    plt.ylabel('Error')
-    plt.title('Best Errors Over Generations')
+    plt.ylabel('CWCE Error')
+    plt.title('Best CWCE Error Over Generations')
     plt.legend()
-    plt.savefig(f"{current_results_dirname}/best_errors.png")
+    plt.savefig(f"{current_results_dirname}/best_cwce_errors.png")
+
+    plt.figure()
+    plt.plot(best_errors[:, 1], label='Best Angular Z-score')
+    plt.xlabel('Generation')
+    plt.ylabel('Angular Z-score Error')
+    plt.title('Best Angular Z-score Error Over Generations')
+    plt.legend()
+    plt.savefig(f"{current_results_dirname}/best_angular_zscore_errors.png")
+
+    plt.figure()
+    plt.plot(best_errors[:, 2], label='Best NMSE')
+    plt.xlabel('Generation')
+    plt.ylabel('NMSE Error')
+    plt.title('Best NMSE Error Over Generations')
+    plt.legend()
+    plt.savefig(f"{current_results_dirname}/best_nmse_errors.png")
+
 
 
     plt.figure()

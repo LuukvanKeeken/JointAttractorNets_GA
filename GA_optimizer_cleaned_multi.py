@@ -60,6 +60,7 @@ parser.add_argument('--keep_elitism', type=int, default=1, help='Number of best 
 parser.add_argument('--rand_mut_min_val', type=float, default=-0.1, help='Minimum value for random mutation.')
 parser.add_argument('--rand_mut_max_val', type=float, default=0.1, help='Maximum value for random mutation.')
 parser.add_argument('--initial_ranges_mex', type=float, nargs=8, default=[0.05, 0.2, 0.1, 0.3, 0.5, 1.0, -1.0, -0.3], help='Initial ranges for Mexican hat connectivity profile: sigma_exc_min, sigma_exc_max, sigma_inh_min, sigma_inh_max, g_exc_min, g_exc_max, g_inh_min, g_inh_max.')
+parser.add_argument('--gene_spaces', type=float, nargs=8, default=[0.0001, 100, 0.0001, 100, 0.0001, 100, -100, 0.0], help='Gene spaces/limits for the optimization: sigma_exc_min, sigma_exc_max, sigma_inh_min, sigma_inh_max, g_exc_min, g_exc_max, g_inh_min, g_inh_max.')
 parser.add_argument('--stim_center', type=float, default=1.571, help='Center of the stimulus for the ring attractor model.')
 parser.add_argument('--stim_width', type=float, default=0.5, help='Width of the stimulus for the ring attractor model.')
 parser.add_argument('--tau', type=float, default=10.0, help='Time constant for the ring attractor model in ms.')
@@ -83,6 +84,7 @@ rand_mut_min_val = args.rand_mut_min_val
 rand_mut_max_val = args.rand_mut_max_val
 
 initial_ranges_mex = args.initial_ranges_mex
+gene_spaces = args.gene_spaces
 
 stim_center = args.stim_center
 stim_width = args.stim_width
@@ -139,6 +141,11 @@ if connectivity_profile == 'mexican_hat':
     gene_1_stddevs = []
     gene_2_stddevs = []
     gene_3_stddevs = []
+
+    sigma_exc_space = {'low': gene_spaces[0], 'high': gene_spaces[1]}
+    sigma_inh_space = {'low': gene_spaces[2], 'high': gene_spaces[3]}
+    g_exc_space     = {'low': gene_spaces[4], 'high': gene_spaces[5]}
+    g_inh_space     = {'low': gene_spaces[6], 'high': gene_spaces[7]}
 elif connectivity_profile == 'cosine':
     g_cosine_range = [0.01, 0.1]    # cosine gain
     glob_inh_range = [True, False]  # global inhibition flag
@@ -367,9 +374,9 @@ ga_instance = pygad.GA(num_generations=num_generations,
                        keep_elitism=keep_elitism,
                        random_seed=rand_seed,
                        random_mutation_min_val= rand_mut_min_val,
-                       random_mutation_max_val= rand_mut_max_val)
-
-
+                       random_mutation_max_val= rand_mut_max_val,
+                       gene_space=[sigma_exc_space, sigma_inh_space, g_exc_space, g_inh_space]
+)
 
 # Initialize the population with random values within the specified ranges
 if connectivity_profile == 'mexican_hat':

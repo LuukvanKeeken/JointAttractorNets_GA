@@ -1,0 +1,14 @@
+Random seed: 24
+Number of processes: 1
+Population size: 100
+Number of generations: 500
+Number of parents mating: 50
+Mutation type: adaptive
+Mutation probability: [0.5, 0.25]
+Parent selection type: tournament_nsga2
+Connectivity profile: mexican_hat
+Crossover type: single_point
+Keep elitism: 1
+Random mutation min value: -0.1
+Random mutation max value: 0.1
+Initial ranges for Mexican hat connectivity profile: [0.05, 0.2, 0.1, 0.3, 0.5, 1.0, -1.0, -0.3]

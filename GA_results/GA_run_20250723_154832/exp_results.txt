@@ -1,0 +1,8 @@
+Generation 1 - Best specimen's errors: [-1. -1. -1.] (sigma_exc: 0.16983380175406693, sigma_inh: 0.10550668246513983, g_exc: 0.8306189087136322 mV, g_inh: -0.5473016707843052 mV)
+Generation mean FITNESS: nan +/- nan | 0 working, 100 failed solutions
+Generation mean ERROR (working solutions): nan +/- nan
+      mean cwce: nan +/- nan
+      mean angular Z-score: nan +/- nan
+      mean NMSE: nan +/- nan
+Generation mean gene standard deviations: 0.1156
+Generation time: 38.01 seconds

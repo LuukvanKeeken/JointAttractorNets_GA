@@ -375,7 +375,7 @@ ga_instance = pygad.GA(num_generations=num_generations,
                        random_seed=rand_seed,
                        random_mutation_min_val= rand_mut_min_val,
                        random_mutation_max_val= rand_mut_max_val,
-                       gene_space=[sigma_exc_space, sigma_inh_space, g_exc_space, g_inh_space]
+                    #    gene_space=[sigma_exc_space, sigma_inh_space, g_exc_space, g_inh_space]
 )
 
 # Initialize the population with random values within the specified ranges

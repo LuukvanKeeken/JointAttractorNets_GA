@@ -359,6 +359,7 @@ def fitness_func(ga_instance, solution, solution_idx):
         nmse = -1
         print(f"Exception occurred for solution {solution_idx}: {e}. Setting all errors to -1.")
         traceback.print_exc()
+        exit()
 
 
     fitness_cwce = 1 / (cwce + 1e-8)

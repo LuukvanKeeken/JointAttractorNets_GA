@@ -1,4 +1,5 @@
 import itertools
+import traceback
 import pandas as pd
 import multiprocessing as mp
 from brian2 import *  # Brian2 must be imported for the simulation
@@ -303,6 +304,8 @@ def fitness_func(ga_instance, solution, solution_idx):
     except Exception as e:
         composite_error = -1
         print(f"Exception occurred for solution {solution_idx}: {e}. Setting composite error to -1.")
+        traceback.print_exc()
+        exit()
         
 
     

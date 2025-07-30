@@ -1,4 +1,5 @@
 import itertools
+import traceback
 import pandas as pd
 import multiprocessing as mp
 from brian2 import *  # Brian2 must be imported for the simulation
@@ -26,20 +27,20 @@ from optimization_model import opt_ring_attractor  # your simulation function
 # Also import any utility functions if needed (e.g., for computing firing rates, etc.)
 from utils import *
 
-print("test 1")
+
 
 # Check if directory 'GA_results' exists, if not create it
 if not os.path.exists('GA_results'):
     os.makedirs('GA_results')
 
-print("test 2")
+
 
 # Create a unique directory for the current run based on the timestamp
 current_results_dirname = f"GA_results/GA_run_{time.strftime('%Y%m%d_%H%M%S')}"
 if not os.path.exists(current_results_dirname):
     os.makedirs(current_results_dirname)
 
-print("test 3")
+
 # Set up argparse. Read in settings from command line, or use defaults.
 parser = argparse.ArgumentParser(description='Run GA optimization for ring attractor model.')
 
@@ -114,7 +115,7 @@ with open(f"{current_results_dirname}/exp_params.txt", "w") as f:
     f.write(f"Weight for NMSE: {w_nmse}\n")
     f.write(f"Initial ranges for Mexican hat connectivity profile: {initial_ranges_mex}\n")
 
-print("test 4")
+
 # If adaptive mutation is used, there is a probability for lower-than-average fitness solutions 
 # and a probability for higher-than-average fitness solutions.
 if not (mutation_type in ['adaptive']):
@@ -242,14 +243,14 @@ def on_generation(ga_instance):
 
     previous_gen_start_time = time.time()
 
-print("test 5")
+
 # Function that takes the parameter values given by a specimen, runs a simulation
 # with those values, calculates the composite error, and returns the fitness value.
 # Basically the same as in the grid search code.
 # Specimens for which the simulation fails are given a composite error of -1,
 # so that they can easily be identified and excluded from the statistics.
 def fitness_func(ga_instance, solution, solution_idx):
-    print("test 8.5")
+    
     np.random.seed(rand_seed)
     seed(rand_seed)
 
@@ -267,48 +268,53 @@ def fitness_func(ga_instance, solution, solution_idx):
     else:
         raise ValueError("Unsupported connectivity profile. Choose 'mexican_hat' or 'cosine'.")
     
-    print("test 9")
+
     try:
         # Run the simulation.
         # opt_ring_attractor returns: (GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude)
         GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude = opt_ring_attractor(params, stim_center=stim_center, stim_width=stim_width)
-        print("test 10")
+        
         # Compute the circular standard deviation (spread) from the PVA magnitude.
         circular_std = np.sqrt(-2 * np.log(out_pva_magnitude + 1e-8))
-        print("test 11")
+        
         # Compute the center error and the confidence weighted center error (CWCE).
         center_err, cwce = conf_weighted_CE(out_pva_angle, GT_center, out_pva_magnitude)
-        print("test 12")
+        
         # Compute the angular Z-score:
         # This expresses the misalignment (center_err) in units of the circular standard deviation,
         # analogous to a z-score in linear statistics.
         angular_Zscore = center_err / circular_std
-        print("test 13")
+        
         # Compute the NMSE between the observed firing rates and the ideal Gaussian profile.
         nmse = compute_nmse_normalized(out_rates, GT_input, norm_type='max')
-        print("test 14")
+        
         # Combine the errors into one composite score.
         # Adjust weights to prioritize center accuracy if desired
         composite_error = w_center * cwce + w_Zscore * angular_Zscore + w_nmse * nmse
-        print("test 15")
+        
         # Check if the composite error is NaN or infinite. In that case, set it to a very high value,
         # so that the fitness value will be very low.
-        if np.isnan(composite_error) or np.isinf(composite_error):
-            print(f"Composite error is NaN or infinite for solution {solution_idx}. Setting composite error to -1.")
+        if np.isnan(composite_error):
+            print(f"Composite error is NaN for solution {solution_idx}. Setting composite error to -1.")
             composite_error = -1
-        print("test 16")
+        elif np.isinf(composite_error):
+            print(f"Composite error is infinite for solution {solution_idx}. Setting composite error to -1.")
+            composite_error = -1
+        
     # For now, if there is any exception raised, just give very low fitness value to this solution.
     except Exception as e:
         composite_error = -1
         print(f"Exception occurred for solution {solution_idx}: {e}. Setting composite error to -1.")
-        print("test 17")
+        traceback.print_exc()
+        exit()
+        
 
-    print("test 18")
+    
     fitness_value = 1.0 / (composite_error + 1e-8)  # Avoid division by zero
 
     return fitness_value
 
-print("test 6")
+
 # Create the GA instance with the specified parameters
 ga_instance = pygad.GA(num_generations=num_generations,
                        sol_per_pop=population_size,
@@ -326,7 +332,7 @@ ga_instance = pygad.GA(num_generations=num_generations,
                        random_mutation_min_val= rand_mut_min_val,
                        random_mutation_max_val= rand_mut_max_val)
 
-print("test 7")
+
 
 # Initialize the population with random values within the specified ranges
 if connectivity_profile == 'mexican_hat':
@@ -342,7 +348,7 @@ else:
 
 
 
-print("test 8")
+
 
 if __name__ == '__main__':
 

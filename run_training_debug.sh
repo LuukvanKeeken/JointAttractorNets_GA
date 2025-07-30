@@ -14,9 +14,9 @@ pip install lmfit
 python -m pip install -U matplotlib
 
 
-num_processes=(8)
-pop_size=(8)
-num_parents_mating=(4)
+num_processes=(1)
+pop_size=(500)
+num_parents_mating=(250)
 mut_prob1=(0.5)
 mut_prob2=(0.3)
 num_gens=(2)

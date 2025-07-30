@@ -1,4 +1,5 @@
 import itertools
+import traceback
 import pandas as pd
 import multiprocessing as mp
 from brian2 import *  # Brian2 must be imported for the simulation
@@ -339,11 +340,16 @@ def fitness_func(ga_instance, solution, solution_idx):
         composite_error = cwce + angular_Zscore + nmse
 
         # Check if the composite error is NaN or infinite. In that case, set all errors to -1
-        if np.isnan(composite_error) or np.isinf(composite_error):
+        if np.isnan(composite_error):
             cwce = -1
             angular_Zscore = -1
             nmse = -1
-            print(f"Composite error is NaN or infinite for solution {solution_idx}. Setting all errors to -1.")
+            print(f"Composite error is NaN for solution {solution_idx}. Setting all errors to -1.")
+        elif np.isinf(composite_error):
+            cwce = -1
+            angular_Zscore = -1
+            nmse = -1
+            print(f"Composite error is infinite for solution {solution_idx}. Setting all errors to -1.")
             
 
     # For now, if there is any exception raised, just give very low fitness value to this solution.
@@ -352,6 +358,7 @@ def fitness_func(ga_instance, solution, solution_idx):
         angular_Zscore = -1
         nmse = -1
         print(f"Exception occurred for solution {solution_idx}: {e}. Setting all errors to -1.")
+        traceback.print_exc()
 
 
     fitness_cwce = 1 / (cwce + 1e-8)

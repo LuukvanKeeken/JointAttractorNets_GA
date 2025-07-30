@@ -32,6 +32,6 @@ for i in "${!num_processes[@]}"; do
     num_gen="${num_gens[$i]}"
 
     echo "Running script for settings: $num_proc processes, $pop_size population, $num_parents_mating parents mating, $mut_prob1 mutation prob1, $mut_prob2 mutation prob2, $num_gen generations"
-    python3 Optimization_Models/GA_optimizer_multi.py --num_processes "$num_proc" --population_size "$pop_size" --num_parents_mating "$num_parents_mating" --mutation_probability "$mut_prob1" "$mut_prob2" --num_generations "$num_gen" --initial_ranges_mex "${initial_ranges_mex[@]}"
+    python3 "Optimization Models/GA_optimizer_multi.py" --num_processes "$num_proc" --population_size "$pop_size" --num_parents_mating "$num_parents_mating" --mutation_probability "$mut_prob1" "$mut_prob2" --num_generations "$num_gen" --initial_ranges_mex "${initial_ranges_mex[@]}"
 done
 

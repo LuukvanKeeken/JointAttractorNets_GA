@@ -115,6 +115,131 @@ def calculate_ISI(spikemon, n_neurons):
     return isi_list
 
 
+# Calculates the spread
+def calculate_spreads(spikemon, t1=None, t2=None, window=0.005):
+    if t1 == None or t2 == None:
+        raise ValueError("Need values for timepoint 1 and timepoint 2.")
+    
+    spike_trains = spikemon.spike_trains()
+
+
+    active_at_t1 = []
+    active_at_t2 = []
+    for idx in range(len(spike_trains)):
+        # If this size is 0, no spikes at all for this neuron
+        if spike_trains[idx].size > 0:
+            # Loop over the spike times for neuron #idx
+            for spike_time in spike_trains[idx]:
+                # If spike time falls in range before t1 (or t2), add idx 
+                # to list of neurons active at t1 (or t2). Because the spike
+                # times are in order, if a spike in the range before t2 is
+                # found, we can stop the search.
+                if (spike_time >= t1-window) and (spike_time <= t1):
+                    active_at_t1.append(idx)
+                if (spike_time >= t2-window) and (spike_time <= t2):
+                    active_at_t2.append(idx)
+                    break
+    
+
+    if not 0 in active_at_t1:
+        # Calculate differences between consecutive elements in the list
+        # Prepend idx 0 and append the number of neurons to be able to
+        # calculate the distance along the other side of the ring.
+        active_at_t1_ext = [0] + active_at_t1 + [len(spike_trains)]
+        diffs = ediff1d(active_at_t1_ext)
+        outer_diff = diffs[0] + diffs[-1]
+
+        # Find the largest difference between consecutive indices, as it
+        # could happen that e.g. an active neuron fell just outside the 
+        # range with its spikes. If however this value is larger than
+        # outer_diff, we can assume that the actual spread is along the 
+        # other side of the ring.
+        max_inner_diff = np.max(diffs[1:-1])
+
+        if outer_diff > max_inner_diff:
+            t1_spread = active_at_t1[-1] - active_at_t1[0]
+        else:
+            t1_spread = active_at_t1[0] + (len(spike_trains) - active_at_t1[-1])
+    else:
+
+
+    if not 0 in active_at_t2:
+        # Calculate differences between consecutive elements in the list
+        # Prepend idx 0 and append the number of neurons to be able to
+        # calculate the distance along the other side of the ring.
+        active_at_t2_ext = [0] + active_at_t2 + [len(spike_trains)]
+        diffs = ediff1d(active_at_t2_ext)
+        outer_diff = diffs[0] + diffs[-1]
+
+        # Find the largest difference between consecutive indices, as it
+        # could happen that e.g. an active neuron fell just outside the 
+        # range with its spikes. If however this value is larger than
+        # outer_diff, we can assume that the actual spread is along the 
+        # other side of the ring.
+        max_inner_diff = np.max(diffs[1:-1])
+
+        if outer_diff > max_inner_diff:
+            t2_spread = active_at_t2[-1] - active_at_t2[0]
+        else:
+            t2_spread = active_at_t2[0] + (len(spike_trains) - active_at_t2[-1])
+
+
+
+
+
+
+
+    min_t1 = -1
+    min_t2 = -1
+    smallest_idx_found = False
+    for idx in range(len(spike_trains)):
+        for spike_time in spike_trains[idx]:
+            # If smallest neuron idx with spike in correct range before
+            # t1 has not been found yet and this spike falls in the correct
+            # range, we have now found it.
+            if (min_t1 == -1) and (spike_time >= t1-window) and (spike_time <= t1):
+                min_t1 = idx
+            
+            # Similar for t2
+            if (min_t2 == -1) and (spike_time >= t2-window) and (spike_time <= t2):
+                min_t2 = idx
+
+            if (min_t1 != -1) and (min_t2 != -1):
+                smallest_idx_found = True
+                break
+        
+        if smallest_idx_found:
+            break
+
+    
+    max_t1 = -1
+    max_t2 = -1
+    largest_idx_found = False
+    for idx in reversed(range(len(spike_trains))):
+        for spike_time in spike_trains[idx]:
+            # If largest neuron idx with spike in correct range before
+            # t1 has not been found yet and this spike falls in the correct
+            # range, we have now found it.
+            if (max_t1 == -1) and (spike_time >= t1-window) and (spike_time <= t1):
+                max_t1 = idx
+            
+            # Similar for t2
+            if (max_t2 == -1) and (spike_time >= t2-window) and (spike_time <= t2):
+                max_t2 = idx
+
+            if (max_t1 != -1) and (max_t2 != -1):
+                largest_idx_found = True
+                break
+        
+        if largest_idx_found:
+            break
+
+
+
+    test = 1
+
+
+
 #################################################
 # Error Metrics
 #################################################

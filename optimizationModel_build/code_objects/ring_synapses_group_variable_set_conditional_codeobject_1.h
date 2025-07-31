@@ -1,0 +1,7 @@
+#ifndef _INCLUDED_ring_synapses_group_variable_set_conditional_codeobject_1
+#define _INCLUDED_ring_synapses_group_variable_set_conditional_codeobject_1
+
+void _run_ring_synapses_group_variable_set_conditional_codeobject_1();
+
+
+#endif

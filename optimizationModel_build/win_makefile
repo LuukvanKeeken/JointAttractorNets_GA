@@ -1,0 +1,103 @@
+all: main.exe
+
+clean:
+    del *.obj /s
+    del *.exe /s
+    del sourcefiles.txt
+
+code_objects\after_run_ring_neurons_spike_thresholder_codeobject.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/after_run_ring_neurons_spike_thresholder_codeobject.cpp /Focode_objects\after_run_ring_neurons_spike_thresholder_codeobject.obj 
+    
+code_objects\after_run_ring_neurons_spike_thresholder_codeobject_1.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/after_run_ring_neurons_spike_thresholder_codeobject_1.cpp /Focode_objects\after_run_ring_neurons_spike_thresholder_codeobject_1.obj 
+    
+code_objects\before_run_ring_synapses_asym_pre_push_spikes.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/before_run_ring_synapses_asym_pre_push_spikes.cpp /Focode_objects\before_run_ring_synapses_asym_pre_push_spikes.obj 
+    
+code_objects\before_run_ring_synapses_pre_push_spikes.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/before_run_ring_synapses_pre_push_spikes.cpp /Focode_objects\before_run_ring_synapses_pre_push_spikes.obj 
+    
+code_objects\ring_neurons_spike_resetter_codeobject.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/ring_neurons_spike_resetter_codeobject.cpp /Focode_objects\ring_neurons_spike_resetter_codeobject.obj 
+    
+code_objects\ring_neurons_spike_resetter_codeobject_1.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/ring_neurons_spike_resetter_codeobject_1.cpp /Focode_objects\ring_neurons_spike_resetter_codeobject_1.obj 
+    
+code_objects\ring_neurons_spike_thresholder_codeobject.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/ring_neurons_spike_thresholder_codeobject.cpp /Focode_objects\ring_neurons_spike_thresholder_codeobject.obj 
+    
+code_objects\ring_neurons_spike_thresholder_codeobject_1.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/ring_neurons_spike_thresholder_codeobject_1.cpp /Focode_objects\ring_neurons_spike_thresholder_codeobject_1.obj 
+    
+code_objects\ring_neurons_stateupdater_codeobject.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/ring_neurons_stateupdater_codeobject.cpp /Focode_objects\ring_neurons_stateupdater_codeobject.obj 
+    
+code_objects\ring_neurons_stateupdater_codeobject_1.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/ring_neurons_stateupdater_codeobject_1.cpp /Focode_objects\ring_neurons_stateupdater_codeobject_1.obj 
+    
+code_objects\ring_synapses_asym_group_variable_set_conditional_codeobject.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/ring_synapses_asym_group_variable_set_conditional_codeobject.cpp /Focode_objects\ring_synapses_asym_group_variable_set_conditional_codeobject.obj 
+    
+code_objects\ring_synapses_asym_group_variable_set_conditional_codeobject_1.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/ring_synapses_asym_group_variable_set_conditional_codeobject_1.cpp /Focode_objects\ring_synapses_asym_group_variable_set_conditional_codeobject_1.obj 
+    
+code_objects\ring_synapses_asym_pre_codeobject.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/ring_synapses_asym_pre_codeobject.cpp /Focode_objects\ring_synapses_asym_pre_codeobject.obj 
+    
+code_objects\ring_synapses_asym_pre_codeobject_1.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/ring_synapses_asym_pre_codeobject_1.cpp /Focode_objects\ring_synapses_asym_pre_codeobject_1.obj 
+    
+code_objects\ring_synapses_asym_pre_push_spikes.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/ring_synapses_asym_pre_push_spikes.cpp /Focode_objects\ring_synapses_asym_pre_push_spikes.obj 
+    
+code_objects\ring_synapses_asym_synapses_create_generator_codeobject.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/ring_synapses_asym_synapses_create_generator_codeobject.cpp /Focode_objects\ring_synapses_asym_synapses_create_generator_codeobject.obj 
+    
+code_objects\ring_synapses_group_variable_set_conditional_codeobject.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/ring_synapses_group_variable_set_conditional_codeobject.cpp /Focode_objects\ring_synapses_group_variable_set_conditional_codeobject.obj 
+    
+code_objects\ring_synapses_group_variable_set_conditional_codeobject_1.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/ring_synapses_group_variable_set_conditional_codeobject_1.cpp /Focode_objects\ring_synapses_group_variable_set_conditional_codeobject_1.obj 
+    
+code_objects\ring_synapses_pre_codeobject.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/ring_synapses_pre_codeobject.cpp /Focode_objects\ring_synapses_pre_codeobject.obj 
+    
+code_objects\ring_synapses_pre_codeobject_1.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/ring_synapses_pre_codeobject_1.cpp /Focode_objects\ring_synapses_pre_codeobject_1.obj 
+    
+code_objects\ring_synapses_pre_push_spikes.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/ring_synapses_pre_push_spikes.cpp /Focode_objects\ring_synapses_pre_push_spikes.obj 
+    
+code_objects\ring_synapses_synapses_create_generator_codeobject.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/ring_synapses_synapses_create_generator_codeobject.cpp /Focode_objects\ring_synapses_synapses_create_generator_codeobject.obj 
+    
+code_objects\spikemonitor_codeobject.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/spikemonitor_codeobject.cpp /Focode_objects\spikemonitor_codeobject.obj 
+    
+code_objects\spikemonitor_codeobject_1.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/spikemonitor_codeobject_1.cpp /Focode_objects\spikemonitor_codeobject_1.obj 
+    
+code_objects\statemonitor_codeobject.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/statemonitor_codeobject.cpp /Focode_objects\statemonitor_codeobject.obj 
+    
+code_objects\statemonitor_codeobject_1.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  code_objects/statemonitor_codeobject_1.cpp /Focode_objects\statemonitor_codeobject_1.obj 
+    
+main.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  main.cpp /Fomain.obj 
+    
+network.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  network.cpp /Fonetwork.obj 
+    
+objects.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  objects.cpp /Foobjects.obj 
+    
+run.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  run.cpp /Forun.obj 
+    
+synapses_classes.obj: win_makefile
+    cl /c /EHsc /I. -I"c:\Users\luukv\.conda\envs\attractornets\Library\include" /Ox /w /arch:AVX2 /MP  synapses_classes.cpp /Fosynapses_classes.obj 
+    
+
+main.exe: code_objects\after_run_ring_neurons_spike_thresholder_codeobject.obj code_objects\after_run_ring_neurons_spike_thresholder_codeobject_1.obj code_objects\before_run_ring_synapses_asym_pre_push_spikes.obj code_objects\before_run_ring_synapses_pre_push_spikes.obj code_objects\ring_neurons_spike_resetter_codeobject.obj code_objects\ring_neurons_spike_resetter_codeobject_1.obj code_objects\ring_neurons_spike_thresholder_codeobject.obj code_objects\ring_neurons_spike_thresholder_codeobject_1.obj code_objects\ring_neurons_stateupdater_codeobject.obj code_objects\ring_neurons_stateupdater_codeobject_1.obj code_objects\ring_synapses_asym_group_variable_set_conditional_codeobject.obj code_objects\ring_synapses_asym_group_variable_set_conditional_codeobject_1.obj code_objects\ring_synapses_asym_pre_codeobject.obj code_objects\ring_synapses_asym_pre_codeobject_1.obj code_objects\ring_synapses_asym_pre_push_spikes.obj code_objects\ring_synapses_asym_synapses_create_generator_codeobject.obj code_objects\ring_synapses_group_variable_set_conditional_codeobject.obj code_objects\ring_synapses_group_variable_set_conditional_codeobject_1.obj code_objects\ring_synapses_pre_codeobject.obj code_objects\ring_synapses_pre_codeobject_1.obj code_objects\ring_synapses_pre_push_spikes.obj code_objects\ring_synapses_synapses_create_generator_codeobject.obj code_objects\spikemonitor_codeobject.obj code_objects\spikemonitor_codeobject_1.obj code_objects\statemonitor_codeobject.obj code_objects\statemonitor_codeobject_1.obj main.obj network.obj objects.obj run.obj synapses_classes.obj  win_makefile sourcefiles.txt
+    link @sourcefiles.txt /LIBPATH:"c:\Users\luukv\.conda\envs\attractornets\Library\lib" advapi32.lib /LIBPATH:. /OUT:main.exe 

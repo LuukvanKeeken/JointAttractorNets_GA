@@ -272,7 +272,7 @@ def fitness_func(ga_instance, solution, solution_idx):
     try:
         # Run the simulation.
         # opt_ring_attractor returns: (GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude)
-        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude = opt_ring_attractor(params, stim_center=stim_center, stim_width=stim_width)
+        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude, spread_difference = opt_ring_attractor(params, stim_center=stim_center, stim_width=stim_width)
         
         # Compute the circular standard deviation (spread) from the PVA magnitude.
         circular_std = np.sqrt(-2 * np.log(out_pva_magnitude + 1e-8))

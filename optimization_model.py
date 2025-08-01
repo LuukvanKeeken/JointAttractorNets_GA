@@ -90,6 +90,8 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
                                     #    start_time=0.95*sim_duration, end_time=sim_duration)
                                     
     pva_angle, pva_magnitude = calculate_PVA(firing_rates, positions)
+
+    spread_difference, spread_t1, spread_t2 = calculate_spreads(spikemon, t1=input_on, t2=sim_duration)
     
     # Return simulation results
     return stimulus_center, I_ext_array, firing_rates, pva_angle, pva_magnitude

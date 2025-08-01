@@ -28,7 +28,7 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     """
     # --- Simulation parameters ---
     defaultclock.dt = 0.1*ms
-    num_neurons = 120
+    num_neurons = params.get('num_neurons', 120)  # Default to 120 if not specified
 
     # Use parameters from the dict, with appropriate units:
     tau = params.get('tau', 10)*ms

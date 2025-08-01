@@ -59,16 +59,18 @@ parser.add_argument('--rand_mut_min_val', type=float, default=-0.1, help='Minimu
 parser.add_argument('--rand_mut_max_val', type=float, default=0.1, help='Maximum value for random mutation.')
 parser.add_argument('--w_center', type=float, default=0.3, help='Weight for center error in composite error calculation.')
 parser.add_argument('--w_Zscore', type=float, default=0.2, help='Weight for angular Z-score in composite error calculation.')
-parser.add_argument('--w_nmse', type=float, default=0.5, help='Weight for NMSE in composite error calculation.')
+parser.add_argument('--w_nmse', type=float, default=0.4, help='Weight for NMSE in composite error calculation.')
+parser.add_argument('--w_spread', type=float, default=0.1, help='Weight for spread error in composite error calculation.')
 parser.add_argument('--initial_ranges_mex', type=float, nargs=8, default=[0.05, 0.2, 0.1, 0.3, 0.5, 1.0, -1.0, -0.3], help='Initial ranges for Mexican hat connectivity profile: sigma_exc_min, sigma_exc_max, sigma_inh_min, sigma_inh_max, g_exc_min, g_exc_max, g_inh_min, g_inh_max.')
 parser.add_argument('--stim_center', type=float, default=1.571, help='Center of the stimulus for the ring attractor model.')
 parser.add_argument('--stim_width', type=float, default=0.5, help='Width of the stimulus for the ring attractor model.')
 parser.add_argument('--tau', type=float, default=10.0, help='Time constant for the ring attractor model in ms.')
 parser.add_argument('--sigma_noise', type=float, default=1.0)
+parser.add_argument('--num_neurons', type=int, default=120, help='Number of neurons in the ring attractor model.')
 
 
 args = parser.parse_args()
-
+num_neurons = args.num_neurons
 rand_seed = args.random_seed
 num_processes = args.num_processes
 population_size = args.population_size
@@ -86,6 +88,7 @@ rand_mut_max_val = args.rand_mut_max_val
 w_center = args.w_center
 w_Zscore = args.w_Zscore
 w_nmse = args.w_nmse
+w_spread = args.w_spread
 
 initial_ranges_mex = args.initial_ranges_mex
 
@@ -132,6 +135,7 @@ fixed_params = {
     'tau': tau,           # in our simulation, run_ring_attractor converts this to ms.
     'sigma_noise': sigma_noise,   # similarly converted to mV inside run_ring_attractor.
     'syn_profile': connectivity_profile,  # Set the connectivity profile
+    'num_neurons': num_neurons,  # Number of neurons in the ring attractor
 }
 
 
@@ -287,11 +291,15 @@ def fitness_func(ga_instance, solution, solution_idx):
         
         # Compute the NMSE between the observed firing rates and the ideal Gaussian profile.
         nmse = compute_nmse_normalized(out_rates, GT_input, norm_type='max')
+
+        # Normalize the spread difference by the number of neurons, and
+        # add 1 to make sure it is non-negative.
+        spread_err = (spread_difference / num_neurons) + 1
         
         # Combine the errors into one composite score.
         # Adjust weights to prioritize center accuracy if desired
-        composite_error = w_center * cwce + w_Zscore * angular_Zscore + w_nmse * nmse
-        
+        composite_error = w_center * cwce + w_Zscore * angular_Zscore + w_nmse * nmse + w_spread * spread_err
+
         # Check if the composite error is NaN or infinite. In that case, set it to a very high value,
         # so that the fitness value will be very low.
         if np.isnan(composite_error):

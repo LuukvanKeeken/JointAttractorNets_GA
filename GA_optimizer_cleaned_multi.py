@@ -65,10 +65,11 @@ parser.add_argument('--stim_center', type=float, default=1.571, help='Center of 
 parser.add_argument('--stim_width', type=float, default=0.5, help='Width of the stimulus for the ring attractor model.')
 parser.add_argument('--tau', type=float, default=10.0, help='Time constant for the ring attractor model in ms.')
 parser.add_argument('--sigma_noise', type=float, default=1.0)
+parser.add_argument('--num_neurons', type=int, default=120, help='Number of neurons in the ring attractor model.')
 
 
 args = parser.parse_args()
-
+num_neurons = args.num_neurons
 rand_seed = args.random_seed
 num_processes = args.num_processes
 population_size = args.population_size
@@ -126,6 +127,7 @@ fixed_params = {
     'tau': tau,           # in our simulation, run_ring_attractor converts this to ms.
     'sigma_noise': sigma_noise,   # similarly converted to mV inside run_ring_attractor.
     'syn_profile': connectivity_profile,  # Set the connectivity profile
+    'num_neurons': num_neurons,  # Number of neurons in the ring attractor
 }
 
 
@@ -319,7 +321,7 @@ def fitness_func(ga_instance, solution, solution_idx):
     try:
         # Run the simulation.
         # opt_ring_attractor returns: (GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude)
-        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude = opt_ring_attractor(params, stim_center=stim_center, stim_width=stim_width)
+        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude, spread_difference = opt_ring_attractor(params, stim_center=stim_center, stim_width=stim_width)
         
         # Compute the circular standard deviation (spread) from the PVA magnitude.
         circular_std = np.sqrt(-2 * np.log(out_pva_magnitude + 1e-8))
@@ -334,29 +336,36 @@ def fitness_func(ga_instance, solution, solution_idx):
         
         # Compute the NMSE between the observed firing rates and the ideal Gaussian profile.
         nmse = compute_nmse_normalized(out_rates, GT_input, norm_type='max')
+
+        # Normalize the spread difference by the number of neurons, and
+        # add 1 to make sure it is non-negative.
+        spread_err = (spread_difference / num_neurons) + 1
         
         # Combine the errors into one composite score, just to be able to
         # quickly check NaN or infinite values.
-        composite_error = cwce + angular_Zscore + nmse
+        composite_error = cwce + angular_Zscore + nmse + spread_err
 
         # Check if the composite error is NaN or infinite. In that case, set all errors to -1
         if np.isnan(composite_error) or np.isinf(composite_error):
             cwce = -1
             angular_Zscore = -1
             nmse = -1
+            spread_err = -1
 
     # For now, if there is any exception raised, just give very low fitness value to this solution.
     except Exception as e:
         cwce = -1
         angular_Zscore = -1
         nmse = -1
+        spread_err = -1
 
 
     fitness_cwce = 1 / (cwce + 1e-8)
     fitness_angular_Zscore = 1 / (angular_Zscore + 1e-8)
     fitness_nmse = 1 / (nmse + 1e-8)
+    fitness_spread = 1 / (spread_err + 1e-8)
 
-    return [fitness_cwce, fitness_angular_Zscore, fitness_nmse]
+    return [fitness_cwce, fitness_angular_Zscore, fitness_nmse, fitness_spread]
 
 
 # Create the GA instance with the specified parameters

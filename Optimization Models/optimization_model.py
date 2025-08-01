@@ -31,7 +31,7 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     set_device('cpp_standalone', build_on_run=False)  # Use C++ standalone mode for performance
     # --- Simulation parameters ---
     defaultclock.dt = 0.1*ms
-    num_neurons = 120
+    num_neurons = params.get('num_neurons', 120)  # Default to 120 neurons if not specified
 
     # Use parameters from the dict, with appropriate units:
     tau = params.get('tau', 10)*ms
@@ -96,9 +96,13 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
                                     #    start_time=0.95*sim_duration, end_time=sim_duration)
                                     
     pva_angle, pva_magnitude = calculate_PVA(firing_rates, positions)
+
+    # Positive spread difference means an increase in bump spread
+    # between t1 and t2, negative means a decrease.
+    spread_difference, spread_t1, spread_t2 = calculate_spreads(spikemon, t1=input_on, t2=sim_duration)
     
     # Return simulation results
-    return stimulus_center, I_ext_array, firing_rates, pva_angle, pva_magnitude
+    return stimulus_center, I_ext_array, firing_rates, pva_angle, pva_magnitude, spread_difference
 
 if __name__ == '__main__':
     # Example: run with default parameters when this file is executed directly

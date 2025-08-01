@@ -23,10 +23,12 @@ mean_errors_working_specimens = []
 mean_first_errors_working_specimens = []
 mean_second_errors_working_specimens = []
 mean_third_errors_working_specimens = []
+mean_fourth_errors_working_specimens = []
 std_errors_working_specimens = []
 std_first_errors_working_specimens = []
 std_second_errors_working_specimens = []
 std_third_errors_working_specimens = []
+std_fourth_errors_working_specimens = []
 mean_gene_stddevs = []
 
 # Import the simulation function from your model file
@@ -173,9 +175,11 @@ def on_generation(ga_instance):
     global mean_first_errors_working_specimens
     global mean_second_errors_working_specimens
     global mean_third_errors_working_specimens
+    global mean_fourth_errors_working_specimens
     global std_first_errors_working_specimens
     global std_second_errors_working_specimens
     global std_third_errors_working_specimens
+    global std_fourth_errors_working_specimens
     global current_results_dirname
     global gene_0_stddevs, gene_1_stddevs, gene_2_stddevs, gene_3_stddevs
     global mean_gene_stddevs
@@ -236,12 +240,17 @@ def on_generation(ga_instance):
     std_third_errors = np.std(third_errors)
     mean_third_errors_working_specimens.append(mean_third_errors)
     std_third_errors_working_specimens.append(std_third_errors)
+    fourth_fitness_vals = positive_fitnesses[:, 3]
+    fourth_errors = (1.0 / fourth_fitness_vals) - 1e-8
+    mean_fourth_errors = np.mean(fourth_errors)
+    std_fourth_errors = np.std(fourth_errors)
+    mean_fourth_errors_working_specimens.append(mean_fourth_errors)
+    std_fourth_errors_working_specimens.append(std_fourth_errors)
+
+    mean_specimen_fitnesses = np.mean(np.stack([first_fitness_vals, second_fitness_vals, third_fitness_vals, fourth_fitness_vals]), axis=0)
 
 
-    mean_specimen_fitnesses = np.mean(np.stack([first_fitness_vals, second_fitness_vals, third_fitness_vals]), axis=0)
-
-
-    mean_specimen_errors = np.mean(np.stack([first_errors, second_errors, third_errors]), axis=0)
+    mean_specimen_errors = np.mean(np.stack([first_errors, second_errors, third_errors, fourth_errors]), axis=0)
     mean_errors = np.mean(mean_specimen_errors)
     std_errors = np.std(mean_specimen_errors)
     mean_errors_working_specimens.append(mean_errors)
@@ -263,6 +272,8 @@ def on_generation(ga_instance):
     np.savetxt(f"{current_results_dirname}/std_second_errors_working_specimens.txt", np.array(std_second_errors_working_specimens))
     np.savetxt(f"{current_results_dirname}/mean_third_errors_working_specimens.txt", np.array(mean_third_errors_working_specimens))
     np.savetxt(f"{current_results_dirname}/std_third_errors_working_specimens.txt", np.array(std_third_errors_working_specimens))
+    np.savetxt(f"{current_results_dirname}/mean_fourth_errors_working_specimens.txt", np.array(mean_fourth_errors_working_specimens))
+    np.savetxt(f"{current_results_dirname}/std_fourth_errors_working_specimens.txt", np.array(std_fourth_errors_working_specimens))
 
 
     print(f"Generation mean FITNESS (working solutions): {np.mean(mean_specimen_fitnesses):.4f} +/- {np.std(mean_specimen_fitnesses):.4f} | {len(positive_fitnesses)} working, {len(negative_fitnesses)} failed solutions")
@@ -270,6 +281,7 @@ def on_generation(ga_instance):
     print(f"      mean cwce: {mean_first_errors:.4f} +/- {std_first_errors:.4f}")
     print(f"      mean angular Z-score: {mean_second_errors:.4f} +/- {std_second_errors:.4f}")
     print(f"      mean NMSE: {mean_third_errors:.4f} +/- {std_third_errors:.4f}")
+    print(f"      mean norm. spread error: {mean_fourth_errors:.4f} +/- {std_fourth_errors:.4f}")
     print(f"Generation mean gene standard deviations: {np.mean(gene_std_devs):.4f}")
 
     solution, solution_fitness, solution_idx = ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)
@@ -284,6 +296,7 @@ def on_generation(ga_instance):
         f.write(f"      mean cwce: {mean_first_errors:.4f} +/- {std_first_errors:.4f}\n")
         f.write(f"      mean angular Z-score: {mean_second_errors:.4f} +/- {std_second_errors:.4f}\n")
         f.write(f"      mean NMSE: {mean_third_errors:.4f} +/- {std_third_errors:.4f}\n")
+        f.write(f"      mean norm. spread error: {mean_fourth_errors:.4f} +/- {std_fourth_errors:.4f}\n")
         f.write(f"Generation mean gene standard deviations: {np.mean(gene_std_devs):.4f}\n")
         f.write(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")
     print(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)")
@@ -317,7 +330,7 @@ def fitness_func(ga_instance, solution, solution_idx):
     
     try:
         # Run the simulation.        
-        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude = sim.do_run(result_path)
+        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude, spread_difference = sim.do_run(result_path)
         # opt_ring_attractor returns: (GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude)
         # GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude = opt_ring_attractor(params, stim_center=stim_center, stim_width=stim_width)
         
@@ -334,21 +347,28 @@ def fitness_func(ga_instance, solution, solution_idx):
         
         # Compute the NMSE between the observed firing rates and the ideal Gaussian profile.
         nmse = compute_nmse_normalized(out_rates, GT_input, norm_type='max')
+
+
+        # Normalize the spread difference by the number of neurons, and
+        # add 1 to make sure it is non-negative.
+        spread_err = (spread_difference / num_neurons) + 1
         
         # Combine the errors into one composite score, just to be able to
         # quickly check NaN or infinite values.
-        composite_error = cwce + angular_Zscore + nmse
+        composite_error = cwce + angular_Zscore + nmse + spread_err
 
         # Check if the composite error is NaN or infinite. In that case, set all errors to -1
         if np.isnan(composite_error):
             cwce = -1
             angular_Zscore = -1
             nmse = -1
+            spread_err = -1
             print(f"Composite error is NaN for solution {solution_idx}. Setting all errors to -1.")
         elif np.isinf(composite_error):
             cwce = -1
             angular_Zscore = -1
             nmse = -1
+            spread_err = -1
             print(f"Composite error is infinite for solution {solution_idx}. Setting all errors to -1.")
             
 
@@ -357,6 +377,7 @@ def fitness_func(ga_instance, solution, solution_idx):
         cwce = -1
         angular_Zscore = -1
         nmse = -1
+        spread_err = -1
         print(f"Exception occurred for solution {solution_idx}: {e}. Setting all errors to -1.")
         traceback.print_exc()
         exit()
@@ -365,8 +386,9 @@ def fitness_func(ga_instance, solution, solution_idx):
     fitness_cwce = 1 / (cwce + 1e-8)
     fitness_angular_Zscore = 1 / (angular_Zscore + 1e-8)
     fitness_nmse = 1 / (nmse + 1e-8)
+    fitness_spread_err = 1 / (spread_err + 1e-8)
 
-    return [fitness_cwce, fitness_angular_Zscore, fitness_nmse]
+    return [fitness_cwce, fitness_angular_Zscore, fitness_nmse, fitness_spread_err]
 
 
 # Create the GA instance with the specified parameters
@@ -514,6 +536,18 @@ if __name__ == '__main__':
     plt.title('Mean NMSE Over Generations')
     plt.legend()
     plt.savefig(f"{current_results_dirname}/mean_third_errors.png")
+
+    plt.figure()
+    plt.plot(mean_fourth_errors_working_specimens, label='Mean Norm. Spread Error (Working Specimens)')
+    plt.fill_between(range(len(mean_fourth_errors_working_specimens)), 
+                     np.array(mean_fourth_errors_working_specimens) - np.array(std_fourth_errors_working_specimens), 
+                     np.array(mean_fourth_errors_working_specimens) + np.array(std_fourth_errors_working_specimens), 
+                     alpha=0.2)
+    plt.xlabel('Generation')
+    plt.ylabel('Mean Norm. Spread Error')
+    plt.title('Mean Norm. Spread Error Over Generations')
+    plt.legend()
+    plt.savefig(f"{current_results_dirname}/mean_fourth_errors.png")
 
     plt.figure()
     plt.plot(mean_gene_stddevs, label='Mean Gene Standard Deviations')

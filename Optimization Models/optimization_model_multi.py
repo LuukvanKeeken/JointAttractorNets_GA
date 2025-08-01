@@ -83,7 +83,14 @@ class RingAttractorSim:
             start_time=self.input_on, end_time=self.t_stop
         )
         pva_angle, pva_mag = calculate_PVA(firing_rates, self.positions)
-        return self.stim_center, self.I_ext_on, firing_rates, pva_angle, pva_mag
+
+        # Positive spread difference means an increase in bump spread
+        # between t1 and t2, negative means a decrease.
+        spread_difference, spread_t1, spread_t2 = calculate_spreads(
+            self.spikemon, t1=self.input_on, t2=self.t_stop, window=0.005
+        )
+
+        return self.stim_center, self.I_ext_on, firing_rates, pva_angle, pva_mag, spread_difference
 
 
 

@@ -115,6 +115,95 @@ def calculate_ISI(spikemon, n_neurons):
     return isi_list
 
 
+def find_gaps(N, subset):
+    gaps = []
+    for i in range(len(subset)):
+        a = subset[i]
+        b = subset[(i + 1) % len(subset)]
+        gap = (b - a - 1) % N
+        gaps.append((gap, a, b))
+
+    return gaps
+
+
+def find_spread(N, gaps):
+    # The start and end points of the bump are those between
+    # which the largest gap is found. If the 'start' point is
+    # larger than the 'end' point, it means that the bump
+    # wraps around the 0 point, otherwise it follows the clockwise
+    # direction.
+    # The spread is given by the number of neurons in the bump,
+    # so if there is one neuron the spread is 1.
+
+
+    largest_gap, gap_start, gap_end = max(gaps, key=lambda x: x[0])
+
+    start = (gap_end) % N
+    end = (gap_start) % N
+
+    if start < end:
+        spread = end - start + 1
+    elif start > end:
+        spread = (N - start) + end + 1
+    else:
+        spread = 1
+
+
+    return spread
+
+
+# Calculates the spread
+def calculate_spreads(spikemon, t1=None, t2=None, window=0.005 * second):
+    if t1 == None or t2 == None:
+        raise ValueError("Need values for timepoint 1 and timepoint 2.")
+    
+    spike_trains = spikemon.spike_trains()
+
+
+    # Get the indices of the neurons that were active at t1 and
+    # t2, with active meaning they spiked in the range
+    # [t - window, t] for t = t1 or t = t2.
+    active_at_t1 = []
+    active_at_t2 = []
+    for idx in range(len(spike_trains)):
+        # If this size is 0, no spikes at all for this neuron
+        if spike_trains[idx].size > 0:
+            # Loop over the spike times for neuron #idx
+            for spike_time in spike_trains[idx]:
+                # If spike time falls in range before t1 (or t2), add idx 
+                # to list of neurons active at t1 (or t2). Because the spike
+                # times are in order, if a spike in the range before t2 is
+                # found, we can stop the search.
+                if (spike_time >= t1-window) and (spike_time <= t1):
+                    active_at_t1.append(idx)
+                if (spike_time >= t2-window) and (spike_time <= t2):
+                    active_at_t2.append(idx)
+                    break
+    
+    # If at either point no neurons were active,
+    # we cannot calculate the spread, so also not
+    # the difference in spreads. Then just return
+    # the value -1 for both spreads and the largest
+    # possible difference (i.e. the number of neurons).
+    if not active_at_t1 or not active_at_t2:
+        return len(spike_trains), -1, -1
+     
+
+    # The start and end points of the bump are those between
+    # which the largest gap is found. Whether the 'start' point is
+    # larger than the 'end' point or not tells us if the bump
+    # wraps around the 0 point, or not. The implemented method
+    # is robust against gaps/missing neurons in the lists of active neurons.
+    gaps_t1 = find_gaps(len(spike_trains), active_at_t1)
+    gaps_t2 = find_gaps(len(spike_trains), active_at_t2)
+
+    spread_t1 = find_spread(len(spike_trains), gaps_t1)
+    spread_t2 = find_spread(len(spike_trains), gaps_t2)
+
+
+    return spread_t2 - spread_t1, spread_t1, spread_t2
+
+
 #################################################
 # Error Metrics
 #################################################

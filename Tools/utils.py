@@ -153,7 +153,7 @@ def find_spread(N, gaps):
 
 
 # Calculates the spread
-def calculate_spreads(spikemon, t1=None, t2=None, window=0.005):
+def calculate_spreads(spikemon, t1=None, t2=None, window=0.005 * second):
     if t1 == None or t2 == None:
         raise ValueError("Need values for timepoint 1 and timepoint 2.")
     

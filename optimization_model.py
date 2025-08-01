@@ -96,7 +96,7 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     spread_difference, spread_t1, spread_t2 = calculate_spreads(spikemon, t1=input_on, t2=sim_duration)
     
     # Return simulation results
-    return stimulus_center, I_ext_array, firing_rates, pva_angle, pva_magnitude, spread_difference
+    return stimulus_center, I_ext_array, firing_rates, pva_angle, pva_magnitude, spread_difference, spread_t1, spread_t2
 
 if __name__ == '__main__':
     # Example: run with default parameters when this file is executed directly

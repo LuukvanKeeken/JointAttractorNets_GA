@@ -15,11 +15,11 @@ python -m pip install -U matplotlib
 
 
 num_processes=(16)
-pop_size=(200)
-num_parents_mating=(100)
+pop_size=(100)
+num_parents_mating=(50)
 mut_prob1=(0.5)
 mut_prob2=(0.3)
-num_gens=(500)
+num_gens=(2)
 
 initial_ranges_mex=(0.05 0.3 0.05 0.3 0.5 1.0 -1.2 -0.3)  # Mexican hat profile ranges
 

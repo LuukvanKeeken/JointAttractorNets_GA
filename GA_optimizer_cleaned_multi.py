@@ -21,10 +21,12 @@ mean_errors_working_specimens = []
 mean_first_errors_working_specimens = []
 mean_second_errors_working_specimens = []
 mean_third_errors_working_specimens = []
+mean_fourth_errors_working_specimens = []
 std_errors_working_specimens = []
 std_first_errors_working_specimens = []
 std_second_errors_working_specimens = []
 std_third_errors_working_specimens = []
+std_fourth_errors_working_specimens = []
 mean_gene_stddevs = []
 
 # Import the simulation function from your model file
@@ -176,9 +178,11 @@ def on_generation(ga_instance):
     global mean_first_errors_working_specimens
     global mean_second_errors_working_specimens
     global mean_third_errors_working_specimens
+    global mean_fourth_errors_working_specimens
     global std_first_errors_working_specimens
     global std_second_errors_working_specimens
     global std_third_errors_working_specimens
+    global std_fourth_errors_working_specimens
     global current_results_dirname
     global gene_0_stddevs, gene_1_stddevs, gene_2_stddevs, gene_3_stddevs
     global mean_gene_stddevs
@@ -239,12 +243,17 @@ def on_generation(ga_instance):
     std_third_errors = np.std(third_errors)
     mean_third_errors_working_specimens.append(mean_third_errors)
     std_third_errors_working_specimens.append(std_third_errors)
+    fourth_fitness_vals = positive_fitnesses[:, 3]
+    fourth_errors = (1.0 / fourth_fitness_vals) - 1e-8
+    mean_fourth_errors = np.mean(fourth_errors)
+    std_fourth_errors = np.std(fourth_errors)
+    mean_fourth_errors_working_specimens.append(mean_fourth_errors)
+    std_fourth_errors_working_specimens.append(std_fourth_errors)
+
+    mean_specimen_fitnesses = np.mean(np.stack([first_fitness_vals, second_fitness_vals, third_fitness_vals, fourth_fitness_vals]), axis=0)
 
 
-    mean_specimen_fitnesses = np.mean(np.stack([first_fitness_vals, second_fitness_vals, third_fitness_vals]), axis=0)
-
-
-    mean_specimen_errors = np.mean(np.stack([first_errors, second_errors, third_errors]), axis=0)
+    mean_specimen_errors = np.mean(np.stack([first_errors, second_errors, third_errors, fourth_errors]), axis=0)
     mean_errors = np.mean(mean_specimen_errors)
     std_errors = np.std(mean_specimen_errors)
     mean_errors_working_specimens.append(mean_errors)
@@ -266,13 +275,15 @@ def on_generation(ga_instance):
     np.savetxt(f"{current_results_dirname}/std_second_errors_working_specimens.txt", np.array(std_second_errors_working_specimens))
     np.savetxt(f"{current_results_dirname}/mean_third_errors_working_specimens.txt", np.array(mean_third_errors_working_specimens))
     np.savetxt(f"{current_results_dirname}/std_third_errors_working_specimens.txt", np.array(std_third_errors_working_specimens))
-
+    np.savetxt(f"{current_results_dirname}/mean_fourth_errors_working_specimens.txt", np.array(mean_fourth_errors_working_specimens))
+    np.savetxt(f"{current_results_dirname}/std_fourth_errors_working_specimens.txt", np.array(std_fourth_errors_working_specimens))
 
     print(f"Generation mean FITNESS (working solutions): {np.mean(mean_specimen_fitnesses):.4f} +/- {np.std(mean_specimen_fitnesses):.4f} | {len(positive_fitnesses)} working, {len(negative_fitnesses)} failed solutions")
     print(f"Generation mean ERROR (working solutions): {mean_errors:.4f} +/- {std_errors:.4f}")
     print(f"      mean cwce: {mean_first_errors:.4f} +/- {std_first_errors:.4f}")
     print(f"      mean angular Z-score: {mean_second_errors:.4f} +/- {std_second_errors:.4f}")
     print(f"      mean NMSE: {mean_third_errors:.4f} +/- {std_third_errors:.4f}")
+    print(f"      mean norm. spread difference: {mean_fourth_errors:.4f} +/- {std_fourth_errors:.4f}")
     print(f"Generation mean gene standard deviations: {np.mean(gene_std_devs):.4f}")
 
     solution, solution_fitness, solution_idx = ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)
@@ -287,6 +298,7 @@ def on_generation(ga_instance):
         f.write(f"      mean cwce: {mean_first_errors:.4f} +/- {std_first_errors:.4f}\n")
         f.write(f"      mean angular Z-score: {mean_second_errors:.4f} +/- {std_second_errors:.4f}\n")
         f.write(f"      mean NMSE: {mean_third_errors:.4f} +/- {std_third_errors:.4f}\n")
+        f.write(f"      mean norm. spread difference: {mean_fourth_errors:.4f} +/- {std_fourth_errors:.4f}\n")
         f.write(f"Generation mean gene standard deviations: {np.mean(gene_std_devs):.4f}\n")
         f.write(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")
     print(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)")
@@ -463,7 +475,13 @@ if __name__ == '__main__':
     plt.legend()
     plt.savefig(f"{current_results_dirname}/best_nmse_errors.png")
 
-
+    plt.figure()
+    plt.plot(best_errors[:, 3], label='Best Norm. Spread Difference')
+    plt.xlabel('Generation')
+    plt.ylabel('Norm. Spread Difference Error')
+    plt.title('Best Norm. Spread Difference Error Over Generations')
+    plt.legend()
+    plt.savefig(f"{current_results_dirname}/best_norm_spread_diff_errors.png")
 
     plt.figure()
     plt.plot(mean_errors_working_specimens, label='Mean Errors (Working Specimens)')
@@ -512,6 +530,18 @@ if __name__ == '__main__':
     plt.title('Mean NMSE Over Generations')
     plt.legend()
     plt.savefig(f"{current_results_dirname}/mean_third_errors.png")
+
+    plt.figure()
+    plt.plot(mean_fourth_errors_working_specimens, label='Mean Norm. Spread Difference (Working Specimens)')
+    plt.fill_between(range(len(mean_fourth_errors_working_specimens)), 
+                     np.array(mean_fourth_errors_working_specimens) - np.array(std_fourth_errors_working_specimens), 
+                     np.array(mean_fourth_errors_working_specimens) + np.array(std_fourth_errors_working_specimens), 
+                     alpha=0.2)
+    plt.xlabel('Generation')
+    plt.ylabel('Mean Norm. Spread Difference')
+    plt.title('Mean Norm. Spread Difference Over Generations')
+    plt.legend()
+    plt.savefig(f"{current_results_dirname}/mean_fourth_errors.png")
 
     plt.figure()
     plt.plot(mean_gene_stddevs, label='Mean Gene Standard Deviations')

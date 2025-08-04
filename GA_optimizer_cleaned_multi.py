@@ -351,7 +351,7 @@ def fitness_func(ga_instance, solution, solution_idx):
 
         # Normalize the spread difference by the number of neurons, and
         # add 1 to make sure it is non-negative.
-        spread_err = (spread_difference / num_neurons) + 1
+        spread_err = np.abs(spread_difference / num_neurons) + 1
         
         # Combine the errors into one composite score, just to be able to
         # quickly check NaN or infinite values.

@@ -68,6 +68,8 @@ parser.add_argument('--stim_width', type=float, default=0.5, help='Width of the 
 parser.add_argument('--tau', type=float, default=10.0, help='Time constant for the ring attractor model in ms.')
 parser.add_argument('--sigma_noise', type=float, default=1.0)
 parser.add_argument('--num_neurons', type=int, default=120, help='Number of neurons in the ring attractor model.')
+parser.add_argument('--input_on', type=float, default=0.5, help='Duration of the input stimulus in seconds.')
+parser.add_argument('--input_off', type=float, default=0.2, help='Duration of the input off period in seconds.')
 
 
 args = parser.parse_args()
@@ -95,6 +97,9 @@ stim_width = args.stim_width
 tau = args.tau 
 sigma_noise = args.sigma_noise
 
+input_on = args.input_on
+input_off = args.input_off
+
 # Write the parameters to a file
 with open(f"{current_results_dirname}/exp_params.txt", "w") as f:
     f.write(f"Random seed: {rand_seed}\n")
@@ -111,6 +116,8 @@ with open(f"{current_results_dirname}/exp_params.txt", "w") as f:
     f.write(f"Random mutation min value: {rand_mut_min_val}\n")
     f.write(f"Random mutation max value: {rand_mut_max_val}\n")
     f.write(f"Initial ranges for Mexican hat connectivity profile: {initial_ranges_mex}\n")
+    f.write(f"Input on duration: {input_on} seconds\n")
+    f.write(f"Input off duration: {input_off} seconds\n")
 
 
 # If adaptive mutation is used, there is a probability for lower-than-average fitness solutions 
@@ -130,6 +137,8 @@ fixed_params = {
     'sigma_noise': sigma_noise,   # similarly converted to mV inside run_ring_attractor.
     'syn_profile': connectivity_profile,  # Set the connectivity profile
     'num_neurons': num_neurons,  # Number of neurons in the ring attractor
+    'input_on': input_on,
+    'input_off': input_off
 }
 
 
@@ -351,7 +360,7 @@ def fitness_func(ga_instance, solution, solution_idx):
 
         # Normalize the spread difference by the number of neurons, and
         # add 1 to make sure it is non-negative.
-        spread_err = (spread_difference / num_neurons) + 1
+        spread_err = np.abs(spread_difference / num_neurons) + 1
         
         # Combine the errors into one composite score, just to be able to
         # quickly check NaN or infinite values.

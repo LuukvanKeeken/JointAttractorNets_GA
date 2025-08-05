@@ -77,8 +77,8 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
 
     # Build the network and run simulation
     net = Network(ringAttractor.BrianObjects + monitors)
-    input_on = 0.5*second
-    input_off = 0.2*second
+    input_on = params.get('input_on', 0.5)*second
+    input_off = params.get('input_off', 0.2)*second
     sim_duration = input_on + input_off
     
     net.run(input_on)

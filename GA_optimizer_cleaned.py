@@ -303,10 +303,15 @@ def fitness_func(ga_instance, solution, solution_idx):
         # Check if the composite error is NaN or infinite. In that case, set it to a very high value,
         # so that the fitness value will be very low.
         if np.isnan(composite_error):
-            print(f"Composite error is NaN for solution {solution_idx}. Setting composite error to -1.")
+            isnan_indices = np.isnan([cwce, angular_Zscore, nmse, spread_err])
+            isinf_indices = np.isinf([cwce, angular_Zscore, nmse, spread_err])
+
+            print(f"Composite error is NaN for solution {solution_idx}. Setting composite error to -1. The values that caused NaN are: cwce: {isnan_indices[0]}, angular_Zscore: {isnan_indices[1]}, nmse: {isnan_indices[2]}, spread_err: {isnan_indices[3]}. Values that are inf are: cwce: {isinf_indices[0]}, angular_Zscore: {isinf_indices[1]}, nmse: {isinf_indices[2]}, spread_err: {isinf_indices[3]}.")
             composite_error = -1
         elif np.isinf(composite_error):
-            print(f"Composite error is infinite for solution {solution_idx}. Setting composite error to -1.")
+            isinf_indices = np.isinf([cwce, angular_Zscore, nmse, spread_err])
+
+            print(f"Composite error is infinite for solution {solution_idx}. Setting composite error to -1. The values that caused Inf are: cwce: {isinf_indices[0]}, angular_Zscore: {isinf_indices[1]}, nmse: {isinf_indices[2]}, spread_err: {isinf_indices[3]}.")
             composite_error = -1
         
     # For now, if there is any exception raised, just give very low fitness value to this solution.

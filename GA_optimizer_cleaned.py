@@ -276,7 +276,7 @@ def fitness_func(ga_instance, solution, solution_idx):
     try:
         # Run the simulation.
         # opt_ring_attractor returns: (GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude)
-        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude, spread_difference = opt_ring_attractor(params, stim_center=stim_center, stim_width=stim_width)
+        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude, spread_difference, _, _ = opt_ring_attractor(params, stim_center=stim_center, stim_width=stim_width, idx=solution_idx)
         
         # Compute the circular standard deviation (spread) from the PVA magnitude.
         circular_std = np.sqrt(-2 * np.log(out_pva_magnitude + 1e-8))
@@ -306,7 +306,7 @@ def fitness_func(ga_instance, solution, solution_idx):
             isnan_indices = np.isnan([cwce, angular_Zscore, nmse, spread_err])
             isinf_indices = np.isinf([cwce, angular_Zscore, nmse, spread_err])
 
-            print(f"Composite error is NaN for solution {solution_idx}. Setting composite error to -1. The values that caused NaN are: cwce: {isnan_indices[0]}, angular_Zscore: {isnan_indices[1]}, nmse: {isnan_indices[2]}, spread_err: {isnan_indices[3]}. Values that are inf are: cwce: {isinf_indices[0]}, angular_Zscore: {isinf_indices[1]}, nmse: {isinf_indices[2]}, spread_err: {isinf_indices[3]}.")
+            print(f"Composite error is NaN for solution {solution_idx}. Setting composite error to -1. The values that caused NaN are: cwce: {isnan_indices[0]}, angular_Zscore: {isnan_indices[1]}, nmse: {isnan_indices[2]}, spread_err: {isnan_indices[3]}, out_rates: {np.any(np.isnan(out_rates))}, GT_input: {np.any(np.isnan(GT_input))}. Values that are inf are: cwce: {isinf_indices[0]}, angular_Zscore: {isinf_indices[1]}, nmse: {isinf_indices[2]}, spread_err: {isinf_indices[3]}.")
             composite_error = -1
         elif np.isinf(composite_error):
             isinf_indices = np.isinf([cwce, angular_Zscore, nmse, spread_err])

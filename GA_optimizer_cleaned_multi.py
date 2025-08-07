@@ -368,6 +368,12 @@ def fitness_func(ga_instance, solution, solution_idx):
 
         # Check if the composite error is NaN or infinite. In that case, set all errors to -1
         if np.isnan(composite_error) or np.isinf(composite_error):
+            isnan_indices = np.isnan([cwce, angular_Zscore, nmse, spread_err])
+            isinf_indices = np.isinf([cwce, angular_Zscore, nmse, spread_err])
+
+            print(f"Composite error is NaN for solution {solution_idx}. Setting errors to -1. The values that caused NaN are: cwce: {isnan_indices[0]}, angular_Zscore: {isnan_indices[1]}, nmse: {isnan_indices[2]}, spread_err: {isnan_indices[3]}, out_rates: {np.any(np.isnan(out_rates))}, GT_input: {np.any(np.isnan(GT_input))}. Values that are inf are: cwce: {isinf_indices[0]}, angular_Zscore: {isinf_indices[1]}, nmse: {isinf_indices[2]}, spread_err: {isinf_indices[3]}.")
+            
+
             cwce = -1
             angular_Zscore = -1
             nmse = -1

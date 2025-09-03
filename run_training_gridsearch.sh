@@ -4,7 +4,7 @@
 
 # install requirements, then execute script with given arguments
 
-cd /project_antwerp/code/temp2/JointAttractorNets_GA/Optimization\ Models
+cd /project_antwerp/code/temp2/JointAttractorNets_GA
 # pip install wfdb
 python -m pip install -U pip
 pip3 install pandas
@@ -16,5 +16,5 @@ pip install tqdm
 
 
 #for 1 run:
-python3 gridSearch_optimizer_v2.py
+python3 Optimization\ Models/gridSearch_optimizer_v2.py
 

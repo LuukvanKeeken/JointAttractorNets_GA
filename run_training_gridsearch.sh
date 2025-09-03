@@ -4,7 +4,7 @@
 
 # install requirements, then execute script with given arguments
 
-cd /project_antwerp/code/temp2/JointAttractorNets_GA
+cd /project_antwerp/code/temp2/JointAttractorNets_GA/Optimization\ Models
 # pip install wfdb
 python -m pip install -U pip
 pip3 install pandas

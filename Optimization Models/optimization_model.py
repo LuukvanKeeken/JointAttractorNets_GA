@@ -28,16 +28,17 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     Returns:
         result: Any outcome from the simulation you wish to optimize (e.g., a cost metric)
     """
+    print("test1 om")
     set_device('cpp_standalone', build_on_run=False)  # Use C++ standalone mode for performance
     # --- Simulation parameters ---
     defaultclock.dt = 0.1*ms
     num_neurons = params.get('num_neurons', 120)  # Default to 120 neurons if not specified
-
+    print("test2 om")
     # Use parameters from the dict, with appropriate units:
     tau = params.get('tau', 10)*ms
     sigma_noise = params.get('sigma_noise', 1)*mV
     V_rest = -70*mV
-
+    print("test3 om")
     # External input parameters (could also be passed in or kept fixed)
     stimulus_center = stim_center  
     stimulus_width = stim_width  
@@ -45,31 +46,31 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     positions = linspace(0, 2*pi, num_neurons, endpoint=False)
     d = np.angle(np.exp(1j * (positions - stimulus_center)))
     I_ext_array = I0 * np.exp(-(d**2) / (2 * stimulus_width**2))
-        
+    print("test4 om")
     # Create the neuron model equations using your custom LIF model
     neuron_eq = Equations(LIF_xi_vel_eq, tau=tau, V_rest=V_rest, sigma_noise=sigma_noise)
-    
+    print("test5 om")
     # Fixed intrinsic properties for now:
     Vth = -48*mV
     V_reset = -80*mV
     refractory_period = 5*ms
-
+    print("test6 om")
     # Create the ring attractor with prepared parameters
     ringAttractor = RingAttractor(neuron_eq, 
                      num_neurons, 
                      Vth, V_reset, refractory_period,
                      **params)
     ringAttractor.ring_pool.I_ext = I_ext_array
-
+    print("test7 om")
     # Clipping operation: enforce lower bound
     @network_operation(dt=defaultclock.dt)
     def enforce_lower_bound():
         ringAttractor.ring_pool.V[:] = clip(ringAttractor.ring_pool.V[:], V_reset, inf*volt)
-
+    print("test8 om")
     # Set up monitors
     spikemon = SpikeMonitor(ringAttractor.ring_pool)
     statemon = StateMonitor(ringAttractor.ring_pool, 'V', record=True)
-    
+    print("test9 om")
     # Additional monitor for global inhibitory neuron if it exists
     if params.get('syn_profile', 'mexican_hat') == 'cosine' and params.get('glob_inh', False):
         spikemon_inh = SpikeMonitor(ringAttractor.glob_inh_neuron)
@@ -77,30 +78,30 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
         monitors = [enforce_lower_bound, spikemon, statemon, spikemon_inh, statemon_inh]
     else:
         monitors = [enforce_lower_bound, spikemon, statemon]
-
+    print("test10 om")
     # Build the network and run simulation
     net = Network(ringAttractor.BrianObjects + monitors)
     input_on = 0.5*second
     input_off = 0.2*second
     sim_duration = input_on + input_off
-    
+    print("test11 om")
     net.run(input_on)
     ringAttractor.ring_pool.I_ext = I_ext_array * 0  # turn off input in second half
     net.run(input_off)
-    
+    print("test12 om")
     build_directory = os.path.join(os.getcwd(), 'Optimization Models', 'optimizationModel_build')
     device.build(directory=build_directory, compile=True, run=True, debug=False)
-    
+    print("test13 om")
     firing_rates = compute_firing_rate(spikemon, num_neurons,
                                        start_time=input_on, end_time=sim_duration)
                                     #    start_time=0.95*sim_duration, end_time=sim_duration)
-                                    
+    print("test14 om")
     pva_angle, pva_magnitude = calculate_PVA(firing_rates, positions)
-
+    print("test15 om")
     # Positive spread difference means an increase in bump spread
     # between t1 and t2, negative means a decrease.
     spread_difference, spread_t1, spread_t2 = calculate_spreads(spikemon, t1=input_on, t2=sim_duration)
-    
+    print("test16 om")
     # Return simulation results
     return stimulus_center, I_ext_array, firing_rates, pva_angle, pva_magnitude, spread_difference
 

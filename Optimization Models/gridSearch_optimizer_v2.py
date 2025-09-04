@@ -19,10 +19,10 @@ num_neurons = 120
 # Define the parameter grids based on the connectivity profile
 if connectivity_profile == 'mexican_hat':
     # Mexican hat profile parameters
-    sigma_exc_range = np.linspace(0.05, 0.2, 5)   # excitatory spread
-    sigma_inh_range = np.linspace(0.1, 0.3, 5)    # inhibitory spread
-    g_exc_range   = np.linspace(0.5, 1.0, 5)*mV      # excitatory gain
-    g_inh_range   = np.linspace(-1.0, -0.3, 5)*mV    # inhibitory gain
+    sigma_exc_range = np.linspace(0.05, 0.2, 2)   # excitatory spread
+    sigma_inh_range = np.linspace(0.1, 0.3, 1)    # inhibitory spread
+    g_exc_range   = np.linspace(0.5, 1.0, 1)*mV      # excitatory gain
+    g_inh_range   = np.linspace(-1.0, -0.3, 1)*mV    # inhibitory gain
     
     # Prepare list of parameter combinations (each is a 4-tuple).
     param_grid = list(itertools.product(sigma_exc_range, sigma_inh_range, g_exc_range, g_inh_range))

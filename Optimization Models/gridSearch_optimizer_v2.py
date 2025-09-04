@@ -65,6 +65,7 @@ def worker_run(params_tuple):
     # Build the full parameter dictionary based on connectivity profile
     params = fixed_params.copy()
 
+    print("test3")
     if connectivity_profile == 'mexican_hat':
         sigma_exc, sigma_inh, g_exc, g_inh = params_tuple
         params.update({
@@ -83,31 +84,31 @@ def worker_run(params_tuple):
         # Only add w_inh if global inhibition is enabled
         if glob_inh:
             params.update({'w_inh': w_inh})
-        
+    print("test4")
     try:
         # Run the simulation.
         # opt_ring_attractor returns: (GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude)
         GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude, spread_difference = opt_ring_attractor(params)
-        
+        print("test5")
         # Compute the circular standard deviation (spread) from the PVA magnitude.
         circular_std = np.sqrt(-2 * np.log(out_pva_magnitude + 1e-8))
-        
+        print("test6")
         # Compute the center error and the confidence weighted center error (CWCE).
         center_err, cwce = conf_weighted_CE(out_pva_angle, GT_center, out_pva_magnitude)
-        
+        print("test7")
         # Compute the angular Z-score:
         # This expresses the misalignment (center_err) in units of the circular standard deviation,
         # analogous to a z-score in linear statistics.
         angular_Zscore = center_err / circular_std
-        
+        print("test8")
         # Compute the NMSE between the observed firing rates and the ideal Gaussian profile.
         nmse = compute_nmse_normalized(out_rates, GT_input, norm_type='max')
-        
+        print("test9")
 
         # Normalize the spread difference by the number of neurons, and
         # add 1 to make sure it is non-negative.
         spread_err = (spread_difference / num_neurons) + 1
-        
+        print("test10")
         # Combine the errors into one composite score.
         # Adjust weights to prioritize center accuracy if desired
         w_center = 0.25
@@ -115,7 +116,7 @@ def worker_run(params_tuple):
         w_nmse = 0.25
         w_spread = 0.25
         composite_error = w_center * cwce + w_Zscore * angular_Zscore + w_nmse * nmse + w_spread * spread_err
-        
+        print("test11")
         # Create result dictionary with profile-specific parameters
         result = {
             'composite_error': float(composite_error),
@@ -128,7 +129,7 @@ def worker_run(params_tuple):
             'spread_error': float(spread_err),
             'error_message': np.nan
         }
-        
+        print("test12")
         # Add profile-specific parameters to results
         if connectivity_profile == 'mexican_hat':
             result.update({
@@ -143,7 +144,7 @@ def worker_run(params_tuple):
                 'glob_inh': glob_inh,
                 'w_inh': w_inh if glob_inh else np.nan
             })
-            
+        print("test13")    
         return result
     
     except Exception as e:
@@ -159,7 +160,7 @@ def worker_run(params_tuple):
             'spread_error': np.nan,
             'error_message': str(e)
         }
-        
+        print("test14")
         # Add profile-specific parameters to error results
         if connectivity_profile == 'mexican_hat':
             result.update({
@@ -174,7 +175,7 @@ def worker_run(params_tuple):
                 'glob_inh': glob_inh,
                 'w_inh': w_inh if glob_inh else np.nan
             })
-            
+        print("test15")
         return result
 
 if __name__ == '__main__':
@@ -183,7 +184,7 @@ if __name__ == '__main__':
     
     num_proc = mp.cpu_count()   # Adjust the number of worker processes based on your system
     results = []
-    
+    print(f"Using {num_proc} processes for grid search.")
     # Use Pool.imap_unordered with tqdm for progress tracking.
     with mp.Pool(processes=num_proc) as pool:
         print("test1")

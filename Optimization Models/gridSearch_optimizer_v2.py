@@ -31,14 +31,22 @@ num_neurons = 120
 # Define the parameter grids based on the connectivity profile
 if connectivity_profile == 'mexican_hat':
     # Mexican hat profile parameters
-    sigma_exc_range = np.linspace(0.05, 0.2, 3)   # excitatory spread
-    sigma_inh_range = np.linspace(0.1, 0.3, 3)    # inhibitory spread
-    g_exc_range   = np.linspace(0.5, 1.0, 3)*mV      # excitatory gain
-    g_inh_range   = np.linspace(-1.0, -0.3, 3)*mV    # inhibitory gain
+    sigma_exc_range = np.linspace(0.05, 0.25, 10)   # excitatory spread
+    sigma_inh_range = np.linspace(0.1, 0.3, 10)    # inhibitory spread
+    g_exc_range   = np.linspace(0.5, 1.0, 10)*mV      # excitatory gain
+    g_inh_range   = np.linspace(-1.0, -0.3, 10)*mV    # inhibitory gain
     
     # Prepare list of parameter combinations (each is a 4-tuple).
     param_grid = list(itertools.product(sigma_exc_range, sigma_inh_range, g_exc_range, g_inh_range))
-    
+
+    # Store the ranges in a txt file in the results dir
+    with open(os.path.join(result_dir, "parameter_ranges.txt"), "w") as f:
+        f.write("Mexican Hat Profile Parameter Ranges:\n")
+        f.write(f"Sigma Excitatory: {sigma_exc_range}\n")
+        f.write(f"Sigma Inhibitory: {sigma_inh_range}\n")
+        f.write(f"Gain Excitatory: {g_exc_range}\n")
+        f.write(f"Gain Inhibitory: {g_inh_range}\n")
+
 elif connectivity_profile == 'cosine':
     # Cosine profile parameters - optimize g_cosine, glob_inh, and w_inh
     g_cosine_range = np.linspace(0.01, 0.1, 50)*mV   # cosine gain with smaller scale
@@ -53,6 +61,13 @@ elif connectivity_profile == 'cosine':
         # With global inhibition (g_cosine, True, and each w_inh value)
         for w in w_inh_range:
             param_grid.append((g, True, w))
+
+    # Store the ranges in a txt file in the results dir
+    with open(os.path.join(result_dir, "parameter_ranges.txt"), "w") as f:
+        f.write("Cosine Profile Parameter Ranges:\n")
+        f.write(f"Gain Cosine: {g_cosine_range}\n")
+        f.write(f"Global Inhibition: {glob_inh_range}\n")
+        f.write(f"Weight Inhibition: {w_inh_range}\n")
 else:
     raise ValueError("Unsupported connectivity profile. Choose 'mexican_hat' or 'cosine'.")
 

@@ -16,5 +16,5 @@ pip install tqdm
 
 
 #for 1 run:
-python3 Optimization\ Models/gridSearch_optimizer_v2.py
+python3 "Optimization Models/gridSearch_optimizer_v2.py"
 

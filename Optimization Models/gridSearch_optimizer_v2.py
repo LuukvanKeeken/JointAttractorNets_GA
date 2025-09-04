@@ -4,15 +4,27 @@ import pandas as pd
 from tqdm import tqdm
 import multiprocessing as mp
 from brian2 import *  # Brian2 must be imported for the simulation
+import time
 
 # Import the simulation function from your model file
 from optimization_model import opt_ring_attractor  # your simulation function
 # Also import any utility functions if needed (e.g., for computing firing rates, etc.)
 from utils import *
 
+
 # Set the connectivity profile to optimize
 # Options: 'mexican_hat', 'cosine'
 connectivity_profile = 'mexican_hat'  # Change this to 'cosine' to optimize the cosine profile
+
+
+date = time.strftime('%Y%m%d_%H%M%S')
+
+output_folder = "Optimization Results"
+
+result_dir = os.path.join(output_folder, f"optimization_results_{connectivity_profile}_{date}")
+
+if not os.path.exists(result_dir):
+    os.makedirs(result_dir)
 
 num_neurons = 120
 
@@ -182,7 +194,8 @@ if __name__ == '__main__':
     print(f"Starting grid search optimization for {connectivity_profile} connectivity profile")
     print(f"Total parameter combinations to evaluate: {total_runs}")
     
-    num_proc = mp.cpu_count()   # Adjust the number of worker processes based on your system
+    # num_proc = mp.cpu_count()   # Adjust the number of worker processes based on your system
+    num_proc = 16
     results = []
     print(f"Using {num_proc} processes for grid search.")
     # Use Pool.imap_unordered with tqdm for progress tracking.
@@ -195,12 +208,12 @@ if __name__ == '__main__':
     # Convert results to a pandas DataFrame for easier sorting and saving.
     results_df = pd.DataFrame(results)
     
-    # Create folder for results if it doesn't exist.
-    output_folder = "Optimization Results"
-    os.makedirs(output_folder, exist_ok=True)
+    # # Create folder for results if it doesn't exist.
+    # output_folder = "Optimization Results"
+    # os.makedirs(output_folder, exist_ok=True)
     
     # Save the complete results to a CSV file with profile name in the filename inside the folder
-    results_filename = os.path.join(output_folder, f"optimization_results_{connectivity_profile}.csv")
+    results_filename = os.path.join(result_dir, f"optimization_results_{connectivity_profile}.csv")
     results_df.to_csv(results_filename, index=False)
     print(f"Results saved to {results_filename}")
     
@@ -214,5 +227,11 @@ if __name__ == '__main__':
         best_result = valid_results.sort_values(by=[sortBy], ascending=[True]).iloc[0]
         print(f"Best parameter set found for {connectivity_profile} profile (sorted by {sortBy}):")
         print(best_result)
+
+        # Save best result to txt file in results_dir
+        best_result_filename = os.path.join(result_dir, f"best_result_{connectivity_profile}.txt")
+        with open(best_result_filename, 'w') as f:
+            f.write(best_result.to_string())
+        print(f"Best result saved to {best_result_filename}")
     else:
         print("No valid simulation results found.")

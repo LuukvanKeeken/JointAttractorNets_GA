@@ -19,10 +19,10 @@ num_neurons = 120
 # Define the parameter grids based on the connectivity profile
 if connectivity_profile == 'mexican_hat':
     # Mexican hat profile parameters
-    sigma_exc_range = np.linspace(0.05, 0.2, 2)   # excitatory spread
-    sigma_inh_range = np.linspace(0.1, 0.3, 1)    # inhibitory spread
-    g_exc_range   = np.linspace(0.5, 1.0, 1)*mV      # excitatory gain
-    g_inh_range   = np.linspace(-1.0, -0.3, 1)*mV    # inhibitory gain
+    sigma_exc_range = np.linspace(0.05, 0.2, 3)   # excitatory spread
+    sigma_inh_range = np.linspace(0.1, 0.3, 3)    # inhibitory spread
+    g_exc_range   = np.linspace(0.5, 1.0, 3)*mV      # excitatory gain
+    g_inh_range   = np.linspace(-1.0, -0.3, 3)*mV    # inhibitory gain
     
     # Prepare list of parameter combinations (each is a 4-tuple).
     param_grid = list(itertools.product(sigma_exc_range, sigma_inh_range, g_exc_range, g_inh_range))
@@ -65,7 +65,7 @@ def worker_run(params_tuple):
     # Build the full parameter dictionary based on connectivity profile
     params = fixed_params.copy()
 
-    print("test3")
+    # print("test3")
     if connectivity_profile == 'mexican_hat':
         sigma_exc, sigma_inh, g_exc, g_inh = params_tuple
         params.update({
@@ -84,31 +84,31 @@ def worker_run(params_tuple):
         # Only add w_inh if global inhibition is enabled
         if glob_inh:
             params.update({'w_inh': w_inh})
-    print("test4")
+    # print("test4")
     try:
         # Run the simulation.
         # opt_ring_attractor returns: (GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude)
         GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude, spread_difference = opt_ring_attractor(params)
-        print("test5")
+        # print("test5")
         # Compute the circular standard deviation (spread) from the PVA magnitude.
         circular_std = np.sqrt(-2 * np.log(out_pva_magnitude + 1e-8))
-        print("test6")
+        # print("test6")
         # Compute the center error and the confidence weighted center error (CWCE).
         center_err, cwce = conf_weighted_CE(out_pva_angle, GT_center, out_pva_magnitude)
-        print("test7")
+        # print("test7")
         # Compute the angular Z-score:
         # This expresses the misalignment (center_err) in units of the circular standard deviation,
         # analogous to a z-score in linear statistics.
         angular_Zscore = center_err / circular_std
-        print("test8")
+        # print("test8")
         # Compute the NMSE between the observed firing rates and the ideal Gaussian profile.
         nmse = compute_nmse_normalized(out_rates, GT_input, norm_type='max')
-        print("test9")
+        # print("test9")
 
         # Normalize the spread difference by the number of neurons, and
         # add 1 to make sure it is non-negative.
         spread_err = (spread_difference / num_neurons) + 1
-        print("test10")
+        # print("test10")
         # Combine the errors into one composite score.
         # Adjust weights to prioritize center accuracy if desired
         w_center = 0.25
@@ -116,7 +116,7 @@ def worker_run(params_tuple):
         w_nmse = 0.25
         w_spread = 0.25
         composite_error = w_center * cwce + w_Zscore * angular_Zscore + w_nmse * nmse + w_spread * spread_err
-        print("test11")
+        # print(f"composite_error: {composite_error}")
         # Create result dictionary with profile-specific parameters
         result = {
             'composite_error': float(composite_error),
@@ -129,7 +129,7 @@ def worker_run(params_tuple):
             'spread_error': float(spread_err),
             'error_message': np.nan
         }
-        print("test12")
+        # print("test12")
         # Add profile-specific parameters to results
         if connectivity_profile == 'mexican_hat':
             result.update({
@@ -144,7 +144,7 @@ def worker_run(params_tuple):
                 'glob_inh': glob_inh,
                 'w_inh': w_inh if glob_inh else np.nan
             })
-        print("test13")    
+        # print("test13")    
         return result
     
     except Exception as e:
@@ -160,7 +160,7 @@ def worker_run(params_tuple):
             'spread_error': np.nan,
             'error_message': str(e)
         }
-        print("test14")
+        # print("test14")
         # Add profile-specific parameters to error results
         if connectivity_profile == 'mexican_hat':
             result.update({
@@ -175,7 +175,7 @@ def worker_run(params_tuple):
                 'glob_inh': glob_inh,
                 'w_inh': w_inh if glob_inh else np.nan
             })
-        print("test15")
+        # print("test15")
         return result
 
 if __name__ == '__main__':
@@ -187,9 +187,9 @@ if __name__ == '__main__':
     print(f"Using {num_proc} processes for grid search.")
     # Use Pool.imap_unordered with tqdm for progress tracking.
     with mp.Pool(processes=num_proc) as pool:
-        print("test1")
+        # print("test1")
         for res in tqdm(pool.imap_unordered(worker_run, param_grid), total=total_runs, desc="Grid Search"):
-            print("test2")
+            # print("test2")
             results.append(res)
     
     # Convert results to a pandas DataFrame for easier sorting and saving.

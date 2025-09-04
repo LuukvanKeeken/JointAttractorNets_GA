@@ -186,7 +186,9 @@ if __name__ == '__main__':
     
     # Use Pool.imap_unordered with tqdm for progress tracking.
     with mp.Pool(processes=num_proc) as pool:
+        print("test1")
         for res in tqdm(pool.imap_unordered(worker_run, param_grid), total=total_runs, desc="Grid Search"):
+            print("test2")
             results.append(res)
     
     # Convert results to a pandas DataFrame for easier sorting and saving.

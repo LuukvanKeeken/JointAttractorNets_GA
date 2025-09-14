@@ -14,7 +14,7 @@ from utils import *
 
 # Set the connectivity profile to optimize
 # Options: 'mexican_hat', 'cosine'
-connectivity_profile = 'cosine'  # Change this to 'cosine' to optimize the cosine profile
+connectivity_profile = 'mexican_hat'  # Change this to 'cosine' to optimize the cosine profile
 
 
 date = time.strftime('%Y%m%d_%H%M%S')
@@ -33,8 +33,8 @@ if connectivity_profile == 'mexican_hat':
     # Mexican hat profile parameters
     sigma_exc_range = np.linspace(0.05, 0.25, 10)   # excitatory spread
     sigma_inh_range = np.linspace(0.1, 0.3, 10)    # inhibitory spread
-    g_exc_range   = np.linspace(0.01, 0.5, 10)*mV      # excitatory gain
-    g_inh_range   = np.linspace(-0.5, -0.01, 10)*mV    # inhibitory gain
+    g_exc_range   = np.linspace(0.5, 1.0, 10)*mV      # excitatory gain
+    g_inh_range   = np.linspace(-1, -0.3, 10)*mV    # inhibitory gain
     
     # Prepare list of parameter combinations (each is a 4-tuple).
     param_grid = list(itertools.product(sigma_exc_range, sigma_inh_range, g_exc_range, g_inh_range))

@@ -7,12 +7,14 @@
 cd /project_antwerp/code/temp2/JointAttractorNets_GA
 # pip install wfdb
 python -m pip install -U pip
+pip install numpy==2.2.2
 pip install pyparsing==3.2.3
 pip3 install pandas==2.2.3
 pip install pygad==3.4.0
 pip install brian2==2.8.0.4
 pip install lmfit==1.3.3
 pip install tqdm==4.67.1
+
 
 
 

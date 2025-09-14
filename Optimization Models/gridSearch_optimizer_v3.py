@@ -49,9 +49,9 @@ if connectivity_profile == 'mexican_hat':
 
 elif connectivity_profile == 'cosine':
     # Cosine profile parameters - optimize g_cosine, glob_inh, and w_inh
-    g_cosine_range = np.linspace(0.01, 0.5, 2)*mV   # cosine gain with smaller scale
+    g_cosine_range = np.linspace(0.01, 0.5, 200)*mV   # cosine gain with smaller scale
     glob_inh_range = [True, False]                # global inhibition flag
-    w_inh_range = np.linspace(-2.0, -0.01, 2)*mV    # global inhibition weight
+    w_inh_range = np.linspace(-2.0, -0.01, 250)*mV    # global inhibition weight
     
     # Create parameter grid with conditional logic
     param_grid = []

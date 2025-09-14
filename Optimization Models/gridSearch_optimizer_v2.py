@@ -5,6 +5,7 @@ from tqdm import tqdm
 import multiprocessing as mp
 from brian2 import *  # Brian2 must be imported for the simulation
 import time
+import traceback
 
 # Import the simulation function from your model file
 from optimization_model import opt_ring_attractor  # your simulation function
@@ -187,6 +188,7 @@ def worker_run(params_tuple):
             'spread_error': np.nan,
             'error_message': str(e)
         }
+        traceback.print_exc()
         # print("test14")
         # Add profile-specific parameters to error results
         if connectivity_profile == 'mexican_hat':

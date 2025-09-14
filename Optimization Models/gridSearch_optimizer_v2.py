@@ -5,7 +5,6 @@ from tqdm import tqdm
 import multiprocessing as mp
 from brian2 import *  # Brian2 must be imported for the simulation
 import time
-import traceback
 
 # Import the simulation function from your model file
 from optimization_model import opt_ring_attractor  # your simulation function
@@ -50,9 +49,9 @@ if connectivity_profile == 'mexican_hat':
 
 elif connectivity_profile == 'cosine':
     # Cosine profile parameters - optimize g_cosine, glob_inh, and w_inh
-    g_cosine_range = np.linspace(0.01, 0.5, 2)*mV   # cosine gain with smaller scale
+    g_cosine_range = np.linspace(0.01, 0.5, 10)*mV   # cosine gain with smaller scale
     glob_inh_range = [True, False]                # global inhibition flag
-    w_inh_range = np.linspace(-2.0, -0.01, 2)*mV    # global inhibition weight
+    w_inh_range = np.linspace(-2.0, -0.01, 10)*mV    # global inhibition weight
     
     # Create parameter grid with conditional logic
     param_grid = []
@@ -188,7 +187,6 @@ def worker_run(params_tuple):
             'spread_error': np.nan,
             'error_message': str(e)
         }
-        traceback.print_exc()
         # print("test14")
         # Add profile-specific parameters to error results
         if connectivity_profile == 'mexican_hat':
@@ -212,7 +210,7 @@ if __name__ == '__main__':
     print(f"Total parameter combinations to evaluate: {total_runs}")
     
     # num_proc = mp.cpu_count()   # Adjust the number of worker processes based on your system
-    num_proc = 1
+    num_proc = 16
     results = []
     print(f"Using {num_proc} processes for grid search.")
     # Use Pool.imap_unordered with tqdm for progress tracking.

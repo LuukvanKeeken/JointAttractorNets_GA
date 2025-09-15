@@ -308,7 +308,10 @@ def on_generation(ga_instance):
     
     gens_completed = ga_instance.generations_completed
     with open(f"{current_results_dirname}/exp_results.txt", "a") as f:
-        f.write(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)\n")
+        if connectivity_profile == 'mexican_hat':
+            f.write(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)\n")
+        elif connectivity_profile == 'cosine':
+            f.write(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (g_cosine: {solution[0]}, glob_inh: {True if solution[1] >= 0.5 else False}, w_inh: {solution[2]})\n")
         f.write(f"Generation mean FITNESS: {np.mean(positive_fitnesses):.4f} +/- {np.std(positive_fitnesses):.4f} | {len(positive_fitnesses)} working, {len(negative_fitnesses)} failed solutions\n")
         f.write(f"Generation mean ERROR (working solutions): {mean_errors:.4f} +/- {std_errors:.4f}\n")
         f.write(f"      mean cwce: {mean_first_errors:.4f} +/- {std_first_errors:.4f}\n")
@@ -348,7 +351,7 @@ def fitness_func(ga_instance, solution, solution_idx):
         params.update({
             'g_cosine': solution[0]*mV,
             'glob_inh': True if solution[1] >= 0.5 else False,
-            'w_inh': solution[2]
+            'w_inh': solution[2]*mV
         })
     else:
         raise ValueError("Unsupported connectivity profile. Choose 'mexican_hat' or 'cosine'.")

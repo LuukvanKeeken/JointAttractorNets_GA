@@ -25,7 +25,7 @@ num_gens=(2)
 con_prof="cosine"
 
 initial_ranges_mex=(0.05 0.3 0.05 0.3 0.5 1.0 -1.2 -0.3)  # Mexican hat profile ranges
-initial_ranges_cos=(0.01, 0.5, -2.0, -0.01)
+initial_ranges_cos=(0.01 0.5 -2.0 -0.01)
 
 for i in "${!num_processes[@]}"; do
     num_proc="${num_processes[$i]}"

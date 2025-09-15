@@ -62,6 +62,7 @@ parser.add_argument('--keep_elitism', type=int, default=1, help='Number of best 
 parser.add_argument('--rand_mut_min_val', type=float, default=-0.1, help='Minimum value for random mutation.')
 parser.add_argument('--rand_mut_max_val', type=float, default=0.1, help='Maximum value for random mutation.')
 parser.add_argument('--initial_ranges_mex', type=float, nargs=8, default=[0.05, 0.2, 0.1, 0.3, 0.5, 1.0, -1.0, -0.3], help='Initial ranges for Mexican hat connectivity profile: sigma_exc_min, sigma_exc_max, sigma_inh_min, sigma_inh_max, g_exc_min, g_exc_max, g_inh_min, g_inh_max.')
+parser.add_argument('--initial_ranges_cos', type=float, nargs=3, default=[0.01, 0.5, -2.0, -0.01], help='Initial ranges for Cosine connectivity profile: g_cosine_min, g_cosine_max, w_inh_min, w_inh_max.')
 parser.add_argument('--gene_spaces', type=float, nargs=8, default=[0.0001, 100, 0.0001, 100, 0.0001, 100, -100, 0.0], help='Gene spaces/limits for the optimization: sigma_exc_min, sigma_exc_max, sigma_inh_min, sigma_inh_max, g_exc_min, g_exc_max, g_inh_min, g_inh_max.')
 parser.add_argument('--stim_center', type=float, default=1.571, help='Center of the stimulus for the ring attractor model.')
 parser.add_argument('--stim_width', type=float, default=0.5, help='Width of the stimulus for the ring attractor model.')
@@ -89,6 +90,7 @@ rand_mut_min_val = args.rand_mut_min_val
 rand_mut_max_val = args.rand_mut_max_val
 
 initial_ranges_mex = args.initial_ranges_mex
+initial_ranges_cos = args.initial_ranges_cos
 gene_spaces = args.gene_spaces
 
 stim_center = args.stim_center
@@ -116,6 +118,7 @@ with open(f"{current_results_dirname}/exp_params.txt", "w") as f:
     f.write(f"Random mutation min value: {rand_mut_min_val}\n")
     f.write(f"Random mutation max value: {rand_mut_max_val}\n")
     f.write(f"Initial ranges for Mexican hat connectivity profile: {initial_ranges_mex}\n")
+    f.write(f"Initial ranges for Cosine connectivity profile: {initial_ranges_cos}\n")
     f.write(f"Input on duration: {input_on} seconds\n")
     f.write(f"Input off duration: {input_off} seconds\n")
 
@@ -160,9 +163,9 @@ if connectivity_profile == 'mexican_hat':
     g_exc_space     = {'low': gene_spaces[4], 'high': gene_spaces[5]}
     g_inh_space     = {'low': gene_spaces[6], 'high': gene_spaces[7]}
 elif connectivity_profile == 'cosine':
-    g_cosine_range = [0.01, 0.1]    # cosine gain
+    g_cosine_range = initial_ranges_cos[:2]    # cosine gain
     glob_inh_range = [True, False]  # global inhibition flag
-    w_inh_range = [-2.0, -0.5]      # global inhibition weight
+    w_inh_range = initial_ranges_cos[2:4]      # global inhibition weight
 else:
     raise ValueError("Unsupported connectivity profile. Choose 'mexican_hat' or 'cosine'.")
 
@@ -335,7 +338,11 @@ def fitness_func(ga_instance, solution, solution_idx):
             'g_inh': solution[3]*mV
         })
     elif connectivity_profile == 'cosine':
-        raise NotImplementedError("Cosine profile optimization not yet implemented in GA fitness function.")
+        params.update({
+            'g_cosine': solution[0],
+            'glob_inh': bool(solution[1]),
+            'w_inh': solution[2]
+        })
     else:
         raise ValueError("Unsupported connectivity profile. Choose 'mexican_hat' or 'cosine'.")
     
@@ -422,7 +429,11 @@ if connectivity_profile == 'mexican_hat':
                                       mutation_by_replacement=False,
                                       gene_type=[float, float, float, float])
 elif connectivity_profile == 'cosine':
-    raise NotImplementedError("Cosine profile optimization not yet implemented in GA initialization.")
+    ga_instance.initialize_population(low = [g_cosine_range[0], 0, w_inh_range[0]],
+                                      high = [g_cosine_range[1], 1, w_inh_range[1]],
+                                      allow_duplicate_genes=True,
+                                      mutation_by_replacement=False,
+                                      gene_type=[float, int, float])
 else:
     raise ValueError("Unsupported connectivity profile. Choose 'mexican_hat' or 'cosine'.")
 

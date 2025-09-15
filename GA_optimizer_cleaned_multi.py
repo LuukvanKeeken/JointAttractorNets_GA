@@ -346,7 +346,7 @@ def fitness_func(ga_instance, solution, solution_idx):
         })
     elif connectivity_profile == 'cosine':
         params.update({
-            'g_cosine': solution[0],
+            'g_cosine': solution[0]*mV,
             'glob_inh': True if solution[1] >= 0.5 else False,
             'w_inh': solution[2]
         })

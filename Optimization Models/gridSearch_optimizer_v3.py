@@ -14,7 +14,7 @@ from utils import *
 
 # Set the connectivity profile to optimize
 # Options: 'mexican_hat', 'cosine'
-connectivity_profile = 'mexican_hat'  # Change this to 'cosine' to optimize the cosine profile
+connectivity_profile = 'cosine'  # Change this to 'cosine' to optimize the cosine profile
 
 
 date = time.strftime('%Y%m%d_%H%M%S')

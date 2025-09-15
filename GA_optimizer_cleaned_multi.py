@@ -62,7 +62,7 @@ parser.add_argument('--keep_elitism', type=int, default=1, help='Number of best 
 parser.add_argument('--rand_mut_min_val', type=float, default=-0.1, help='Minimum value for random mutation.')
 parser.add_argument('--rand_mut_max_val', type=float, default=0.1, help='Maximum value for random mutation.')
 parser.add_argument('--initial_ranges_mex', type=float, nargs=8, default=[0.05, 0.2, 0.1, 0.3, 0.5, 1.0, -1.0, -0.3], help='Initial ranges for Mexican hat connectivity profile: sigma_exc_min, sigma_exc_max, sigma_inh_min, sigma_inh_max, g_exc_min, g_exc_max, g_inh_min, g_inh_max.')
-parser.add_argument('--initial_ranges_cos', type=float, nargs=3, default=[0.01, 0.5, -2.0, -0.01], help='Initial ranges for Cosine connectivity profile: g_cosine_min, g_cosine_max, w_inh_min, w_inh_max.')
+parser.add_argument('--initial_ranges_cos', type=float, nargs=4, default=[0.01, 0.5, -2.0, -0.01], help='Initial ranges for Cosine connectivity profile: g_cosine_min, g_cosine_max, w_inh_min, w_inh_max.')
 parser.add_argument('--gene_spaces', type=float, nargs=8, default=[0.0001, 100, 0.0001, 100, 0.0001, 100, -100, 0.0], help='Gene spaces/limits for the optimization: sigma_exc_min, sigma_exc_max, sigma_inh_min, sigma_inh_max, g_exc_min, g_exc_max, g_inh_min, g_inh_max.')
 parser.add_argument('--stim_center', type=float, default=1.571, help='Center of the stimulus for the ring attractor model.')
 parser.add_argument('--stim_width', type=float, default=0.5, help='Width of the stimulus for the ring attractor model.')

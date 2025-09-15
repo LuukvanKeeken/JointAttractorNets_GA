@@ -443,20 +443,20 @@ ga_instance = pygad.GA(num_generations=num_generations,
 )
 
 # Initialize the population with random values within the specified ranges
-if connectivity_profile == 'mexican_hat':
-    ga_instance.initialize_population(low = [sigma_exc_range[0], sigma_inh_range[0], g_exc_range[0], g_inh_range[0]],
-                                      high = [sigma_exc_range[1], sigma_inh_range[1], g_exc_range[1], g_inh_range[1]],
-                                      allow_duplicate_genes=True,
-                                      mutation_by_replacement=False,
-                                      gene_type=[float, float, float, float])
+# if connectivity_profile == 'mexican_hat':
+#     ga_instance.initialize_population(low = [sigma_exc_range[0], sigma_inh_range[0], g_exc_range[0], g_inh_range[0]],
+#                                       high = [sigma_exc_range[1], sigma_inh_range[1], g_exc_range[1], g_inh_range[1]],
+#                                       allow_duplicate_genes=True,
+#                                       mutation_by_replacement=False,
+#                                       gene_type=[float, float, float, float])
 # elif connectivity_profile == 'cosine':
     # ga_instance.initialize_population(low = [g_cosine_range[0], 0, w_inh_range[0]],
     #                                   high = [g_cosine_range[1], 1, w_inh_range[1]],
     #                                   allow_duplicate_genes=True,
     #                                   mutation_by_replacement=False,
     #                                   gene_type=[float, int, float])
-else:
-    raise ValueError("Unsupported connectivity profile. Choose 'mexican_hat' or 'cosine'.")
+# else:
+    # raise ValueError("Unsupported connectivity profile. Choose 'mexican_hat' or 'cosine'.")
 
 
 

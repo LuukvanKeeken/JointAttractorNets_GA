@@ -470,6 +470,14 @@ if __name__ == '__main__':
         g_exc: {solution[2]} mV
         g_inh: {solution[3]} mV
     """)
+        
+        with open(f"{current_results_dirname}/exp_results.txt", "a") as f:
+            f.write(f"Best solution found:\n")
+            f.write(f"errors: {1/solution_fitness}\n")
+            f.write(f"sigma_exc: {solution[0]}\n")
+            f.write(f"sigma_inh: {solution[1]}\n")
+            f.write(f"g_exc: {solution[2]} mV\n")
+            f.write(f"g_inh: {solution[3]} mV\n")
     elif connectivity_profile == 'cosine':
         print(f"""Best solution found:
         errors: {1/solution_fitness}
@@ -477,16 +485,17 @@ if __name__ == '__main__':
         glob_inh: {True if solution[1] >= 0.5 else False}
         w_inh: {solution[2]}
     """)
+        
+        with open(f"{current_results_dirname}/exp_results.txt", "a") as f:
+            f.write(f"Best solution found:\n")
+            f.write(f"errors: {1/solution_fitness}\n")
+            f.write(f"g_cosine: {solution[0]} mV\n")
+            f.write(f"glob_inh: {True if solution[1] >= 0.5 else False}\n")
+            f.write(f"w_inh: {solution[2]}\n")
     else:
         raise ValueError("Unsupported connectivity profile. Choose 'mexican_hat' or 'cosine'.")
     
-    with open(f"{current_results_dirname}/exp_results.txt", "a") as f:
-        f.write(f"Best solution found:\n")
-        f.write(f"errors: {1/solution_fitness}\n")
-        f.write(f"sigma_exc: {solution[0]}\n")
-        f.write(f"sigma_inh: {solution[1]}\n")
-        f.write(f"g_exc: {solution[2]} mV\n")
-        f.write(f"g_inh: {solution[3]} mV\n")
+    
     
     ga_instance.save(f"{current_results_dirname}/ga_instance_final")
 

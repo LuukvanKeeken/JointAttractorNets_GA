@@ -462,13 +462,23 @@ if __name__ == '__main__':
      
     solution, solution_fitness, solution_idx = ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)
     
-    print(f"""Best solution found:
-    errors: {1/solution_fitness}
-    sigma_exc: {solution[0]}
-    sigma_inh: {solution[1]}
-    g_exc: {solution[2]} mV
-    g_inh: {solution[3]} mV
-""")
+    if connectivity_profile == 'mexican_hat':
+        print(f"""Best solution found:
+        errors: {1/solution_fitness}
+        sigma_exc: {solution[0]}
+        sigma_inh: {solution[1]}
+        g_exc: {solution[2]} mV
+        g_inh: {solution[3]} mV
+    """)
+    elif connectivity_profile == 'cosine':
+        print(f"""Best solution found:
+        errors: {1/solution_fitness}
+        g_cosine: {solution[0]} mV
+        glob_inh: {True if solution[1] >= 0.5 else False}
+        w_inh: {solution[2]}
+    """)
+    else:
+        raise ValueError("Unsupported connectivity profile. Choose 'mexican_hat' or 'cosine'.")
     
     with open(f"{current_results_dirname}/exp_results.txt", "a") as f:
         f.write(f"Best solution found:\n")

@@ -166,6 +166,9 @@ elif connectivity_profile == 'cosine':
     g_cosine_range = initial_ranges_cos[:2]    # cosine gain
     glob_inh_range = [True, False]  # global inhibition flag
     w_inh_range = initial_ranges_cos[2:4]      # global inhibition weight
+    gene_0_stddevs = []
+    gene_1_stddevs = []
+    gene_2_stddevs = []
 else:
     raise ValueError("Unsupported connectivity profile. Choose 'mexican_hat' or 'cosine'.")
 

@@ -93,6 +93,7 @@ rand_mut_max_val = args.rand_mut_max_val
 initial_ranges_mex = args.initial_ranges_mex
 initial_ranges_cos = args.initial_ranges_cos
 gene_spaces_mex = args.gene_spaces_mex
+gene_spaces_cos = args.gene_spaces_cos
 
 stim_center = args.stim_center
 stim_width = args.stim_width
@@ -170,6 +171,10 @@ elif connectivity_profile == 'cosine':
     gene_0_stddevs = []
     gene_1_stddevs = []
     gene_2_stddevs = []
+
+    g_cosine_space = {'low': gene_spaces_cos[0], 'high': gene_spaces_cos[1]}
+    glob_inh_space = [0, 1]  # binary space for global inhibition
+    w_inh_space = {'low': gene_spaces_cos[2], 'high': gene_spaces_cos[3]}
 else:
     raise ValueError("Unsupported connectivity profile. Choose 'mexican_hat' or 'cosine'.")
 
@@ -434,6 +439,7 @@ ga_instance = pygad.GA(num_generations=num_generations,
                        random_mutation_min_val= rand_mut_min_val,
                        random_mutation_max_val= rand_mut_max_val,
                     #    gene_space=[sigma_exc_space, sigma_inh_space, g_exc_space, g_inh_space]
+                       gene_space=[sigma_exc_space, sigma_inh_space, g_exc_space, g_inh_space] if connectivity_profile == 'mexican_hat' else [g_cosine_space, glob_inh_space, w_inh_space]
 )
 
 # Initialize the population with random values within the specified ranges
@@ -443,12 +449,12 @@ if connectivity_profile == 'mexican_hat':
                                       allow_duplicate_genes=True,
                                       mutation_by_replacement=False,
                                       gene_type=[float, float, float, float])
-elif connectivity_profile == 'cosine':
-    ga_instance.initialize_population(low = [g_cosine_range[0], 0, w_inh_range[0]],
-                                      high = [g_cosine_range[1], 1, w_inh_range[1]],
-                                      allow_duplicate_genes=True,
-                                      mutation_by_replacement=False,
-                                      gene_type=[float, int, float])
+# elif connectivity_profile == 'cosine':
+    # ga_instance.initialize_population(low = [g_cosine_range[0], 0, w_inh_range[0]],
+    #                                   high = [g_cosine_range[1], 1, w_inh_range[1]],
+    #                                   allow_duplicate_genes=True,
+    #                                   mutation_by_replacement=False,
+    #                                   gene_type=[float, int, float])
 else:
     raise ValueError("Unsupported connectivity profile. Choose 'mexican_hat' or 'cosine'.")
 

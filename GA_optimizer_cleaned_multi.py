@@ -63,7 +63,8 @@ parser.add_argument('--rand_mut_min_val', type=float, default=-0.1, help='Minimu
 parser.add_argument('--rand_mut_max_val', type=float, default=0.1, help='Maximum value for random mutation.')
 parser.add_argument('--initial_ranges_mex', type=float, nargs=8, default=[0.05, 0.2, 0.1, 0.3, 0.5, 1.0, -1.0, -0.3], help='Initial ranges for Mexican hat connectivity profile: sigma_exc_min, sigma_exc_max, sigma_inh_min, sigma_inh_max, g_exc_min, g_exc_max, g_inh_min, g_inh_max.')
 parser.add_argument('--initial_ranges_cos', type=float, nargs=4, default=[0.01, 0.5, -2.0, -0.01], help='Initial ranges for Cosine connectivity profile: g_cosine_min, g_cosine_max, w_inh_min, w_inh_max.')
-parser.add_argument('--gene_spaces', type=float, nargs=8, default=[0.0001, 100, 0.0001, 100, 0.0001, 100, -100, 0.0], help='Gene spaces/limits for the optimization: sigma_exc_min, sigma_exc_max, sigma_inh_min, sigma_inh_max, g_exc_min, g_exc_max, g_inh_min, g_inh_max.')
+parser.add_argument('--gene_spaces_mex', type=float, nargs=8, default=[0.0001, 100, 0.0001, 100, 0.0001, 100, -100, 0.0], help='Mexican hat gene spaces/limits for the optimization: sigma_exc_min, sigma_exc_max, sigma_inh_min, sigma_inh_max, g_exc_min, g_exc_max, g_inh_min, g_inh_max.')
+parser.add_argument('--gene_spaces_cos', type=float, nargs=4, default=[0.0001, 100, -100, 0.00001], help='Cosine gene spaces/limits for the optimization: g_cosine_min, g_cosine_max, glob_inh (0 or 1), w_inh_min, w_inh_max.')
 parser.add_argument('--stim_center', type=float, default=1.571, help='Center of the stimulus for the ring attractor model.')
 parser.add_argument('--stim_width', type=float, default=0.5, help='Width of the stimulus for the ring attractor model.')
 parser.add_argument('--tau', type=float, default=10.0, help='Time constant for the ring attractor model in ms.')
@@ -91,7 +92,7 @@ rand_mut_max_val = args.rand_mut_max_val
 
 initial_ranges_mex = args.initial_ranges_mex
 initial_ranges_cos = args.initial_ranges_cos
-gene_spaces = args.gene_spaces
+gene_spaces_mex = args.gene_spaces_mex
 
 stim_center = args.stim_center
 stim_width = args.stim_width
@@ -158,10 +159,10 @@ if connectivity_profile == 'mexican_hat':
     gene_2_stddevs = []
     gene_3_stddevs = []
 
-    sigma_exc_space = {'low': gene_spaces[0], 'high': gene_spaces[1]}
-    sigma_inh_space = {'low': gene_spaces[2], 'high': gene_spaces[3]}
-    g_exc_space     = {'low': gene_spaces[4], 'high': gene_spaces[5]}
-    g_inh_space     = {'low': gene_spaces[6], 'high': gene_spaces[7]}
+    sigma_exc_space = {'low': gene_spaces_mex[0], 'high': gene_spaces_mex[1]}
+    sigma_inh_space = {'low': gene_spaces_mex[2], 'high': gene_spaces_mex[3]}
+    g_exc_space     = {'low': gene_spaces_mex[4], 'high': gene_spaces_mex[5]}
+    g_inh_space     = {'low': gene_spaces_mex[6], 'high': gene_spaces_mex[7]}
 elif connectivity_profile == 'cosine':
     g_cosine_range = initial_ranges_cos[:2]    # cosine gain
     glob_inh_range = [True, False]  # global inhibition flag
@@ -316,7 +317,10 @@ def on_generation(ga_instance):
         f.write(f"      mean norm. spread difference: {mean_fourth_errors:.4f} +/- {std_fourth_errors:.4f}\n")
         f.write(f"Generation mean gene standard deviations: {np.mean(gene_std_devs):.4f}\n")
         f.write(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")
-    print(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)")
+    if connectivity_profile == 'mexican_hat':
+        print(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (sigma_exc: {solution[0]}, sigma_inh: {solution[1]}, g_exc: {solution[2]} mV, g_inh: {solution[3]} mV)")
+    elif connectivity_profile == 'cosine':
+        print(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (g_cosine: {solution[0]}, glob_inh: {True if solution[1] >= 0.5 else False}, w_inh: {solution[2]})")
     print(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")
 
     previous_gen_start_time = time.time()

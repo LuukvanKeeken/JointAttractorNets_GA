@@ -29,7 +29,7 @@ if not os.path.exists(result_dir):
 num_neurons = 120
 
 # Define the parameter grids based on the connectivity profile
-if connectivity_profile == 'mexican_hat':
+if connectivity_profile == 'cosine':
     # Mexican hat profile parameters
     sigma_exc_range = np.linspace(0.05, 0.25, 10)   # excitatory spread
     sigma_inh_range = np.linspace(0.1, 0.3, 10)    # inhibitory spread

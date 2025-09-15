@@ -207,6 +207,11 @@ def on_generation(ga_instance):
     # Calculate the population standard deviation for each gene
     # This gives a measure of the variation within the population
     all_genomes = ga_instance.population
+    invalid_mask = (all_genomes[:, 1] != 0) & (all_genomes[:, 1] != 1)
+    if np.any(invalid_mask):
+        print("Found arrays where the second value is not 0 or 1.")
+        print(all_genomes[invalid_mask])
+        exit(0)
     gene_std_devs = np.std(all_genomes, axis=0)
     mean_gene_stddevs.append(np.mean(gene_std_devs))
     if connectivity_profile == 'mexican_hat':

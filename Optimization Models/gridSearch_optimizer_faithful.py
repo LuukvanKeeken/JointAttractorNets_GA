@@ -92,7 +92,7 @@ def worker_run(params_tuple):
         })
         # Only add w_inh if global inhibition is enabled
         if glob_inh:
-            params.update({'w_inh': w_inh})
+            params.update({'w_inh_val': w_inh})
     # print("test4")
     try:
         # Run the simulation.

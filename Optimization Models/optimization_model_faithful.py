@@ -41,7 +41,7 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     stimulus_width = stim_width  
     I0 = 10*mV
     g_cosine = params.get('g_cosine')*mV
-    w_inh_v = params.get('w_inh')*mV # positive magnitude; applied subtractively inside FaithfulRingAttractor
+    w_inh_v = params.get('w_inh_val')*mV # positive magnitude; applied subtractively inside FaithfulRingAttractor
     Iff_val = params.get('Iff_val', 80.0)*mA
     autapse = params.get('autapse', True)
     

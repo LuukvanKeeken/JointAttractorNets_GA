@@ -59,7 +59,7 @@ total_runs = len(param_grid)
 # Fixed parameters for the simulation (not searched over)
 fixed_params = {
     'tau': 10,           # in our simulation, run_ring_attractor converts this to ms.
-    'sigma_noise': 1,    # similarly converted to mV inside run_ring_attractor.
+    'sigma_noise': 0.1,    # similarly converted to mV inside run_ring_attractor.
     'syn_profile': connectivity_profile,  # Set the connectivity profile
     'num_neurons': num_neurons
 }

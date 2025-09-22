@@ -87,7 +87,8 @@ def worker_run(params_tuple):
         # Three parameters being optimized: g_cosine, glob_inh, and w_inh (if glob_inh is True)
         g_cosine, glob_inh, w_inh = params_tuple
         params.update({
-            'g_cosine': g_cosine
+            'g_cosine': g_cosine,
+            'glob_inh': glob_inh
         })
         # Only add w_inh if global inhibition is enabled
         if glob_inh:

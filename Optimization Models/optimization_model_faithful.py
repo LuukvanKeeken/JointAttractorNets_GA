@@ -5,6 +5,7 @@ import sys
 sys.path.append('Neuron and Synapse Models')
 from neuronModels import *
 from ringAttractorClass import *
+from faithfulRingAttractorClass import FaithfulRingAttractor
 sys.path.append('Tools')
 from utils import *
 

@@ -90,8 +90,8 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
 
     net = Network(ringAttractor.BrianObjects+localObjects)
 
-    input_on = 0.5*second
-    input_off = 0.2*second
+    input_on = 0.05*second
+    input_off = 0.65*second
     sim_duration = input_on + input_off
     
     
@@ -107,7 +107,7 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     
     # Positive spread difference means an increase in bump spread
     # between t1 and t2, negative means a decrease.
-    spread_difference, spread_t1, spread_t2 = calculate_spreads(spikemon, t1=input_on, t2=sim_duration)
+    spread_difference, spread_t1, spread_t2 = calculate_spreads(spikemon, t1=0.5, t2=sim_duration)
 
     # Return simulation results
     return stimulus_center, I_ext_array, firing_rates, pva_angle, pva_magnitude, spread_difference

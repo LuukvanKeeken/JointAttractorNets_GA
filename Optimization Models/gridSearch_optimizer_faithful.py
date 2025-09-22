@@ -7,7 +7,7 @@ from brian2 import *  # Brian2 must be imported for the simulation
 import time
 
 # Import the simulation function from your model file
-from optimization_model import opt_ring_attractor  # your simulation function
+from optimization_model_faithful import opt_ring_attractor  # your simulation function
 # Also import any utility functions if needed (e.g., for computing firing rates, etc.)
 from utils import *
 

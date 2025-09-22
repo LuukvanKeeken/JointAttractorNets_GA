@@ -91,7 +91,7 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     net = Network(ringAttractor.BrianObjects+localObjects)
 
     input_on = 0.05*second
-    input_off = 0.65*second
+    input_off = 0.95*second
     sim_duration = input_on + input_off
     
     

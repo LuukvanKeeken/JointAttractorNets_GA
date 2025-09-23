@@ -35,7 +35,7 @@ if connectivity_profile == 'cosine':
     g_cosine_range = np.linspace(0.01, 0.5, 10)   # cosine gain with smaller scale
     # g_cosine_range = np.asarray([0.01, 0.33496, 0.5])
     glob_inh_range = [True]                # global inhibition flag
-    w_inh_range = np.linspace(-2.0, 0.0, 10)    # global inhibition weight
+    w_inh_range = np.linspace(-1.0, 0.0, 10)    # global inhibition weight
     # w_inh_range = np.asarray([-2.0, -0.33478, 0.0])
     # Create parameter grid with conditional logic
     param_grid = []
@@ -212,7 +212,10 @@ if __name__ == '__main__':
         print(f"Best result saved to {best_result_filename}")
 
         # Assuming results_df is already loaded with columns: 'w_inh', 'g_cosine', 'composite_error'
-        pivot = results_df.pivot_table(index='g_cosine', columns='w_inh', values='composite_error')
+        # Mask composite_error > 1 as NaN for plotting
+        plot_df = results_df.copy()
+        plot_df.loc[plot_df['composite_error'] > 1, 'composite_error'] = np.nan
+        pivot = plot_df.pivot_table(index='g_cosine', columns='w_inh', values='composite_error')
 
         plt.figure(figsize=(8, 6))
         plt.imshow(pivot, aspect='auto', origin='lower', cmap='viridis')

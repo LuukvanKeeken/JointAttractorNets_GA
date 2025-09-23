@@ -103,10 +103,8 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
 
     input_on = 0.05 * second
     input_off = 0.95 * second
-    velocity_on = 0 * second
-    end_duration = 0.95 * second
+    sim_duration = input_on + input_off
 
-    total_duration = input_on + input_off + velocity_on + end_duration
 
     # Run simulation
     net.run(input_on)
@@ -115,29 +113,19 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     ringAttractor.ring_pool.I_ext = I0_CONST
     net.run(input_off)
 
-    # Turn on velocity input
-    ringAttractor.ring_synapses_asym.vel_in = 0.0
-    ringAttractor.ring_synapses_asym.vel_on = True
+    
 
-    net.run(velocity_on)
-
-    # Turn off velocity input
-    ringAttractor.ring_synapses_asym.vel_in = 0.0
-    ringAttractor.ring_synapses_asym.vel_on = False
-
-    # Turn off velocity input and run for the rest of the duration
-    net.run(end_duration)
 
     
     firing_rates = compute_firing_rate(spikemon, num_neurons,
-                                       start_time=input_on, end_time=total_duration)
+                                       start_time=input_on, end_time=sim_duration)
                                     #    start_time=0.95*sim_duration, end_time=sim_duration)
                                     
     pva_angle, pva_magnitude = calculate_PVA(firing_rates, positions)
     
     # Positive spread difference means an increase in bump spread
     # between t1 and t2, negative means a decrease.
-    spread_difference, spread_t1, spread_t2 = calculate_spreads(spikemon, t1=input_on, t2=total_duration)
+    spread_difference, spread_t1, spread_t2 = calculate_spreads(spikemon, t1=0.5, t2=sim_duration)
 
     # Return simulation results
     return stimulus_center, I_ext_array, firing_rates, pva_angle, pva_magnitude, spread_difference

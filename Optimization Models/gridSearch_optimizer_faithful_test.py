@@ -158,6 +158,7 @@ def worker_run(params_tuple):
         return result
     
     except Exception as e:
+        print(e)
         # Create error result with profile-specific parameters
         result = {
             'center_error': np.nan,

@@ -47,8 +47,9 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     V_rest = -70*mV
     I0 = 10 * mV
     # sim_duration = duration_val*second
-    g_cosine = params.get('g_cosine')
-    w_inh_v = params.get('w_inh_val')
+    g_cosine = params.get('g_cosine')*mV
+    w_inh_v = params.get('w_inh_val')*mV
+    print(g_cosine)
     
     Iff_val = params.get('Iff_val', 80)*mA
     I0_CONST = Iff_val * ohm

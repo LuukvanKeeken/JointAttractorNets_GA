@@ -29,6 +29,8 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     """
     # --- Simulation parameters ---
 
+    print(params)
+
     # External input parameters (could also be passed in or kept fixed)
     stimulus_center = stim_center  
     stimulus_width = stim_width
@@ -45,11 +47,12 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     V_rest = -70*mV
     I0 = 10 * mV
     # sim_duration = duration_val*second
-    g_cosine = params.get('g_cosine')*mV
-    w_inh_v = params.get('w_inh_v')*mV
+    g_cosine = params.get('g_cosine')
+    w_inh_v = params.get('w_inh_val')
+    
     Iff_val = params.get('Iff_val', 80)*mA
     I0_CONST = Iff_val * ohm
-
+    
     # velocity_duration = velocity_duration_val 
 
     # Define neuron positions
@@ -61,6 +64,7 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
 
     # Set up neuron model
     neuron_eq = Equations(LIF_xi_vel_eq, tau=tau, V_rest=V_rest, sigma_noise=sigma_noise)
+    
 
     # Set up ring attractor
     Vth = -48 * mV
@@ -77,6 +81,8 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     # Set external input
     ringAttractor.ring_pool.I_ext = I_ext_array
     ringAttractor.ring_pool.I_vel = 0.0*volt
+
+    
 
     # Setup monitors
     spikemon = SpikeMonitor(ringAttractor.ring_pool)

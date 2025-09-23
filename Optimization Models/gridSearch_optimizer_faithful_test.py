@@ -33,10 +33,10 @@ num_neurons = 120
 if connectivity_profile == 'cosine':
     # Cosine profile parameters - optimize g_cosine, glob_inh, and w_inh
     # g_cosine_range = np.linspace(0.01, 0.5, 50)*mV   # cosine gain with smaller scale
-    g_cosine_range = np.asarray([0.01, 0.33496, 0.5])*mV
+    g_cosine_range = np.asarray([0.01, 0.33496, 0.5])
     glob_inh_range = [True]                # global inhibition flag
     # w_inh_range = np.linspace(-2.0, 0.0, 50)*mV    # global inhibition weight
-    w_inh_range = np.asarray([-2.0, -0.33478, 0.0])*mV
+    w_inh_range = np.asarray([-2.0, -0.33478, 0.0])
     # Create parameter grid with conditional logic
     param_grid = []
     for g in g_cosine_range:
@@ -74,16 +74,8 @@ def worker_run(params_tuple):
     # Build the full parameter dictionary based on connectivity profile
     params = fixed_params.copy()
 
-    # print("test3")
-    if connectivity_profile == 'mexican_hat':
-        sigma_exc, sigma_inh, g_exc, g_inh = params_tuple
-        params.update({
-            'sigma_exc': sigma_exc,
-            'sigma_inh': sigma_inh,
-            'g_exc': g_exc,
-            'g_inh': g_inh
-        })
-    elif connectivity_profile == 'cosine':
+    
+    if connectivity_profile == 'cosine':
         # Three parameters being optimized: g_cosine, glob_inh, and w_inh (if glob_inh is True)
         g_cosine, glob_inh, w_inh = params_tuple
         params.update({
@@ -141,14 +133,7 @@ def worker_run(params_tuple):
         }
         # print("test12")
         # Add profile-specific parameters to results
-        if connectivity_profile == 'mexican_hat':
-            result.update({
-                'sigma_exc': sigma_exc,
-                'sigma_inh': sigma_inh,
-                'g_exc': g_exc,
-                'g_inh': g_inh
-            })
-        elif connectivity_profile == 'cosine':
+        if connectivity_profile == 'cosine':
             result.update({
                 'g_cosine': g_cosine,
                 'glob_inh': glob_inh,
@@ -173,14 +158,7 @@ def worker_run(params_tuple):
         }
         # print("test14")
         # Add profile-specific parameters to error results
-        if connectivity_profile == 'mexican_hat':
-            result.update({
-                'sigma_exc': sigma_exc,
-                'sigma_inh': sigma_inh,
-                'g_exc': g_exc,
-                'g_inh': g_inh
-            })
-        elif connectivity_profile == 'cosine':
+        if connectivity_profile == 'cosine':
             result.update({
                 'g_cosine': g_cosine,
                 'glob_inh': glob_inh,

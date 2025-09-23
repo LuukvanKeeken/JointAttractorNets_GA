@@ -29,7 +29,6 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     """
     # --- Simulation parameters ---
 
-    print(params)
 
     # External input parameters (could also be passed in or kept fixed)
     stimulus_center = stim_center  
@@ -49,7 +48,6 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     # sim_duration = duration_val*second
     g_cosine = params.get('g_cosine')*mV
     w_inh_v = params.get('w_inh_val')*mV
-    print(g_cosine)
     
     Iff_val = params.get('Iff_val', 80)*mA
     I0_CONST = Iff_val * ohm

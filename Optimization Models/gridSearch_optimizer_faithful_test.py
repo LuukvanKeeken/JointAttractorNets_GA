@@ -32,11 +32,11 @@ num_neurons = 120
 
 if connectivity_profile == 'cosine':
     # Cosine profile parameters - optimize g_cosine, glob_inh, and w_inh
-    # g_cosine_range = np.linspace(0.01, 0.5, 50)*mV   # cosine gain with smaller scale
-    g_cosine_range = np.asarray([0.01, 0.33496, 0.5])
+    g_cosine_range = np.linspace(0.01, 0.5, 10)   # cosine gain with smaller scale
+    # g_cosine_range = np.asarray([0.01, 0.33496, 0.5])
     glob_inh_range = [True]                # global inhibition flag
-    # w_inh_range = np.linspace(-2.0, 0.0, 50)*mV    # global inhibition weight
-    w_inh_range = np.asarray([-2.0, -0.33478, 0.0])
+    w_inh_range = np.linspace(-2.0, 0.0, 10)    # global inhibition weight
+    # w_inh_range = np.asarray([-2.0, -0.33478, 0.0])
     # Create parameter grid with conditional logic
     param_grid = []
     for g in g_cosine_range:
@@ -210,5 +210,18 @@ if __name__ == '__main__':
         with open(best_result_filename, 'w') as f:
             f.write(best_result.to_string())
         print(f"Best result saved to {best_result_filename}")
+
+        # Assuming results_df is already loaded with columns: 'w_inh', 'g_cosine', 'composite_error'
+        pivot = results_df.pivot_table(index='g_cosine', columns='w_inh', values='composite_error')
+
+        plt.figure(figsize=(8, 6))
+        plt.imshow(pivot, aspect='auto', origin='lower', cmap='viridis')
+        plt.colorbar(label='Composite Error')
+        plt.xlabel('w_inh')
+        plt.ylabel('g_cosine')
+        plt.title('Composite Error Grid')
+        plt.xticks(ticks=np.arange(len(pivot.columns)), labels=[f"{x:.2f}" for x in pivot.columns])
+        plt.yticks(ticks=np.arange(len(pivot.index)), labels=[f"{y:.2f}" for y in pivot.index])
+        plt.savefig(os.path.join(result_dir, f'composite_error_heatmap_{connectivity_profile}.png'))
     else:
         print("No valid simulation results found.")

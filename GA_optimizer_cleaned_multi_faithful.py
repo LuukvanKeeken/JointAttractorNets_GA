@@ -311,8 +311,8 @@ def fitness_func(ga_instance, solution, solution_idx):
 
     if connectivity_profile == 'cosine':
         params.update({
-            'g_cosine': solution[0]*mV,
-            'w_inh_val': solution[1]*mV
+            'g_cosine': solution[0],
+            'w_inh_val': solution[1]
         })
     else:
         raise ValueError("Unsupported connectivity profile. Choose 'cosine'.")

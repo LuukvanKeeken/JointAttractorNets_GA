@@ -4,7 +4,7 @@ import numpy as np
 import sys
 sys.path.append('Neuron and Synapse Models')
 from neuronModels import *
-from ringAttractorClass import *
+from faithfulRingAttractorClass import *
 from faithfulRingAttractorClass import FaithfulRingAttractor
 sys.path.append('Tools')
 from utils import *
@@ -28,39 +28,48 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
         result: Any outcome from the simulation you wish to optimize (e.g., a cost metric)
     """
     # --- Simulation parameters ---
+
+
+    # External input parameters (could also be passed in or kept fixed)
+    stimulus_center = stim_center  
+    stimulus_width = stim_width
+
+    autapse = True
+
     defaultclock.dt = 0.1*ms
     num_neurons = 120
 
     # Use parameters from the dict, with appropriate units:
     tau = params.get('tau', 10)*ms
+    tau_s = 13 * ms
     sigma_noise = params.get('sigma_noise', 0.1)*mV
     V_rest = -70*mV
-
-    # External input parameters (could also be passed in or kept fixed)
-    stimulus_center = stim_center  
-    stimulus_width = stim_width  
-    I0 = 10*mV
+    I0 = 10 * mV
+    # sim_duration = duration_val*second
     g_cosine = params.get('g_cosine')*mV
-    w_inh_v = params.get('w_inh_val')*mV # positive magnitude; applied subtractively inside FaithfulRingAttractor
-    Iff_val = params.get('Iff_val', 80.0)*mA
-    autapse = params.get('autapse', True)
+    w_inh_v = params.get('w_inh_val')*mV
     
-    # Map mA (slider) to voltage-equivalent via R=1 Ω to match neuron equation units
+    Iff_val = params.get('Iff_val', 80)*mA
     I0_CONST = Iff_val * ohm
     
+    # velocity_duration = velocity_duration_val 
+
+    # Define neuron positions
     positions = linspace(0, 2*pi, num_neurons, endpoint=False)
+
+    # Calculate external input
     d = np.angle(np.exp(1j * (positions - stimulus_center)))
     I_ext_array = I0 * np.exp(-(d**2) / (2 * stimulus_width**2)) + I0_CONST
-        
-    # Create the neuron model equations using your custom LIF model
+
+    # Set up neuron model
     neuron_eq = Equations(LIF_xi_vel_eq, tau=tau, V_rest=V_rest, sigma_noise=sigma_noise)
     
-    # Fixed intrinsic properties for now:
-    Vth = -48*mV
-    V_reset = -80*mV
-    refractory_period = 5*ms
 
-    
+    # Set up ring attractor
+    Vth = -48 * mV
+    V_reset = -80 * mV
+    refractory_period = 5 * ms
+
     # Create the ring attractor network
     ringAttractor = FaithfulRingAttractor(neuron_eq, 
                         num_neurons, 
@@ -72,32 +81,41 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     ringAttractor.ring_pool.I_ext = I_ext_array
     ringAttractor.ring_pool.I_vel = 0.0*volt
 
-    # Clipping - Reverse Potential Behaviour: Define a network operation to enforce the lower bound on the membrane potential
-    @network_operation(dt=defaultclock.dt)
-    def enforce_lower_bound():
-        # Using the built-in clip function (from numpy)
-        ringAttractor.ring_pool.V[:] = clip(ringAttractor.ring_pool.V[:], V_reset, inf*volt)
+    
 
     # Setup monitors
     spikemon = SpikeMonitor(ringAttractor.ring_pool)
     statemon = StateMonitor(ringAttractor.ring_pool, 'V', record=True)
     inputmon = StateMonitor(ringAttractor.ring_pool, 'I_ext', record=True)
     isynmon = StateMonitor(ringAttractor.ring_pool, 'I_syn', record=True)
-    
+
+    # Clipping - Reverse Potential Behaviour: Define a network operation to enforce the lower bound on the membrane potential
+    @network_operation(dt=defaultclock.dt)
+    def enforce_lower_bound():
+        # Using the built-in clip function (from numpy)
+        ringAttractor.ring_pool.V[:] = clip(ringAttractor.ring_pool.V[:], V_reset, inf*volt)
+
     # Set of Brian objects to be added to the network
     localObjects = [enforce_lower_bound,
                     spikemon, statemon, inputmon, isynmon]
-
+    
     net = Network(ringAttractor.BrianObjects+localObjects)
 
-    input_on = 0.05*second
-    input_off = 0.95*second
+    input_on = 0.05 * second
+    input_off = 0.95 * second
     sim_duration = input_on + input_off
-    
-    
+
+
+    # Run simulation
     net.run(input_on)
-    ringAttractor.ring_pool.I_ext = I0_CONST  # turn off input in second half
+
+    # Turn off input for the second half
+    ringAttractor.ring_pool.I_ext = I0_CONST
     net.run(input_off)
+
+    
+
+
     
     firing_rates = compute_firing_rate(spikemon, num_neurons,
                                        start_time=input_on, end_time=sim_duration)
@@ -107,7 +125,7 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     
     # Positive spread difference means an increase in bump spread
     # between t1 and t2, negative means a decrease.
-    spread_difference, spread_t1, spread_t2 = calculate_spreads(spikemon, t1=0.5, t2=sim_duration)
+    spread_difference, spread_t1, spread_t2 = calculate_spreads(spikemon, t1=0.5*second, t2=sim_duration)
 
     # Return simulation results
     return stimulus_center, I_ext_array, firing_rates, pva_angle, pva_magnitude, spread_difference

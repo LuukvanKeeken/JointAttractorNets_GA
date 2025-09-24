@@ -31,23 +31,23 @@ num_neurons = 120
 
 
 if connectivity_profile == 'cosine':
-    # Cosine profile parameters - optimize g_cosine, glob_inh, and w_inh
-    g_cosine_range = np.linspace(0.01, 0.5, 10)   # cosine gain with smaller scale
-    glob_inh_range = [True]                # global inhibition flag
-    w_inh_range = np.linspace(-0.7, 0.0, 10)    # global inhibition weight
+    # Cosine profile parameters - optimize g_cosine and w_inh
+    g_cosine_range = np.linspace(0.001, 0.7, 100)   # cosine gain with smaller scale
+    w_inh_range = np.linspace(-0.7, 0.0, 100)    # global inhibition weight
+    Iff_range = np.linspace(10, 160, 10)
     # Create parameter grid with conditional logic
     param_grid = []
     for g in g_cosine_range:
-        # With global inhibition (g_cosine, True, and each w_inh value)
         for w in w_inh_range:
-            param_grid.append((g, True, w))
+            for Iff in Iff_range:
+                param_grid.append((g, w, Iff))
 
     # Store the ranges in a txt file in the results dir
     with open(os.path.join(result_dir, "parameter_ranges.txt"), "w") as f:
         f.write("Cosine Profile Parameter Ranges:\n")
         f.write(f"Gain Cosine: {g_cosine_range}\n")
-        f.write(f"Global Inhibition: {glob_inh_range}\n")
         f.write(f"Weight Inhibition: {w_inh_range}\n")
+        f.write(f"Iff: {Iff_range}\n")
 else:
     raise ValueError("Unsupported connectivity profile. Choose 'cosine'.")
 
@@ -74,19 +74,19 @@ def worker_run(params_tuple):
 
     
     if connectivity_profile == 'cosine':
-        # Three parameters being optimized: g_cosine, glob_inh, and w_inh (if glob_inh is True)
-        g_cosine, glob_inh, w_inh = params_tuple
+        # Two parameters being optimized: g_cosine and w_inh
+        g_cosine, w_inh, Iff = params_tuple
         params.update({
-            'g_cosine': g_cosine
+            'g_cosine': g_cosine,
+            'w_inh_val': w_inh,
+            'Iff_val': Iff
         })
-        # Only add w_inh if global inhibition is enabled
-        if glob_inh:
-            params.update({'w_inh_val': w_inh})
+        
     
     try:
         # Run the simulation.
         # opt_ring_attractor returns: (GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude)
-        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude, spread_difference = opt_ring_attractor(params)
+        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude, spread_difference, spread_difference_start = opt_ring_attractor(params)
         
         # Compute the circular standard deviation (spread) from the PVA magnitude.
         circular_std = np.sqrt(-2 * np.log(out_pva_magnitude + 1e-8))
@@ -107,15 +107,18 @@ def worker_run(params_tuple):
         # absolute value to punish increases and decreases equally. Add 1 to make sure
         # everything is above zero.
         spread_err = np.abs(spread_difference / num_neurons) + 1
+
+        spread_err_start = (spread_difference_start / num_neurons) + 1
         
         # Combine the errors into one composite score.
         # Adjust weights to prioritize center accuracy if desired
-        w_center = 0.25
-        w_Zscore = 0.25
-        w_nmse = 0.25
-        w_spread = 0.25
-        composite_error = w_center * cwce + w_Zscore * angular_Zscore + w_nmse * nmse + w_spread * spread_err
-        
+        w_center = 0.2
+        w_Zscore = 0.2
+        w_nmse = 0.2
+        w_spread = 0.2
+        w_spread_start = 0.2
+        composite_error = w_center * cwce + w_Zscore * angular_Zscore + w_nmse * nmse + w_spread * spread_err + w_spread_start * spread_err_start
+
         # Create result dictionary with profile-specific parameters
         result = {
             'composite_error': float(composite_error),
@@ -126,6 +129,7 @@ def worker_run(params_tuple):
             'angular_Zscore': float(angular_Zscore),
             'nmse': float(nmse),
             'spread_error': float(spread_err),
+            'spread_error_start': float(spread_err_start),
             'error_message': np.nan
         }
         
@@ -133,8 +137,8 @@ def worker_run(params_tuple):
         if connectivity_profile == 'cosine':
             result.update({
                 'g_cosine': g_cosine,
-                'glob_inh': glob_inh,
-                'w_inh': w_inh if glob_inh else np.nan
+                'w_inh': w_inh,
+                'Iff': Iff
             })
             
         return result
@@ -151,6 +155,7 @@ def worker_run(params_tuple):
             'nmse': np.nan,
             'composite_error': np.nan,
             'spread_error': np.nan,
+            'spread_error_start': np.nan,
             'error_message': str(e)
         }
         
@@ -158,8 +163,8 @@ def worker_run(params_tuple):
         if connectivity_profile == 'cosine':
             result.update({
                 'g_cosine': g_cosine,
-                'glob_inh': glob_inh,
-                'w_inh': w_inh if glob_inh else np.nan
+                'w_inh': w_inh,
+                'Iff': Iff
             })
         
         return result
@@ -207,26 +212,27 @@ if __name__ == '__main__':
             f.write(best_result.to_string())
         print(f"Best result saved to {best_result_filename}")
 
-        # Assuming results_df is already loaded with columns: 'w_inh', 'g_cosine', 'composite_error'
-        # Mask composite_error > 1 as NaN for plotting
-        plot_df = results_df.copy()
-        plot_df.loc[plot_df['composite_error'] > 1, 'composite_error'] = np.nan
-        pivot = plot_df.pivot_table(index='g_cosine', columns='w_inh', values='composite_error')
+        # For each unique Iff value, create a separate heatmap
+        for Iff_val in sorted(results_df['Iff'].unique()):
+            sub_df = results_df[results_df['Iff'] == Iff_val].copy()
+            sub_df.loc[sub_df['composite_error'] > 1, 'composite_error'] = np.nan
+            pivot = sub_df.pivot_table(index='g_cosine', columns='w_inh', values='composite_error')
 
-        plt.figure(figsize=(8, 6))
-        plt.imshow(pivot, aspect='auto', origin='lower', cmap='viridis')
-        plt.colorbar(label='Composite Error')
-        plt.xlabel('w_inh')
-        plt.ylabel('g_cosine')
-        plt.title('Composite Error Grid')
+            plt.figure(figsize=(8, 6))
+            plt.imshow(pivot, aspect='auto', origin='lower', cmap='viridis')
+            plt.colorbar(label='Composite Error')
+            plt.xlabel('w_inh')
+            plt.ylabel('g_cosine')
+            plt.title(f'Composite Error Grid (Iff={Iff_val})')
 
-        # Limit ticks to 10 evenly spaced values for coarse view
-        num_xticks = min(10, len(pivot.columns))
-        num_yticks = min(10, len(pivot.index))
-        xtick_indices = np.linspace(0, len(pivot.columns)-1, num_xticks, dtype=int)
-        ytick_indices = np.linspace(0, len(pivot.index)-1, num_yticks, dtype=int)
-        plt.xticks(ticks=xtick_indices, labels=[f"{pivot.columns[i]:.2f}" for i in xtick_indices])
-        plt.yticks(ticks=ytick_indices, labels=[f"{pivot.index[i]:.2f}" for i in ytick_indices])
-        plt.savefig(os.path.join(result_dir, f'composite_error_heatmap_{connectivity_profile}.png'))
+            # Limit ticks to 10 evenly spaced values for coarse view
+            num_xticks = min(10, len(pivot.columns))
+            num_yticks = min(10, len(pivot.index))
+            xtick_indices = np.linspace(0, len(pivot.columns)-1, num_xticks, dtype=int)
+            ytick_indices = np.linspace(0, len(pivot.index)-1, num_yticks, dtype=int)
+            plt.xticks(ticks=xtick_indices, labels=[f"{pivot.columns[i]:.2f}" for i in xtick_indices])
+            plt.yticks(ticks=ytick_indices, labels=[f"{pivot.index[i]:.2f}" for i in ytick_indices])
+            plt.savefig(os.path.join(result_dir, f'composite_error_heatmap_{connectivity_profile}_Iff_{Iff_val:.2f}.png'))
+            plt.close()
     else:
         print("No valid simulation results found.")

@@ -358,6 +358,7 @@ def fitness_func(ga_instance, solution, solution_idx):
 
     # For now, if there is any exception raised, just give very low fitness value to this solution.
     except Exception as e:
+        print(e)
         cwce = -1
         angular_Zscore = -1
         nmse = -1

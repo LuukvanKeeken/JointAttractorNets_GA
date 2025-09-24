@@ -22,13 +22,11 @@ mean_first_errors_working_specimens = []
 mean_second_errors_working_specimens = []
 mean_third_errors_working_specimens = []
 mean_fourth_errors_working_specimens = []
-mean_fifth_errors_working_specimens = []
 std_errors_working_specimens = []
 std_first_errors_working_specimens = []
 std_second_errors_working_specimens = []
 std_third_errors_working_specimens = []
 std_fourth_errors_working_specimens = []
-std_fifth_errors_working_specimens = []
 mean_gene_stddevs = []
 
 # Import the simulation function from your model file
@@ -63,8 +61,8 @@ parser.add_argument('--crossover_type', type=str, default='single_point', choice
 parser.add_argument('--keep_elitism', type=int, default=1, help='Number of best solutions to keep in the next generation.')
 parser.add_argument('--rand_mut_min_val', type=float, default=-0.1, help='Minimum value for random mutation.')
 parser.add_argument('--rand_mut_max_val', type=float, default=0.1, help='Maximum value for random mutation.')
-parser.add_argument('--initial_ranges_cos', type=float, nargs=6, default=[0.001, 1.0, -1.0, 0.0, 0.001, 160], help='Initial ranges for Cosine connectivity profile: g_cosine_min, g_cosine_max, w_inh_min, w_inh_max, Iff_min, Iff_max.')
-parser.add_argument('--gene_spaces_cos', type=float, nargs=6, default=[0.0001, 1, -3, 0.0, 0.001, 160], help='Cosine gene spaces/limits for the optimization: g_cosine_min, g_cosine_max, w_inh_min, w_inh_max, Iff_min, Iff_max.')
+parser.add_argument('--initial_ranges_cos', type=float, nargs=4, default=[0.001, 1.0, -1.0, 0.0], help='Initial ranges for Cosine connectivity profile: g_cosine_min, g_cosine_max, w_inh_min, w_inh_max.')
+parser.add_argument('--gene_spaces_cos', type=float, nargs=4, default=[0.0001, 1, -3, 0.0], help='Cosine gene spaces/limits for the optimization: g_cosine_min, g_cosine_max, w_inh_min, w_inh_max.')
 parser.add_argument('--stim_center', type=float, default=1.571, help='Center of the stimulus for the ring attractor model.')
 parser.add_argument('--stim_width', type=float, default=0.5, help='Width of the stimulus for the ring attractor model.')
 parser.add_argument('--tau', type=float, default=10.0, help='Time constant for the ring attractor model in ms.')
@@ -152,14 +150,11 @@ fixed_params = {
 if connectivity_profile == 'cosine':
     g_cosine_range = initial_ranges_cos[:2]    # cosine gain
     w_inh_range = initial_ranges_cos[2:4]      # global inhibition weight
-    Iff_range = initial_ranges_cos[4:6]        # feedforward input strength
     gene_0_stddevs = []
     gene_1_stddevs = []
-    gene_2_stddevs = []
 
     g_cosine_space = {'low': gene_spaces_cos[0], 'high': gene_spaces_cos[1]}
     w_inh_space = {'low': gene_spaces_cos[2], 'high': gene_spaces_cos[3]}
-    Iff_space = {'low': gene_spaces_cos[4], 'high': gene_spaces_cos[5]}
 else:
     raise ValueError("Unsupported connectivity profile. Choose 'cosine'.")
 
@@ -168,7 +163,7 @@ else:
 
 # Number of genes based on the connectivity profile
 if connectivity_profile == 'cosine':
-    num_genes = 3  # g_cosine, w_inh, Iff
+    num_genes = 2 # g_cosine, w_inh
 else:  
     raise ValueError("Unsupported connectivity profile. Choose 'cosine'.")
 
@@ -183,14 +178,12 @@ def on_generation(ga_instance):
     global mean_second_errors_working_specimens
     global mean_third_errors_working_specimens
     global mean_fourth_errors_working_specimens
-    global mean_fifth_errors_working_specimens
     global std_first_errors_working_specimens
     global std_second_errors_working_specimens
     global std_third_errors_working_specimens
     global std_fourth_errors_working_specimens
-    global std_fifth_errors_working_specimens
     global current_results_dirname
-    global gene_0_stddevs, gene_1_stddevs, gene_2_stddevs
+    global gene_0_stddevs, gene_1_stddevs
     global mean_gene_stddevs
     
 
@@ -203,10 +196,8 @@ def on_generation(ga_instance):
     if connectivity_profile == 'cosine':
         gene_0_stddevs.append(gene_std_devs[0])
         gene_1_stddevs.append(gene_std_devs[1])
-        gene_2_stddevs.append(gene_std_devs[2])
         np.savetxt(f"{current_results_dirname}/gene_0_stddevs.txt", np.array(gene_0_stddevs))
         np.savetxt(f"{current_results_dirname}/gene_1_stddevs.txt", np.array(gene_1_stddevs))
-        np.savetxt(f"{current_results_dirname}/gene_2_stddevs.txt", np.array(gene_2_stddevs))
     else:
         raise ValueError("Unsupported connectivity profile. Choose 'cosine'.")
     
@@ -247,23 +238,22 @@ def on_generation(ga_instance):
     std_fourth_errors = np.std(fourth_errors)
     mean_fourth_errors_working_specimens.append(mean_fourth_errors)
     std_fourth_errors_working_specimens.append(std_fourth_errors)
-    fifth_fitness_vals = positive_fitnesses[:, 4]
-    fifth_errors = (1.0 / fifth_fitness_vals) - 1e-8
-    mean_fifth_errors = np.mean(fifth_errors)
-    std_fifth_errors = np.std(fifth_errors)
-    mean_fifth_errors_working_specimens.append(mean_fifth_errors)
-    std_fifth_errors_working_specimens.append(std_fifth_errors)
 
-    mean_specimen_fitnesses = np.mean(np.stack([first_fitness_vals, second_fitness_vals, third_fitness_vals, fourth_fitness_vals, fifth_fitness_vals]), axis=0)
+    mean_specimen_fitnesses = np.mean(np.stack([first_fitness_vals, second_fitness_vals, third_fitness_vals, fourth_fitness_vals]), axis=0)
 
 
-    mean_specimen_errors = np.mean(np.stack([first_errors, second_errors, third_errors, fourth_errors, fifth_errors]), axis=0)
+    mean_specimen_errors = np.mean(np.stack([first_errors, second_errors, third_errors, fourth_errors]), axis=0)
     mean_errors = np.mean(mean_specimen_errors)
     std_errors = np.std(mean_specimen_errors)
     mean_errors_working_specimens.append(mean_errors)
     std_errors_working_specimens.append(std_errors)
 
-    
+    # mean_fitness_vals = np.mean(np.stack([first_fitness_vals, second_fitness_vals, third_fitness_vals]), axis=0)
+    # errors = (1.0 / mean_fitness_vals) - 1e-8
+    # mean_errors = np.mean(errors)
+    # std_errors = np.std(errors)
+    # mean_errors_working_specimens.append(mean_errors)
+    # std_errors_working_specimens.append(std_errors)
     
 
     np.savetxt(f"{current_results_dirname}/mean_errors_working_specimens.txt", np.array(mean_errors_working_specimens))
@@ -276,8 +266,6 @@ def on_generation(ga_instance):
     np.savetxt(f"{current_results_dirname}/std_third_errors_working_specimens.txt", np.array(std_third_errors_working_specimens))
     np.savetxt(f"{current_results_dirname}/mean_fourth_errors_working_specimens.txt", np.array(mean_fourth_errors_working_specimens))
     np.savetxt(f"{current_results_dirname}/std_fourth_errors_working_specimens.txt", np.array(std_fourth_errors_working_specimens))
-    np.savetxt(f"{current_results_dirname}/mean_fifth_errors_working_specimens.txt", np.array(mean_fifth_errors_working_specimens))
-    np.savetxt(f"{current_results_dirname}/std_fifth_errors_working_specimens.txt", np.array(std_fifth_errors_working_specimens))
 
     print(f"Generation mean FITNESS (working solutions): {np.mean(mean_specimen_fitnesses):.4f} +/- {np.std(mean_specimen_fitnesses):.4f} | {len(positive_fitnesses)} working, {len(negative_fitnesses)} failed solutions")
     print(f"Generation mean ERROR (working solutions): {mean_errors:.4f} +/- {std_errors:.4f}")
@@ -285,7 +273,6 @@ def on_generation(ga_instance):
     print(f"      mean angular Z-score: {mean_second_errors:.4f} +/- {std_second_errors:.4f}")
     print(f"      mean NMSE: {mean_third_errors:.4f} +/- {std_third_errors:.4f}")
     print(f"      mean norm. spread difference: {mean_fourth_errors:.4f} +/- {std_fourth_errors:.4f}")
-    print(f"      mean mid-sim spread error: {mean_fifth_errors:.4f} +/- {std_fifth_errors:.4f}")
     print(f"Generation mean gene standard deviations: {np.mean(gene_std_devs):.4f}")
 
     solution, solution_fitness, solution_idx = ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)
@@ -295,18 +282,17 @@ def on_generation(ga_instance):
     gens_completed = ga_instance.generations_completed
     with open(f"{current_results_dirname}/exp_results.txt", "a") as f:
         if connectivity_profile == 'cosine':
-            f.write(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (g_cosine: {solution[0]}, w_inh: {solution[1]}, Iff: {solution[2]})\n")
+            f.write(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (g_cosine: {solution[0]}, w_inh: {solution[1]})\n")
         f.write(f"Generation mean FITNESS: {np.mean(positive_fitnesses):.4f} +/- {np.std(positive_fitnesses):.4f} | {len(positive_fitnesses)} working, {len(negative_fitnesses)} failed solutions\n")
         f.write(f"Generation mean ERROR (working solutions): {mean_errors:.4f} +/- {std_errors:.4f}\n")
         f.write(f"      mean cwce: {mean_first_errors:.4f} +/- {std_first_errors:.4f}\n")
         f.write(f"      mean angular Z-score: {mean_second_errors:.4f} +/- {std_second_errors:.4f}\n")
         f.write(f"      mean NMSE: {mean_third_errors:.4f} +/- {std_third_errors:.4f}\n")
         f.write(f"      mean norm. spread difference: {mean_fourth_errors:.4f} +/- {std_fourth_errors:.4f}\n")
-        f.write(f"      mean mid-sim spread error: {mean_fifth_errors:.4f} +/- {std_fifth_errors:.4f}\n")
         f.write(f"Generation mean gene standard deviations: {np.mean(gene_std_devs):.4f}\n")
         f.write(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")
     if connectivity_profile == 'cosine':
-        print(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (g_cosine: {solution[0]}, w_inh: {solution[1]}, Iff: {solution[2]})")
+        print(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (g_cosine: {solution[0]}, w_inh: {solution[1]})")
     print(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")
 
     previous_gen_start_time = time.time()
@@ -326,15 +312,14 @@ def fitness_func(ga_instance, solution, solution_idx):
     if connectivity_profile == 'cosine':
         params.update({
             'g_cosine': solution[0],
-            'w_inh_val': solution[1],
-            'Iff_val': solution[2]
+            'w_inh_val': solution[1]
         })
     else:
         raise ValueError("Unsupported connectivity profile. Choose 'cosine'.")
     
     try:
         # Run the simulation.
-        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude, spread_difference, mid_sim_spread = opt_ring_attractor(params, stim_center=stim_center, stim_width=stim_width)
+        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude, spread_difference = opt_ring_attractor(params, stim_center=stim_center, stim_width=stim_width)
         
         # Compute the circular standard deviation (spread) from the PVA magnitude.
         circular_std = np.sqrt(-2 * np.log(out_pva_magnitude + 1e-8))
@@ -353,26 +338,23 @@ def fitness_func(ga_instance, solution, solution_idx):
         # Normalize the spread difference by the number of neurons, and
         # add 1 to make sure it is non-negative.
         spread_err = np.abs(spread_difference / num_neurons) + 1
-
-        normalized_mid_sim_spread = mid_sim_spread / num_neurons
         
         # Combine the errors into one composite score, just to be able to
         # quickly check NaN or infinite values.
-        composite_error = cwce + angular_Zscore + nmse + spread_err + normalized_mid_sim_spread
+        composite_error = cwce + angular_Zscore + nmse + spread_err
 
         # Check if the composite error is NaN or infinite. In that case, set all errors to -1
         if np.isnan(composite_error) or np.isinf(composite_error):
-            isnan_indices = np.isnan([cwce, angular_Zscore, nmse, spread_err, normalized_mid_sim_spread])
-            isinf_indices = np.isinf([cwce, angular_Zscore, nmse, spread_err, normalized_mid_sim_spread])
+            isnan_indices = np.isnan([cwce, angular_Zscore, nmse, spread_err])
+            isinf_indices = np.isinf([cwce, angular_Zscore, nmse, spread_err])
 
-            print(f"Composite error is NaN for solution {solution_idx}. Setting errors to -1. The values that caused NaN are: cwce: {isnan_indices[0]}, angular_Zscore: {isnan_indices[1]}, nmse: {isnan_indices[2]}, spread_err: {isnan_indices[3]}, normalized_mid_sim_spread: {isnan_indices[4]}, out_rates: {np.any(np.isnan(out_rates))}, GT_input: {np.any(np.isnan(GT_input))}. Values that are inf are: cwce: {isinf_indices[0]}, angular_Zscore: {isinf_indices[1]}, nmse: {isinf_indices[2]}, spread_err: {isinf_indices[3]}, normalized_mid_sim_spread: {isinf_indices[4]}.")
+            print(f"Composite error is NaN for solution {solution_idx}. Setting errors to -1. The values that caused NaN are: cwce: {isnan_indices[0]}, angular_Zscore: {isnan_indices[1]}, nmse: {isnan_indices[2]}, spread_err: {isnan_indices[3]}, out_rates: {np.any(np.isnan(out_rates))}, GT_input: {np.any(np.isnan(GT_input))}. Values that are inf are: cwce: {isinf_indices[0]}, angular_Zscore: {isinf_indices[1]}, nmse: {isinf_indices[2]}, spread_err: {isinf_indices[3]}.")
             
 
             cwce = -1
             angular_Zscore = -1
             nmse = -1
             spread_err = -1
-            normalized_mid_sim_spread = -1
 
     # For now, if there is any exception raised, just give very low fitness value to this solution.
     except Exception as e:
@@ -380,16 +362,14 @@ def fitness_func(ga_instance, solution, solution_idx):
         angular_Zscore = -1
         nmse = -1
         spread_err = -1
-        normalized_mid_sim_spread = -1
 
 
     fitness_cwce = 1 / (cwce + 1e-8)
     fitness_angular_Zscore = 1 / (angular_Zscore + 1e-8)
     fitness_nmse = 1 / (nmse + 1e-8)
     fitness_spread = 1 / (spread_err + 1e-8)
-    fitness_mid_sim_spread = 1 / (normalized_mid_sim_spread + 1e-8)
 
-    return [fitness_cwce, fitness_angular_Zscore, fitness_nmse, fitness_spread, fitness_mid_sim_spread]
+    return [fitness_cwce, fitness_angular_Zscore, fitness_nmse, fitness_spread]
 
 
 # Create the GA instance with the specified parameters
@@ -408,7 +388,7 @@ ga_instance = pygad.GA(num_generations=num_generations,
                        random_seed=rand_seed,
                        random_mutation_min_val= rand_mut_min_val,
                        random_mutation_max_val= rand_mut_max_val,
-                       gene_space=[g_cosine_space, w_inh_space, Iff_space]
+                       gene_space=[g_cosine_space, w_inh_space]
 )
 
 
@@ -433,7 +413,6 @@ if __name__ == '__main__':
         errors: {1/solution_fitness}
         g_cosine: {solution[0]} mV
         w_inh: {solution[1]}
-        Iff: {solution[2]}
     """)
         
         with open(f"{current_results_dirname}/exp_results.txt", "a") as f:
@@ -441,7 +420,6 @@ if __name__ == '__main__':
             f.write(f"errors: {1/solution_fitness}\n")
             f.write(f"g_cosine: {solution[0]} mV\n")
             f.write(f"w_inh: {solution[1]}\n")
-            f.write(f"Iff: {solution[2]}\n")
     else:
         raise ValueError("Unsupported connectivity profile. Choose 'cosine'.")
     
@@ -457,7 +435,7 @@ if __name__ == '__main__':
     np.savetxt(f"{current_results_dirname}/mean_gene_stddevs.txt", np.array(mean_gene_stddevs))
     np.savetxt(f"{current_results_dirname}/gene_0_stddevs.txt", np.array(gene_0_stddevs))
     np.savetxt(f"{current_results_dirname}/gene_1_stddevs.txt", np.array(gene_1_stddevs))
-    np.savetxt(f"{current_results_dirname}/gene_2_stddevs.txt", np.array(gene_2_stddevs))
+
 
     best_errors = np.array(best_errors)
 
@@ -492,14 +470,6 @@ if __name__ == '__main__':
     plt.title('Best Norm. Spread Difference Error Over Generations')
     plt.legend()
     plt.savefig(f"{current_results_dirname}/best_norm_spread_diff_errors.png")
-
-    plt.figure()
-    plt.plot(best_errors[:, 4], label='Best Mid-sim Spread Error')
-    plt.xlabel('Generation')
-    plt.ylabel('Mid-sim Spread Error')
-    plt.title('Best Mid-sim Spread Error Over Generations')
-    plt.legend()
-    plt.savefig(f"{current_results_dirname}/best_mid_sim_spread_errors.png")
 
     plt.figure()
     plt.plot(mean_errors_working_specimens, label='Mean Errors (Working Specimens)')
@@ -562,9 +532,6 @@ if __name__ == '__main__':
     plt.savefig(f"{current_results_dirname}/mean_fourth_errors.png")
 
     plt.figure()
-    
-
-    plt.figure()
     plt.plot(mean_gene_stddevs, label='Mean Gene Standard Deviations')
     plt.xlabel('Generation')
     plt.ylabel('Mean Gene Std Dev')
@@ -588,10 +555,6 @@ if __name__ == '__main__':
     plt.legend()
     plt.savefig(f"{current_results_dirname}/gene_1_stddevs.png")
 
-    plt.figure()
-    plt.plot(gene_2_stddevs, label='Gene 2 Std Dev')
-    plt.xlabel('Generation')
-    plt.ylabel('Gene 2 Std Dev')
-    plt.title('Gene 2 Standard Deviations Over Generations')
-    plt.legend()
-    plt.savefig(f"{current_results_dirname}/gene_2_stddevs.png")
+    
+
+    

@@ -100,8 +100,8 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
 
 if __name__ == '__main__':
     # Example: run with default parameters when this file is executed directly
-    default_params = {'tau': 10, 'sigma_noise': 1.0, 'sigma_exc': 0.125, 'sigma_inh': 0.1, 'g_exc': 1.0*mV, 'g_inh': -1.0*mV, 'syn_profile': 'mexican_hat', 'autapse': True, 'glob_inh': False}
-    GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude = opt_ring_attractor(default_params,  stim_center=0, stim_width=0.5)   
+    default_params = {'tau': 10, 'sigma_noise': 1.0, 'sigma_exc': 0.125, 'sigma_inh': 0.1, 'g_exc': 1.0*mV, 'g_inh': -1.0*mV, 'syn_profile': 'cosine', 'autapse': True, 'glob_inh': True, 'g_cosine': 0.1*mV, 'w_inh': -0.01*mV}
+    GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude, spread_difference, spread_t1, spread_t2 = opt_ring_attractor(default_params,  stim_center=0, stim_width=0.5)   
     print("Ground Truth Center:", GT_center)
     print("Ground Truth Input:", GT_input)
     print("Observed Firing Rates:", out_rates)

@@ -319,7 +319,7 @@ def fitness_func(ga_instance, solution, solution_idx):
     
     try:
         # Run the simulation.
-        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude, spread_difference, spread_t1, spread_t2 = opt_ring_attractor(params, stim_center=stim_center, stim_width=stim_width)
+        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude, spread_difference = opt_ring_attractor(params, stim_center=stim_center, stim_width=stim_width)
         
         # Compute the circular standard deviation (spread) from the PVA magnitude.
         circular_std = np.sqrt(-2 * np.log(out_pva_magnitude + 1e-8))
@@ -358,7 +358,6 @@ def fitness_func(ga_instance, solution, solution_idx):
 
     # For now, if there is any exception raised, just give very low fitness value to this solution.
     except Exception as e:
-        print(e)
         cwce = -1
         angular_Zscore = -1
         nmse = -1

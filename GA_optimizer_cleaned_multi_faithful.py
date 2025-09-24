@@ -61,7 +61,7 @@ parser.add_argument('--crossover_type', type=str, default='single_point', choice
 parser.add_argument('--keep_elitism', type=int, default=1, help='Number of best solutions to keep in the next generation.')
 parser.add_argument('--rand_mut_min_val', type=float, default=-0.1, help='Minimum value for random mutation.')
 parser.add_argument('--rand_mut_max_val', type=float, default=0.1, help='Maximum value for random mutation.')
-parser.add_argument('--initial_ranges_cos', type=float, nargs=4, default=[0.01, 0.5, -2.0, -0.01], help='Initial ranges for Cosine connectivity profile: g_cosine_min, g_cosine_max, w_inh_min, w_inh_max.')
+parser.add_argument('--initial_ranges_cos', type=float, nargs=4, default=[0.001, 0.5, -0.7, -0.001], help='Initial ranges for Cosine connectivity profile: g_cosine_min, g_cosine_max, w_inh_min, w_inh_max.')
 parser.add_argument('--gene_spaces_cos', type=float, nargs=4, default=[0.0001, 1, -3, 0.00001], help='Cosine gene spaces/limits for the optimization: g_cosine_min, g_cosine_max, w_inh_min, w_inh_max.')
 parser.add_argument('--stim_center', type=float, default=1.571, help='Center of the stimulus for the ring attractor model.')
 parser.add_argument('--stim_width', type=float, default=0.5, help='Width of the stimulus for the ring attractor model.')

@@ -8,7 +8,6 @@ import time
 
 # Import the simulation function from your model file
 from optimization_model_faithful import opt_ring_attractor  # your simulation function
-from optimizingAlg_Transudction_RateBasedToSpikeBased import I2f
 # Also import any utility functions if needed (e.g., for computing firing rates, etc.)
 from utils import *
 
@@ -33,9 +32,9 @@ num_neurons = 120
 
 if connectivity_profile == 'cosine':
     # Cosine profile parameters - optimize g_cosine and w_inh
-    g_cosine_range = np.linspace(0.001, 0.7, 100)   # cosine gain with smaller scale
-    w_inh_range = np.linspace(-1.0, 0.0, 100)    # global inhibition weight
-    Iff_range = np.linspace(80, 80, 1)
+    g_cosine_range = np.linspace(0.001, 0.7, 40)   # cosine gain with smaller scale
+    w_inh_range = np.linspace(-0.7, 0.0, 40)    # global inhibition weight
+    Iff_range = np.linspace(10, 160, 10)
     # Create parameter grid with conditional logic
     param_grid = []
     for g in g_cosine_range:
@@ -87,7 +86,7 @@ def worker_run(params_tuple):
     try:
         # Run the simulation.
         # opt_ring_attractor returns: (GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude)
-        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude, spread_difference, mid_sim_spread = opt_ring_attractor(params)
+        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude, spread_difference = opt_ring_attractor(params)
         
         # Compute the circular standard deviation (spread) from the PVA magnitude.
         circular_std = np.sqrt(-2 * np.log(out_pva_magnitude + 1e-8))
@@ -107,20 +106,15 @@ def worker_run(params_tuple):
         # Normalize the spread difference by the number of neurons, and take the
         # absolute value to punish increases and decreases equally. Add 1 to make sure
         # everything is above zero.
-        spread_diff_error = np.abs(spread_difference / num_neurons) + 1
-
-
-        normalized_mid_sim_spread = mid_sim_spread / num_neurons
-
+        spread_err = np.abs(spread_difference / num_neurons) + 1
         
         # Combine the errors into one composite score.
         # Adjust weights to prioritize center accuracy if desired
-        w_center = 0.2
-        w_Zscore = 0.2
-        w_nmse = 0.2
-        w_spread = 0.2
-        w_norm_mss = 0.2
-        composite_error = w_center * cwce + w_Zscore * angular_Zscore + w_nmse * nmse + w_spread * spread_diff_error + w_norm_mss * normalized_mid_sim_spread
+        w_center = 0.25
+        w_Zscore = 0.25
+        w_nmse = 0.25
+        w_spread = 0.25
+        composite_error = w_center * cwce + w_Zscore * angular_Zscore + w_nmse * nmse + w_spread * spread_err
 
         # Create result dictionary with profile-specific parameters
         result = {
@@ -131,8 +125,7 @@ def worker_run(params_tuple):
             'cwce': float(cwce),
             'angular_Zscore': float(angular_Zscore),
             'nmse': float(nmse),
-            'spread_error': float(spread_diff_error),
-            'mid_sim_spread': float(normalized_mid_sim_spread),
+            'spread_error': float(spread_err),
             'error_message': np.nan
         }
         
@@ -158,7 +151,6 @@ def worker_run(params_tuple):
             'nmse': np.nan,
             'composite_error': np.nan,
             'spread_error': np.nan,
-            'mid_sim_spread': np.nan,
             'error_message': str(e)
         }
         

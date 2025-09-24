@@ -32,8 +32,8 @@ num_neurons = 120
 
 if connectivity_profile == 'cosine':
     # Cosine profile parameters - optimize g_cosine and w_inh
-    g_cosine_range = np.linspace(0.001, 0.7, 100)   # cosine gain with smaller scale
-    w_inh_range = np.linspace(-0.7, 0.0, 100)    # global inhibition weight
+    g_cosine_range = np.linspace(0.001, 0.7, 50)   # cosine gain with smaller scale
+    w_inh_range = np.linspace(-0.7, 0.0, 50)    # global inhibition weight
     Iff_range = np.linspace(10, 160, 10)
     # Create parameter grid with conditional logic
     param_grid = []
@@ -86,7 +86,7 @@ def worker_run(params_tuple):
     try:
         # Run the simulation.
         # opt_ring_attractor returns: (GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude)
-        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude, spread_difference, spread_difference_start = opt_ring_attractor(params)
+        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude, spread_difference = opt_ring_attractor(params)
         
         # Compute the circular standard deviation (spread) from the PVA magnitude.
         circular_std = np.sqrt(-2 * np.log(out_pva_magnitude + 1e-8))
@@ -107,17 +107,14 @@ def worker_run(params_tuple):
         # absolute value to punish increases and decreases equally. Add 1 to make sure
         # everything is above zero.
         spread_err = np.abs(spread_difference / num_neurons) + 1
-
-        spread_err_start = (spread_difference_start / num_neurons) + 1
         
         # Combine the errors into one composite score.
         # Adjust weights to prioritize center accuracy if desired
-        w_center = 0.2
-        w_Zscore = 0.2
-        w_nmse = 0.2
-        w_spread = 0.2
-        w_spread_start = 0.2
-        composite_error = w_center * cwce + w_Zscore * angular_Zscore + w_nmse * nmse + w_spread * spread_err + w_spread_start * spread_err_start
+        w_center = 0.25
+        w_Zscore = 0.25
+        w_nmse = 0.25
+        w_spread = 0.25
+        composite_error = w_center * cwce + w_Zscore * angular_Zscore + w_nmse * nmse + w_spread * spread_err
 
         # Create result dictionary with profile-specific parameters
         result = {
@@ -129,7 +126,6 @@ def worker_run(params_tuple):
             'angular_Zscore': float(angular_Zscore),
             'nmse': float(nmse),
             'spread_error': float(spread_err),
-            'spread_error_start': float(spread_err_start),
             'error_message': np.nan
         }
         
@@ -155,7 +151,6 @@ def worker_run(params_tuple):
             'nmse': np.nan,
             'composite_error': np.nan,
             'spread_error': np.nan,
-            'spread_error_start': np.nan,
             'error_message': str(e)
         }
         

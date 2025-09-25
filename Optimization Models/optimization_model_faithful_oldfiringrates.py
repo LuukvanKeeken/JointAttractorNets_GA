@@ -106,7 +106,6 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     input_on = 0.05 * second
     input_off = 0.95 * second
     sim_duration = input_on + input_off
-    post_transient_point = 0.5 * second
 
 
     # Run simulation
@@ -121,26 +120,25 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
 
     
     firing_rates = compute_firing_rate(spikemon, num_neurons,
-                                       start_time=post_transient_point, end_time=sim_duration)
+                                       start_time=input_on, end_time=sim_duration)
                                     #    start_time=0.95*sim_duration, end_time=sim_duration)
                                     
     pva_angle, pva_magnitude = calculate_PVA(firing_rates, positions)
     
     # Positive spread difference means an increase in bump spread
     # between t1 and t2, negative means a decrease.
-    spread_difference, spread_t1, spread_t2 = calculate_spreads(spikemon, t1=post_transient_point, t2=sim_duration)
+    spread_difference, spread_t1, spread_t2 = calculate_spreads(spikemon, t1=0.5*second, t2=sim_duration)
 
 
-    # For frequency error calculations
-    max_firing_rate = 1/(refractory_period)
+    max_frequency = 1/(refractory_period)
+
     Iff_firing_rate = I2f(Iff_val)
 
     
 
 
-
     # Return simulation results
-    return stimulus_center, I_ext_array, firing_rates, pva_angle, pva_magnitude, spread_difference, spread_t1, max_firing_rate, Iff_firing_rate
+    return stimulus_center, I_ext_array, firing_rates, pva_angle, pva_magnitude, spread_difference, spread_t1
 
 if __name__ == '__main__':
     # Example: run with default parameters when this file is executed directly

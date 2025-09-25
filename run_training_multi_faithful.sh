@@ -24,7 +24,7 @@ mut_prob2=(0.3)
 num_gens=(100)
 con_prof="cosine"
 
-initial_ranges_cos=(0.001 0.5 -0.7 -0.001 0.001 160)
+initial_ranges_cos=(0.001 0.5 -0.7 -0.001 23 160)
 
 for i in "${!num_processes[@]}"; do
     num_proc="${num_processes[$i]}"

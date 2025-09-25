@@ -23,14 +23,12 @@ mean_second_errors_working_specimens = []
 mean_third_errors_working_specimens = []
 mean_fourth_errors_working_specimens = []
 mean_fifth_errors_working_specimens = []
-mean_sixth_errors_working_specimens = []
 std_errors_working_specimens = []
 std_first_errors_working_specimens = []
 std_second_errors_working_specimens = []
 std_third_errors_working_specimens = []
 std_fourth_errors_working_specimens = []
 std_fifth_errors_working_specimens = []
-std_sixth_errors_working_specimens = []
 mean_gene_stddevs = []
 
 # Import the simulation function from your model file
@@ -186,13 +184,11 @@ def on_generation(ga_instance):
     global mean_third_errors_working_specimens
     global mean_fourth_errors_working_specimens
     global mean_fifth_errors_working_specimens
-    global mean_sixth_errors_working_specimens
     global std_first_errors_working_specimens
     global std_second_errors_working_specimens
     global std_third_errors_working_specimens
     global std_fourth_errors_working_specimens
     global std_fifth_errors_working_specimens
-    global std_sixth_errors_working_specimens
     global current_results_dirname
     global gene_0_stddevs, gene_1_stddevs, gene_2_stddevs
     global mean_gene_stddevs
@@ -257,17 +253,11 @@ def on_generation(ga_instance):
     std_fifth_errors = np.std(fifth_errors)
     mean_fifth_errors_working_specimens.append(mean_fifth_errors)
     std_fifth_errors_working_specimens.append(std_fifth_errors)
-    sixth_fitness_vals = positive_fitnesses[:, 5]
-    sixth_errors = (1.0 / sixth_fitness_vals) - 1e-8
-    mean_sixth_errors = np.mean(sixth_errors)
-    std_sixth_errors = np.std(sixth_errors)
-    mean_sixth_errors_working_specimens.append(mean_sixth_errors)
-    std_sixth_errors_working_specimens.append(std_sixth_errors)
 
-    mean_specimen_fitnesses = np.mean(np.stack([first_fitness_vals, second_fitness_vals, third_fitness_vals, fourth_fitness_vals, fifth_fitness_vals, sixth_fitness_vals]), axis=0)
+    mean_specimen_fitnesses = np.mean(np.stack([first_fitness_vals, second_fitness_vals, third_fitness_vals, fourth_fitness_vals, fifth_fitness_vals]), axis=0)
 
 
-    mean_specimen_errors = np.mean(np.stack([first_errors, second_errors, third_errors, fourth_errors, fifth_errors, sixth_errors]), axis=0)
+    mean_specimen_errors = np.mean(np.stack([first_errors, second_errors, third_errors, fourth_errors, fifth_errors]), axis=0)
     mean_errors = np.mean(mean_specimen_errors)
     std_errors = np.std(mean_specimen_errors)
     mean_errors_working_specimens.append(mean_errors)
@@ -288,8 +278,6 @@ def on_generation(ga_instance):
     np.savetxt(f"{current_results_dirname}/std_fourth_errors_working_specimens.txt", np.array(std_fourth_errors_working_specimens))
     np.savetxt(f"{current_results_dirname}/mean_fifth_errors_working_specimens.txt", np.array(mean_fifth_errors_working_specimens))
     np.savetxt(f"{current_results_dirname}/std_fifth_errors_working_specimens.txt", np.array(std_fifth_errors_working_specimens))
-    np.savetxt(f"{current_results_dirname}/mean_sixth_errors_working_specimens.txt", np.array(mean_sixth_errors_working_specimens))
-    np.savetxt(f"{current_results_dirname}/std_sixth_errors_working_specimens.txt", np.array(std_sixth_errors_working_specimens))
 
     print(f"Generation mean FITNESS (working solutions): {np.mean(mean_specimen_fitnesses):.4f} +/- {np.std(mean_specimen_fitnesses):.4f} | {len(positive_fitnesses)} working, {len(negative_fitnesses)} failed solutions")
     print(f"Generation mean ERROR (working solutions): {mean_errors:.4f} +/- {std_errors:.4f}")
@@ -298,7 +286,6 @@ def on_generation(ga_instance):
     print(f"      mean NMSE: {mean_third_errors:.4f} +/- {std_third_errors:.4f}")
     print(f"      mean norm. spread difference: {mean_fourth_errors:.4f} +/- {std_fourth_errors:.4f}")
     print(f"      mean mid-sim spread error: {mean_fifth_errors:.4f} +/- {std_fifth_errors:.4f}")
-    print(f"      mean frequency error: {mean_sixth_errors:.4f} +/- {std_sixth_errors:.4f}")
     print(f"Generation mean gene standard deviations: {np.mean(gene_std_devs):.4f}")
 
     solution, solution_fitness, solution_idx = ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)
@@ -316,7 +303,6 @@ def on_generation(ga_instance):
         f.write(f"      mean NMSE: {mean_third_errors:.4f} +/- {std_third_errors:.4f}\n")
         f.write(f"      mean norm. spread difference: {mean_fourth_errors:.4f} +/- {std_fourth_errors:.4f}\n")
         f.write(f"      mean mid-sim spread error: {mean_fifth_errors:.4f} +/- {std_fifth_errors:.4f}\n")
-        f.write(f"      mean frequency error: {mean_sixth_errors:.4f} +/- {std_sixth_errors:.4f}\n")
         f.write(f"Generation mean gene standard deviations: {np.mean(gene_std_devs):.4f}\n")
         f.write(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")
     if connectivity_profile == 'cosine':
@@ -348,7 +334,7 @@ def fitness_func(ga_instance, solution, solution_idx):
     
     try:
         # Run the simulation.
-        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude, spread_difference, mid_sim_spread, max_firing_rate, Iff_firing_rate = opt_ring_attractor(params, stim_center=stim_center, stim_width=stim_width)
+        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude, spread_difference, mid_sim_spread = opt_ring_attractor(params, stim_center=stim_center, stim_width=stim_width)
         
         # Compute the circular standard deviation (spread) from the PVA magnitude.
         circular_std = np.sqrt(-2 * np.log(out_pva_magnitude + 1e-8))
@@ -368,33 +354,18 @@ def fitness_func(ga_instance, solution, solution_idx):
         # add 1 to make sure it is non-negative.
         spread_err = np.abs(spread_difference / num_neurons) + 1
 
-        # Force bump spread at halfway the simulation to be as small as possible.
         normalized_mid_sim_spread = mid_sim_spread / num_neurons
-
-        # If no neurons are active, give high punishment
-        if np.any(out_rates > 0):
-            lowest_active_neuron_rate = np.min(out_rates[out_rates > 0])*Hz
-            highest_active_neuron_rate = np.max(out_rates)*Hz
-
-            # Highest active neuron should be as low as possible (to avoid saturation)
-            high_error = highest_active_neuron_rate / max_firing_rate
-            # Lowest active neuron should be above 40% of the Iff firing rate, but not
-            # necessarily as high as possible.
-            low_error = max(0, (0.4 * Iff_firing_rate - lowest_active_neuron_rate) / (0.4 * Iff_firing_rate))
-            frequency_error = high_error + low_error
-        else:
-            frequency_error = 1000
         
         # Combine the errors into one composite score, just to be able to
         # quickly check NaN or infinite values.
-        composite_error = cwce + angular_Zscore + nmse + spread_err + normalized_mid_sim_spread + frequency_error
+        composite_error = cwce + angular_Zscore + nmse + spread_err + normalized_mid_sim_spread
 
         # Check if the composite error is NaN or infinite. In that case, set all errors to -1
         if np.isnan(composite_error) or np.isinf(composite_error):
-            isnan_indices = np.isnan([cwce, angular_Zscore, nmse, spread_err, normalized_mid_sim_spread, frequency_error])
-            isinf_indices = np.isinf([cwce, angular_Zscore, nmse, spread_err, normalized_mid_sim_spread, frequency_error])
+            isnan_indices = np.isnan([cwce, angular_Zscore, nmse, spread_err, normalized_mid_sim_spread])
+            isinf_indices = np.isinf([cwce, angular_Zscore, nmse, spread_err, normalized_mid_sim_spread])
 
-            print(f"Composite error is NaN for solution {solution_idx}. Setting errors to -1. The values that caused NaN are: cwce: {isnan_indices[0]}, angular_Zscore: {isnan_indices[1]}, nmse: {isnan_indices[2]}, spread_err: {isnan_indices[3]}, normalized_mid_sim_spread: {isnan_indices[4]}, frequency_error: {isnan_indices[5]}, out_rates: {np.any(np.isnan(out_rates))}, GT_input: {np.any(np.isnan(GT_input))}. Values that are inf are: cwce: {isinf_indices[0]}, angular_Zscore: {isinf_indices[1]}, nmse: {isinf_indices[2]}, spread_err: {isinf_indices[3]}, normalized_mid_sim_spread: {isinf_indices[4]}, frequency_error: {isinf_indices[5]}.")
+            print(f"Composite error is NaN for solution {solution_idx}. Setting errors to -1. The values that caused NaN are: cwce: {isnan_indices[0]}, angular_Zscore: {isnan_indices[1]}, nmse: {isnan_indices[2]}, spread_err: {isnan_indices[3]}, normalized_mid_sim_spread: {isnan_indices[4]}, out_rates: {np.any(np.isnan(out_rates))}, GT_input: {np.any(np.isnan(GT_input))}. Values that are inf are: cwce: {isinf_indices[0]}, angular_Zscore: {isinf_indices[1]}, nmse: {isinf_indices[2]}, spread_err: {isinf_indices[3]}, normalized_mid_sim_spread: {isinf_indices[4]}.")
             
 
             cwce = -1
@@ -402,7 +373,6 @@ def fitness_func(ga_instance, solution, solution_idx):
             nmse = -1
             spread_err = -1
             normalized_mid_sim_spread = -1
-            frequency_error = -1
 
     # For now, if there is any exception raised, just give very low fitness value to this solution.
     except Exception as e:
@@ -411,7 +381,6 @@ def fitness_func(ga_instance, solution, solution_idx):
         nmse = -1
         spread_err = -1
         normalized_mid_sim_spread = -1
-        frequency_error = -1
 
 
     fitness_cwce = 1 / (cwce + 1e-8)
@@ -419,9 +388,8 @@ def fitness_func(ga_instance, solution, solution_idx):
     fitness_nmse = 1 / (nmse + 1e-8)
     fitness_spread = 1 / (spread_err + 1e-8)
     fitness_mid_sim_spread = 1 / (normalized_mid_sim_spread + 1e-8)
-    fitness_frequency = 1 / (frequency_error + 1e-8)
 
-    return [fitness_cwce, fitness_angular_Zscore, fitness_nmse, fitness_spread, fitness_mid_sim_spread, fitness_frequency]
+    return [fitness_cwce, fitness_angular_Zscore, fitness_nmse, fitness_spread, fitness_mid_sim_spread]
 
 
 # Create the GA instance with the specified parameters
@@ -534,14 +502,6 @@ if __name__ == '__main__':
     plt.savefig(f"{current_results_dirname}/best_mid_sim_spread_errors.png")
 
     plt.figure()
-    plt.plot(best_errors[:, 5], label='Best Frequency Error')
-    plt.xlabel('Generation')
-    plt.ylabel('Frequency Error')
-    plt.title('Best Frequency Error Over Generations')
-    plt.legend()
-    plt.savefig(f"{current_results_dirname}/best_frequency_errors.png")
-
-    plt.figure()
     plt.plot(mean_errors_working_specimens, label='Mean Errors (Working Specimens)')
     plt.fill_between(range(len(mean_errors_working_specimens)), 
                      np.array(mean_errors_working_specimens) - np.array(std_errors_working_specimens), 
@@ -602,28 +562,7 @@ if __name__ == '__main__':
     plt.savefig(f"{current_results_dirname}/mean_fourth_errors.png")
 
     plt.figure()
-    plt.plot(mean_fifth_errors_working_specimens, label='Mean Mid-sim Spread Error (Working Specimens)')
-    plt.fill_between(range(len(mean_fifth_errors_working_specimens)),
-                     np.array(mean_fifth_errors_working_specimens) - np.array(std_fifth_errors_working_specimens), 
-                     np.array(mean_fifth_errors_working_specimens) + np.array(std_fifth_errors_working_specimens), 
-                     alpha=0.2)
-    plt.xlabel('Generation')
-    plt.ylabel('Mean Mid-sim Spread Error')
-    plt.title('Mean Mid-sim Spread Error Over Generations')
-    plt.legend()
-    plt.savefig(f"{current_results_dirname}/mean_fifth_errors.png")
-
-    plt.figure()
-    plt.plot(mean_sixth_errors_working_specimens, label='Mean Frequency Error (Working Specimens)')
-    plt.fill_between(range(len(mean_sixth_errors_working_specimens)),
-                     np.array(mean_sixth_errors_working_specimens) - np.array(std_sixth_errors_working_specimens), 
-                     np.array(mean_sixth_errors_working_specimens) + np.array(std_sixth_errors_working_specimens), 
-                     alpha=0.2)
-    plt.xlabel('Generation')
-    plt.ylabel('Mean Frequency Error')
-    plt.title('Mean Frequency Error Over Generations')
-    plt.legend()
-    plt.savefig(f"{current_results_dirname}/mean_sixth_errors.png")
+    
 
     plt.figure()
     plt.plot(mean_gene_stddevs, label='Mean Gene Standard Deviations')

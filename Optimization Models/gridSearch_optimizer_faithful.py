@@ -32,9 +32,9 @@ num_neurons = 120
 
 if connectivity_profile == 'cosine':
     # Cosine profile parameters - optimize g_cosine and w_inh
-    g_cosine_range = np.linspace(0.0, 80, 100)   # cosine gain with smaller scale
-    w_inh_range = np.linspace(-100.0, 0.0, 100)    # global inhibition weight
-    Iff_range = np.linspace(80, 80, 1)
+    g_cosine_range = np.linspace(0.0, 80, 40)   # cosine gain with smaller scale
+    w_inh_range = np.linspace(-100.0, 0.0, 40)    # global inhibition weight
+    Iff_range = np.linspace(23, 80, 10)
     # Create parameter grid with conditional logic
     param_grid = []
     for g in g_cosine_range:

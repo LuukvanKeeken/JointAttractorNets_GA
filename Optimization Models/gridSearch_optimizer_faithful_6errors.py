@@ -32,9 +32,9 @@ num_neurons = 120
 
 if connectivity_profile == 'cosine':
     # Cosine profile parameters - optimize g_cosine and w_inh
-    g_cosine_range = np.linspace(0.0, 80, 100)   # cosine gain with smaller scale
-    w_inh_range = np.linspace(-100.0, 0.0, 100)    # global inhibition weight
-    Iff_range = np.linspace(80, 80, 1)
+    g_cosine_range = np.linspace(0.001, 1.0, 40)   # cosine gain with smaller scale
+    w_inh_range = np.linspace(-1.0, 0.0, 40)    # global inhibition weight
+    Iff_range = np.linspace(23, 160, 10)
     # Create parameter grid with conditional logic
     param_grid = []
     for g in g_cosine_range:
@@ -86,7 +86,7 @@ def worker_run(params_tuple):
     try:
         # Run the simulation.
         # opt_ring_attractor returns: (GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude)
-        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude, spread_difference, mid_sim_spread, max_firing_rate, Iff_firing_rate, highest_rate_1, highest_rate_2 = opt_ring_attractor(params)
+        GT_center, GT_input, out_rates, out_pva_angle, out_pva_magnitude, spread_difference, mid_sim_spread, max_firing_rate, Iff_firing_rate = opt_ring_attractor(params)
         
         # Compute the circular standard deviation (spread) from the PVA magnitude.
         circular_std = np.sqrt(-2 * np.log(out_pva_magnitude + 1e-8))
@@ -127,22 +127,15 @@ def worker_run(params_tuple):
             frequency_error = 1000
 
         
-        if highest_rate_2 > highest_rate_1:
-            rate_increase_error = (highest_rate_2 - highest_rate_1) / highest_rate_1
-        else:
-            rate_increase_error = 0
-
-        
         # Combine the errors into one composite score.
         # Adjust weights to prioritize center accuracy if desired
-        w_center = 0.1429
-        w_Zscore = 0.1429
-        w_nmse = 0.1429
-        w_spread = 0.1429
-        w_norm_mss = 0.1429
-        w_frequency = 0.1429
-        w_rate_increase = 0.1429
-        composite_error = w_center * cwce + w_Zscore * angular_Zscore + w_nmse * nmse + w_spread * spread_diff_error + w_norm_mss * normalized_mid_sim_spread + w_frequency * frequency_error + w_rate_increase * rate_increase_error
+        w_center = 0.1667
+        w_Zscore = 0.1667
+        w_nmse = 0.1667
+        w_spread = 0.1667
+        w_norm_mss = 0.1667
+        w_frequency = 0.1667
+        composite_error = w_center * cwce + w_Zscore * angular_Zscore + w_nmse * nmse + w_spread * spread_diff_error + w_norm_mss * normalized_mid_sim_spread + w_frequency * frequency_error
 
         # Create result dictionary with profile-specific parameters
         result = {
@@ -156,7 +149,6 @@ def worker_run(params_tuple):
             'spread_error': float(spread_diff_error),
             'mid_sim_spread': float(normalized_mid_sim_spread),
             'frequency_error': float(frequency_error),
-            'rate_increase_error': float(rate_increase_error),
             'error_message': np.nan
         }
         
@@ -184,7 +176,6 @@ def worker_run(params_tuple):
             'spread_error': np.nan,
             'mid_sim_spread': np.nan,
             'frequency_error': np.nan,
-            'rate_increase_error': np.nan,
             'error_message': str(e)
         }
         

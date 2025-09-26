@@ -122,7 +122,6 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     
     firing_rates = compute_firing_rate(spikemon, num_neurons,
                                        start_time=post_transient_point, end_time=sim_duration)
-                                    #    start_time=0.95*sim_duration, end_time=sim_duration)
                                     
     pva_angle, pva_magnitude = calculate_PVA(firing_rates, positions)
     
@@ -135,12 +134,17 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     max_firing_rate = 1/(refractory_period)
     Iff_firing_rate = I2f(Iff_val)
 
-    
 
+    firing_rates_range1 = compute_firing_rate(spikemon, num_neurons,
+                                       start_time=0.5*second, end_time=0.75*second)
+    highest_rate_1 = np.max(firing_rates_range1)*Hz
 
+    firing_rates_range2 = compute_firing_rate(spikemon, num_neurons,
+                                       start_time=0.75*second, end_time=sim_duration)
+    highest_rate_2 = np.max(firing_rates_range2)*Hz
 
     # Return simulation results
-    return stimulus_center, I_ext_array, firing_rates, pva_angle, pva_magnitude, spread_difference, spread_t1, max_firing_rate, Iff_firing_rate
+    return stimulus_center, I_ext_array, firing_rates, pva_angle, pva_magnitude, spread_difference, spread_t1, max_firing_rate, Iff_firing_rate, highest_rate_1, highest_rate_2
 
 if __name__ == '__main__':
     # Example: run with default parameters when this file is executed directly

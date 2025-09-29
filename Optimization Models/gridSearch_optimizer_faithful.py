@@ -32,8 +32,8 @@ num_neurons = 120
 
 if connectivity_profile == 'cosine':
     # Cosine profile parameters - optimize g_cosine and w_inh
-    g_cosine_range = np.linspace(0.001, 80.0, 100)   # cosine gain with smaller scale
-    w_inh_range = np.linspace(-100.0, 0.0, 100)    # global inhibition weight
+    g_cosine_range = np.linspace(0.001, 1.0, 100)   # cosine gain with smaller scale
+    w_inh_range = np.linspace(-1.0, 0.0, 100)    # global inhibition weight
     Iff_range = np.linspace(80, 80, 1)
     tau_s_range = np.linspace(13, 13, 1)
     # Create parameter grid with conditional logic
@@ -160,8 +160,8 @@ def worker_run(params_tuple):
             'cwce': float(cwce),
             'angular_Zscore': float(angular_Zscore),
             'nmse': float(nmse),
-            'spread_error': float(spread_diff_error),
-            'aim_spread': float(aim_spread),
+            'spread_diff_error': float(spread_diff_error),
+            'aim_spread_error': float(aim_spread_error),
             'frequency_error': float(frequency_error),
             'rate_change_error': float(rate_change_error),
             'error_message': np.nan
@@ -188,8 +188,8 @@ def worker_run(params_tuple):
             'angular_Zscore': np.nan,
             'nmse': np.nan,
             'composite_error': np.nan,
-            'spread_error': np.nan,
-            'aim_spread': np.nan,
+            'spread_diff_error': np.nan,
+            'aim_spread_error': np.nan,
             'frequency_error': np.nan,
             'rate_change_error': np.nan,
             'error_message': str(e)
@@ -210,7 +210,7 @@ if __name__ == '__main__':
     print(f"Total parameter combinations to evaluate: {total_runs}")
     
     # num_proc = mp.cpu_count()   # Adjust the number of worker processes based on your system
-    num_proc = 1
+    num_proc = 16
     results = []
     print(f"Using {num_proc} processes for grid search.")
     # Use Pool.imap_unordered with tqdm for progress tracking.

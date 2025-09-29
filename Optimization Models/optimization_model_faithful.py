@@ -43,7 +43,7 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
 
     # Use parameters from the dict, with appropriate units:
     tau = params.get('tau', 10)*ms
-    tau_s = 13 * ms
+    tau_s = params.get('tau_s', 13)*ms
     sigma_noise = params.get('sigma_noise', 0.1)*mV
     V_rest = -70*mV
     I0 = 10 * mV
@@ -64,7 +64,8 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     I_ext_array = I0 * np.exp(-(d**2) / (2 * stimulus_width**2)) + I0_CONST
 
     # Set up neuron model
-    neuron_eq = Equations(LIF_xi_vel_eq, tau=tau, V_rest=V_rest, sigma_noise=sigma_noise)
+    # neuron_eq = Equations(LIF_xi_vel_eq, tau=tau, V_rest=V_rest, sigma_noise=sigma_noise)
+    neuron_eq = Equations(LIF_synapticDecay_xi_vel_eq, tau=tau, V_rest=V_rest, sigma_noise=sigma_noise, tau_s=tau_s)
     
 
     # Set up ring attractor

@@ -108,13 +108,8 @@ def worker_run(params_tuple):
         # everything is above zero.
         spread_diff_error = np.abs(spread_difference / num_neurons) + 1
 
-        # Force bump spread at halfway the simulation to be near num_neurons/10.
-        # Spreads different from this value are punished exponentially, though
-        # spreads within the range [num_neurons/20, 3*num_neurons/20] get relatively low error.
-        aim_spread = num_neurons/10
-        abs_diff = np.abs(mid_sim_spread - aim_spread)
-        aim_spread_error = np.exp(abs_diff - (num_neurons/20))
-
+        # Force bump spread at halfway the simulation to be as small as possible.
+        normalized_mid_sim_spread = mid_sim_spread / num_neurons
 
 
         # If no neurons are active, give high punishment
@@ -132,20 +127,23 @@ def worker_run(params_tuple):
             frequency_error = 1000
 
         
-        # If firing rates change over time, punish this.
-        rate_change_error = np.abs(highest_rate_2 - highest_rate_1) / highest_rate_1
-    
+        # If firing rates increase over time, punish this.
+        if highest_rate_2 > highest_rate_1:
+            rate_increase_error = (highest_rate_2 - highest_rate_1) / highest_rate_1
+        else:
+            rate_increase_error = 0
 
         
         # Combine the errors into one composite score.
         # Adjust weights to prioritize center accuracy if desired
-        w_center = 0.1667
-        w_nmse = 0.1667
-        w_spread = 0.1667
-        w_aim_spread = 0.1667
-        w_frequency = 0.1667
-        w_rate_change = 0.1667
-        composite_error = w_center * center_err + w_nmse * nmse + w_spread * spread_diff_error + w_aim_spread * aim_spread_error + w_frequency * frequency_error + w_rate_change * rate_change_error
+        w_center = 0.1429
+        w_Zscore = 0.1429
+        w_nmse = 0.1429
+        w_spread = 0.1429
+        w_norm_mss = 0.1429
+        w_frequency = 0.1429
+        w_rate_increase = 0.1429
+        composite_error = w_center * cwce + w_Zscore * angular_Zscore + w_nmse * nmse + w_spread * spread_diff_error + w_norm_mss * normalized_mid_sim_spread + w_frequency * frequency_error + w_rate_increase * rate_increase_error
 
         # Create result dictionary with profile-specific parameters
         result = {
@@ -159,7 +157,7 @@ def worker_run(params_tuple):
             'spread_error': float(spread_diff_error),
             'mid_sim_spread': float(normalized_mid_sim_spread),
             'frequency_error': float(frequency_error),
-            'rate_change_error': float(rate_change_error),
+            'rate_increase_error': float(rate_increase_error),
             'error_message': np.nan
         }
         
@@ -187,7 +185,7 @@ def worker_run(params_tuple):
             'spread_error': np.nan,
             'mid_sim_spread': np.nan,
             'frequency_error': np.nan,
-            'rate_change_error': np.nan,
+            'rate_increase_error': np.nan,
             'error_message': str(e)
         }
         

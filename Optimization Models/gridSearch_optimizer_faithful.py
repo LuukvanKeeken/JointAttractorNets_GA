@@ -32,15 +32,17 @@ num_neurons = 120
 
 if connectivity_profile == 'cosine':
     # Cosine profile parameters - optimize g_cosine and w_inh
-    g_cosine_range = np.linspace(0.001, 80.0, 100)   # cosine gain with smaller scale
-    w_inh_range = np.linspace(-100.0, 0.0, 100)    # global inhibition weight
+    g_cosine_range = np.linspace(0.001, 1.0, 100)   # cosine gain with smaller scale
+    w_inh_range = np.linspace(-1.0, 0.0, 100)    # global inhibition weight
     Iff_range = np.linspace(80, 80, 1)
+    tau_s_range = np.linspace(13, 13, 1)
     # Create parameter grid with conditional logic
     param_grid = []
     for g in g_cosine_range:
         for w in w_inh_range:
             for Iff in Iff_range:
-                param_grid.append((g, w, Iff))
+                for tau_s in tau_s_range:
+                    param_grid.append((g, w, Iff, tau_s))
 
     # Store the ranges in a txt file in the results dir
     with open(os.path.join(result_dir, "parameter_ranges.txt"), "w") as f:
@@ -48,6 +50,7 @@ if connectivity_profile == 'cosine':
         f.write(f"Gain Cosine: {g_cosine_range}\n")
         f.write(f"Weight Inhibition: {w_inh_range}\n")
         f.write(f"Iff: {Iff_range}\n")
+        f.write(f"Tau_s: {tau_s_range}\n")
 else:
     raise ValueError("Unsupported connectivity profile. Choose 'cosine'.")
 
@@ -75,11 +78,12 @@ def worker_run(params_tuple):
     
     if connectivity_profile == 'cosine':
         # Two parameters being optimized: g_cosine and w_inh
-        g_cosine, w_inh, Iff = params_tuple
+        g_cosine, w_inh, Iff, tau_s = params_tuple
         params.update({
             'g_cosine': g_cosine,
             'w_inh_val': w_inh,
-            'Iff_val': Iff
+            'Iff_val': Iff,
+            'tau_s': tau_s
         })
         
     
@@ -157,7 +161,7 @@ def worker_run(params_tuple):
             'angular_Zscore': float(angular_Zscore),
             'nmse': float(nmse),
             'spread_error': float(spread_diff_error),
-            'mid_sim_spread': float(normalized_mid_sim_spread),
+            'aim_spread': float(aim_spread),
             'frequency_error': float(frequency_error),
             'rate_change_error': float(rate_change_error),
             'error_message': np.nan
@@ -185,7 +189,7 @@ def worker_run(params_tuple):
             'nmse': np.nan,
             'composite_error': np.nan,
             'spread_error': np.nan,
-            'mid_sim_spread': np.nan,
+            'aim_spread': np.nan,
             'frequency_error': np.nan,
             'rate_change_error': np.nan,
             'error_message': str(e)
@@ -206,7 +210,7 @@ if __name__ == '__main__':
     print(f"Total parameter combinations to evaluate: {total_runs}")
     
     # num_proc = mp.cpu_count()   # Adjust the number of worker processes based on your system
-    num_proc = 16
+    num_proc = 1
     results = []
     print(f"Using {num_proc} processes for grid search.")
     # Use Pool.imap_unordered with tqdm for progress tracking.

@@ -78,6 +78,9 @@ parser.add_argument('--input_off', type=float, default=0.2, help='Duration of th
 
 args = parser.parse_args()
 num_neurons = args.num_neurons
+aim_spread = int(num_neurons / 10)
+spread_variation = int(num_neurons / 20)
+spread_variation_squared = spread_variation ** 2
 rand_seed = args.random_seed
 num_processes = args.num_processes
 population_size = args.population_size
@@ -378,15 +381,16 @@ def fitness_func(ga_instance, solution, solution_idx):
         # Force bump spread at halfway the simulation to be near num_neurons/10.
         # Spreads within +/- num_neurons/20 of this are punished lightly, and outside
         # this range are punished quadratically with a maximum of 5.
-        aim_spread = num_neurons/10
-        lower_lim = (int(num_neurons/20) - 1)
-        upper_lim = (3*int(num_neurons/20) + 1)
+        lower_lim = (spread_variation - 1)
+        upper_lim = (3*spread_variation + 1)
         if (mid_sim_spread > lower_lim) and (mid_sim_spread < upper_lim):
             aim_spread_error = -2/((mid_sim_spread - lower_lim)*(mid_sim_spread - upper_lim) + 1e-8)
         elif mid_sim_spread <= 0 or mid_sim_spread >= num_neurons:
             aim_spread_error = 5
         else:
-            aim_spread_error = min(5, 1/((num_neurons/20)**2) * (mid_sim_spread - aim_spread)**2)
+            aim_spread_error = np.clip((1/(spread_variation_squared)) * (mid_sim_spread - aim_spread)**2, a_max=5)
+        
+
 
 
         # If no neurons are active, give high punishment
@@ -398,7 +402,7 @@ def fitness_func(ga_instance, solution, solution_idx):
             high_error = highest_active_neuron_rate / max_firing_rate
             # Lowest active neuron should be above 40% of the Iff firing rate, but not
             # necessarily as high as possible.
-            low_error = max(0, (0.4 * Iff_firing_rate - lowest_active_neuron_rate) / (0.4 * Iff_firing_rate))
+            low_error = np.clip((0.4 * Iff_firing_rate - lowest_active_neuron_rate) / (0.4 * Iff_firing_rate), a_min=0)
             frequency_error = high_error + low_error
         else:
             frequency_error = 1000

@@ -18,19 +18,21 @@ previous_gen_start_time = start_time
 # and the variation within the population over time (mean of standard deviations of the genes).
 best_errors = []
 mean_errors_working_specimens = []
-mean_center_error_working_specimens = []
-mean_nmse_working_specimens = []
-mean_spread_diff_error_working_specimens = []
-mean_aim_spread_error_working_specimens = []
-mean_frequency_error_working_specimens = []
-mean_rate_change_error_working_specimens = []
+mean_first_errors_working_specimens = []
+mean_second_errors_working_specimens = []
+mean_third_errors_working_specimens = []
+mean_fourth_errors_working_specimens = []
+mean_fifth_errors_working_specimens = []
+mean_sixth_errors_working_specimens = []
+mean_seventh_errors_working_specimens = []
 std_errors_working_specimens = []
-std_center_error_working_specimens = []
-std_nmse_working_specimens = []
-std_spread_diff_error_working_specimens = []
-std_aim_spread_error_working_specimens = []
-std_frequency_error_working_specimens = []
-std_rate_change_error_working_specimens = []
+std_first_errors_working_specimens = []
+std_second_errors_working_specimens = []
+std_third_errors_working_specimens = []
+std_fourth_errors_working_specimens = []
+std_fifth_errors_working_specimens = []
+std_sixth_errors_working_specimens = []
+std_seventh_errors_working_specimens = []
 mean_gene_stddevs = []
 
 # Import the simulation function from your model file
@@ -181,18 +183,20 @@ def on_generation(ga_instance):
     global best_errors
     global mean_errors_working_specimens
     global std_errors_working_specimens
-    global mean_center_error_working_specimens
-    global mean_nmse_working_specimens
-    global mean_spread_diff_error_working_specimens
-    global mean_aim_spread_error_working_specimens
-    global mean_frequency_error_working_specimens
-    global mean_rate_change_error_working_specimens
-    global std_center_error_working_specimens
-    global std_nmse_working_specimens
-    global std_spread_diff_error_working_specimens
-    global std_aim_spread_error_working_specimens
-    global std_frequency_error_working_specimens
-    global std_rate_change_error_working_specimens
+    global mean_first_errors_working_specimens
+    global mean_second_errors_working_specimens
+    global mean_third_errors_working_specimens
+    global mean_fourth_errors_working_specimens
+    global mean_fifth_errors_working_specimens
+    global mean_sixth_errors_working_specimens
+    global mean_seventh_errors_working_specimens
+    global std_first_errors_working_specimens
+    global std_second_errors_working_specimens
+    global std_third_errors_working_specimens
+    global std_fourth_errors_working_specimens
+    global std_fifth_errors_working_specimens
+    global std_sixth_errors_working_specimens
+    global std_seventh_errors_working_specimens
     global current_results_dirname
     global gene_0_stddevs, gene_1_stddevs, gene_2_stddevs
     global mean_gene_stddevs
@@ -227,47 +231,53 @@ def on_generation(ga_instance):
 
     # Calculate the errors for working specimens
     # Simply the inverse of the fitness value calculation as can be seen in the fitness_func.
-    center_fitness_vals = positive_fitnesses[:, 0]
-    center_errors = (1.0 / center_fitness_vals) - 1e-8
-    mean_center_errors = np.mean(center_errors)
-    std_center_errors = np.std(center_errors)
-    mean_center_error_working_specimens.append(mean_center_errors)
-    std_center_error_working_specimens.append(std_center_errors)
-    nmse_fitness_vals = positive_fitnesses[:, 1]
-    nmses = (1.0 / nmse_fitness_vals) - 1e-8
-    mean_nmses = np.mean(nmses)
-    std_nmses = np.std(nmses)
-    mean_nmse_working_specimens.append(mean_nmses)
-    std_nmse_working_specimens.append(std_nmses)
-    spread_diff_fitness_vals = positive_fitnesses[:, 2]
-    spread_diff_errors = (1.0 / spread_diff_fitness_vals) - 1e-8
-    mean_spread_diff_errors = np.mean(spread_diff_errors)
-    std_spread_diff_errors = np.std(spread_diff_errors)
-    mean_spread_diff_error_working_specimens.append(mean_spread_diff_errors)
-    std_spread_diff_error_working_specimens.append(std_spread_diff_errors)
-    aim_spread_fitness_vals = positive_fitnesses[:, 3]
-    aim_spread_errors = (1.0 / aim_spread_fitness_vals) - 1e-8
-    mean_aim_spread_errors = np.mean(aim_spread_errors)
-    std_aim_spread_errors = np.std(aim_spread_errors)
-    mean_aim_spread_error_working_specimens.append(mean_aim_spread_errors)
-    std_aim_spread_error_working_specimens.append(std_aim_spread_errors)
-    frequency_fitness_vals = positive_fitnesses[:, 4]
-    frequency_errors = (1.0 / frequency_fitness_vals) - 1e-8
-    mean_frequency_errors = np.mean(frequency_errors)
-    std_frequency_errors = np.std(frequency_errors)
-    mean_frequency_error_working_specimens.append(mean_frequency_errors)
-    std_frequency_error_working_specimens.append(std_frequency_errors)
-    rate_change_fitness_vals = positive_fitnesses[:, 5]
-    rate_change_errors = (1.0 / rate_change_fitness_vals) - 1e-8
-    mean_rate_change_errors = np.mean(rate_change_errors)
-    std_rate_change_errors = np.std(rate_change_errors)
-    mean_rate_change_error_working_specimens.append(mean_rate_change_errors)
-    std_rate_change_error_working_specimens.append(std_rate_change_errors)
+    first_fitness_vals = positive_fitnesses[:, 0]
+    first_errors = (1.0 / first_fitness_vals) - 1e-8
+    mean_first_errors = np.mean(first_errors)
+    std_first_errors = np.std(first_errors)
+    mean_first_errors_working_specimens.append(mean_first_errors)
+    std_first_errors_working_specimens.append(std_first_errors)
+    second_fitness_vals = positive_fitnesses[:, 1]
+    second_errors = (1.0 / second_fitness_vals) - 1e-8
+    mean_second_errors = np.mean(second_errors)
+    std_second_errors = np.std(second_errors)
+    mean_second_errors_working_specimens.append(mean_second_errors)
+    std_second_errors_working_specimens.append(std_second_errors)
+    third_fitness_vals = positive_fitnesses[:, 2]
+    third_errors = (1.0 / third_fitness_vals) - 1e-8
+    mean_third_errors = np.mean(third_errors)
+    std_third_errors = np.std(third_errors)
+    mean_third_errors_working_specimens.append(mean_third_errors)
+    std_third_errors_working_specimens.append(std_third_errors)
+    fourth_fitness_vals = positive_fitnesses[:, 3]
+    fourth_errors = (1.0 / fourth_fitness_vals) - 1e-8
+    mean_fourth_errors = np.mean(fourth_errors)
+    std_fourth_errors = np.std(fourth_errors)
+    mean_fourth_errors_working_specimens.append(mean_fourth_errors)
+    std_fourth_errors_working_specimens.append(std_fourth_errors)
+    fifth_fitness_vals = positive_fitnesses[:, 4]
+    fifth_errors = (1.0 / fifth_fitness_vals) - 1e-8
+    mean_fifth_errors = np.mean(fifth_errors)
+    std_fifth_errors = np.std(fifth_errors)
+    mean_fifth_errors_working_specimens.append(mean_fifth_errors)
+    std_fifth_errors_working_specimens.append(std_fifth_errors)
+    sixth_fitness_vals = positive_fitnesses[:, 5]
+    sixth_errors = (1.0 / sixth_fitness_vals) - 1e-8
+    mean_sixth_errors = np.mean(sixth_errors)
+    std_sixth_errors = np.std(sixth_errors)
+    mean_sixth_errors_working_specimens.append(mean_sixth_errors)
+    std_sixth_errors_working_specimens.append(std_sixth_errors)
+    seventh_fitness_vals = positive_fitnesses[:, 6]
+    seventh_errors = (1.0 / seventh_fitness_vals) - 1e-8
+    mean_seventh_errors = np.mean(seventh_errors)
+    std_seventh_errors = np.std(seventh_errors)
+    mean_seventh_errors_working_specimens.append(mean_seventh_errors)
+    std_seventh_errors_working_specimens.append(std_seventh_errors)
 
-    mean_specimen_fitnesses = np.mean(np.stack([center_fitness_vals, nmse_fitness_vals, spread_diff_fitness_vals, aim_spread_fitness_vals, frequency_fitness_vals, rate_change_fitness_vals, seventh_fitness_vals]), axis=0)
+    mean_specimen_fitnesses = np.mean(np.stack([first_fitness_vals, second_fitness_vals, third_fitness_vals, fourth_fitness_vals, fifth_fitness_vals, sixth_fitness_vals, seventh_fitness_vals]), axis=0)
 
 
-    mean_specimen_errors = np.mean(np.stack([center_errors, nmses, spread_diff_errors, aim_spread_errors, frequency_errors, rate_change_errors]), axis=0)
+    mean_specimen_errors = np.mean(np.stack([first_errors, second_errors, third_errors, fourth_errors, fifth_errors, sixth_errors, seventh_errors]), axis=0)
     mean_errors = np.mean(mean_specimen_errors)
     std_errors = np.std(mean_specimen_errors)
     mean_errors_working_specimens.append(mean_errors)
@@ -278,27 +288,30 @@ def on_generation(ga_instance):
 
     np.savetxt(f"{current_results_dirname}/mean_errors_working_specimens.txt", np.array(mean_errors_working_specimens))
     np.savetxt(f"{current_results_dirname}/std_errors_working_specimens.txt", np.array(std_errors_working_specimens))
-    np.savetxt(f"{current_results_dirname}/mean_center_error_working_specimens.txt", np.array(mean_center_error_working_specimens))
-    np.savetxt(f"{current_results_dirname}/std_center_error_working_specimens.txt", np.array(std_center_error_working_specimens))
-    np.savetxt(f"{current_results_dirname}/mean_nmse_working_specimens.txt", np.array(mean_nmse_working_specimens))
-    np.savetxt(f"{current_results_dirname}/std_nmse_working_specimens.txt", np.array(std_nmse_working_specimens))
-    np.savetxt(f"{current_results_dirname}/mean_spread_diff_error_working_specimens.txt", np.array(mean_spread_diff_error_working_specimens))
-    np.savetxt(f"{current_results_dirname}/std_spread_diff_error_working_specimens.txt", np.array(std_spread_diff_error_working_specimens))
-    np.savetxt(f"{current_results_dirname}/mean_aim_spread_error_working_specimens.txt", np.array(mean_aim_spread_error_working_specimens))
-    np.savetxt(f"{current_results_dirname}/std_aim_spread_error_working_specimens.txt", np.array(std_aim_spread_error_working_specimens))
-    np.savetxt(f"{current_results_dirname}/mean_frequency_error_working_specimens.txt", np.array(mean_frequency_error_working_specimens))
-    np.savetxt(f"{current_results_dirname}/std_frequency_error_working_specimens.txt", np.array(std_frequency_error_working_specimens))
-    np.savetxt(f"{current_results_dirname}/mean_rate_change_error_working_specimens.txt", np.array(mean_rate_change_error_working_specimens))
-    np.savetxt(f"{current_results_dirname}/std_rate_change_error_working_specimens.txt", np.array(std_rate_change_error_working_specimens))
+    np.savetxt(f"{current_results_dirname}/mean_first_errors_working_specimens.txt", np.array(mean_first_errors_working_specimens))
+    np.savetxt(f"{current_results_dirname}/std_first_errors_working_specimens.txt", np.array(std_first_errors_working_specimens))
+    np.savetxt(f"{current_results_dirname}/mean_second_errors_working_specimens.txt", np.array(mean_second_errors_working_specimens))
+    np.savetxt(f"{current_results_dirname}/std_second_errors_working_specimens.txt", np.array(std_second_errors_working_specimens))
+    np.savetxt(f"{current_results_dirname}/mean_third_errors_working_specimens.txt", np.array(mean_third_errors_working_specimens))
+    np.savetxt(f"{current_results_dirname}/std_third_errors_working_specimens.txt", np.array(std_third_errors_working_specimens))
+    np.savetxt(f"{current_results_dirname}/mean_fourth_errors_working_specimens.txt", np.array(mean_fourth_errors_working_specimens))
+    np.savetxt(f"{current_results_dirname}/std_fourth_errors_working_specimens.txt", np.array(std_fourth_errors_working_specimens))
+    np.savetxt(f"{current_results_dirname}/mean_fifth_errors_working_specimens.txt", np.array(mean_fifth_errors_working_specimens))
+    np.savetxt(f"{current_results_dirname}/std_fifth_errors_working_specimens.txt", np.array(std_fifth_errors_working_specimens))
+    np.savetxt(f"{current_results_dirname}/mean_sixth_errors_working_specimens.txt", np.array(mean_sixth_errors_working_specimens))
+    np.savetxt(f"{current_results_dirname}/std_sixth_errors_working_specimens.txt", np.array(std_sixth_errors_working_specimens))
+    np.savetxt(f"{current_results_dirname}/mean_seventh_errors_working_specimens.txt", np.array(mean_seventh_errors_working_specimens))
+    np.savetxt(f"{current_results_dirname}/std_seventh_errors_working_specimens.txt", np.array(std_seventh_errors_working_specimens))
 
     print(f"Generation mean FITNESS (working solutions): {np.mean(mean_specimen_fitnesses):.4f} +/- {np.std(mean_specimen_fitnesses):.4f} | {len(positive_fitnesses)} working, {len(negative_fitnesses)} failed solutions")
     print(f"Generation mean ERROR (working solutions): {mean_errors:.4f} +/- {std_errors:.4f}")
-    print(f"      mean center error: {mean_center_errors:.4f} +/- {std_center_errors:.4f}")
-    print(f"      mean NMSE: {mean_nmses:.4f} +/- {std_nmses:.4f}")
-    print(f"      mean spread difference error: {mean_spread_diff_errors:.4f} +/- {std_spread_diff_errors:.4f}")
-    print(f"      mean aim spread error: {mean_aim_spread_errors:.4f} +/- {std_aim_spread_errors:.4f}")
-    print(f"      mean frequency error: {mean_frequency_errors:.4f} +/- {std_frequency_errors:.4f}")
-    print(f"      mean rate change error: {mean_rate_change_errors:.4f} +/- {std_rate_change_errors:.4f}")
+    print(f"      mean cwce: {mean_first_errors:.4f} +/- {std_first_errors:.4f}")
+    print(f"      mean angular Z-score: {mean_second_errors:.4f} +/- {std_second_errors:.4f}")
+    print(f"      mean NMSE: {mean_third_errors:.4f} +/- {std_third_errors:.4f}")
+    print(f"      mean norm. spread difference: {mean_fourth_errors:.4f} +/- {std_fourth_errors:.4f}")
+    print(f"      mean mid-sim spread error: {mean_fifth_errors:.4f} +/- {std_fifth_errors:.4f}")
+    print(f"      mean frequency error: {mean_sixth_errors:.4f} +/- {std_sixth_errors:.4f}")
+    print(f"      mean rate increase error: {mean_seventh_errors:.4f} +/- {std_seventh_errors:.4f}")
     print(f"Generation mean gene standard deviations: {np.mean(gene_std_devs):.4f}")
 
     solution, solution_fitness, solution_idx = ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)
@@ -311,12 +324,13 @@ def on_generation(ga_instance):
             f.write(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (g_cosine: {solution[0]}, w_inh: {solution[1]}, Iff: {solution[2]})\n")
         f.write(f"Generation mean FITNESS: {np.mean(positive_fitnesses):.4f} +/- {np.std(positive_fitnesses):.4f} | {len(positive_fitnesses)} working, {len(negative_fitnesses)} failed solutions\n")
         f.write(f"Generation mean ERROR (working solutions): {mean_errors:.4f} +/- {std_errors:.4f}\n")
-        f.write(f"      mean center error: {mean_center_errors:.4f} +/- {std_center_errors:.4f}\n")
-        f.write(f"      mean NMSE: {mean_nmses:.4f} +/- {std_nmses:.4f}\n")
-        f.write(f"      mean spread difference error: {mean_spread_diff_errors:.4f} +/- {std_spread_diff_errors:.4f}\n")
-        f.write(f"      mean aim spread error: {mean_aim_spread_errors:.4f} +/- {std_aim_spread_errors:.4f}\n")
-        f.write(f"      mean frequency error: {mean_frequency_errors:.4f} +/- {std_frequency_errors:.4f}\n")
-        f.write(f"      mean rate change error: {mean_rate_change_errors:.4f} +/- {std_rate_change_errors:.4f}\n")
+        f.write(f"      mean cwce: {mean_first_errors:.4f} +/- {std_first_errors:.4f}\n")
+        f.write(f"      mean angular Z-score: {mean_second_errors:.4f} +/- {std_second_errors:.4f}\n")
+        f.write(f"      mean NMSE: {mean_third_errors:.4f} +/- {std_third_errors:.4f}\n")
+        f.write(f"      mean norm. spread difference: {mean_fourth_errors:.4f} +/- {std_fourth_errors:.4f}\n")
+        f.write(f"      mean mid-sim spread error: {mean_fifth_errors:.4f} +/- {std_fifth_errors:.4f}\n")
+        f.write(f"      mean frequency error: {mean_sixth_errors:.4f} +/- {std_sixth_errors:.4f}\n")
+        f.write(f"      mean rate increase error: {mean_seventh_errors:.4f} +/- {std_seventh_errors:.4f}\n")
         f.write(f"Generation mean gene standard deviations: {np.mean(gene_std_devs):.4f}\n")
         f.write(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")
     if connectivity_profile == 'cosine':
@@ -364,17 +378,12 @@ def fitness_func(ga_instance, solution, solution_idx):
         # Compute the NMSE between the observed firing rates and the ideal Gaussian profile.
         nmse = compute_nmse_normalized(out_rates, GT_input, norm_type='max')
 
-        # Normalize the spread difference by the number of neurons, and take the
-        # absolute value to punish increases and decreases equally. Add 1 to make sure
-        # everything is above zero.
-        spread_diff_error = np.abs(spread_difference / num_neurons) + 1
+        # Normalize the spread difference by the number of neurons, and
+        # add 1 to make sure it is non-negative.
+        spread_err = np.abs(spread_difference / num_neurons) + 1
 
-        # Force bump spread at halfway the simulation to be near num_neurons/10.
-        # Spreads different from this value are punished exponentially, though
-        # spreads within the range [num_neurons/20, 3*num_neurons/20] get relatively low error.
-        aim_spread = num_neurons/10
-        abs_diff = np.abs(mid_sim_spread - aim_spread)
-        aim_spread_error = np.exp(abs_diff - (num_neurons/20))
+        # Force bump spread at halfway the simulation to be as small as possible.
+        normalized_mid_sim_spread = mid_sim_spread / num_neurons
 
         # If no neurons are active, give high punishment
         if np.any(out_rates > 0):
@@ -391,47 +400,53 @@ def fitness_func(ga_instance, solution, solution_idx):
             frequency_error = 1000
 
 
-        # If firing rates change over time, punish this.
-        rate_change_error = np.abs(highest_rate_2 - highest_rate_1) / highest_rate_1
+        # If firing rates increase over time, punish this.
+        if highest_rate_2 > highest_rate_1:
+            rate_increase_error = (highest_rate_2 - highest_rate_1) / highest_rate_1
+        else:
+            rate_increase_error = 0
         
         
         # Combine the errors into one composite score, just to be able to
         # quickly check NaN or infinite values.
-        composite_error = center_err + nmse + spread_diff_error + aim_spread_error + frequency_error + rate_change_error
+        composite_error = cwce + angular_Zscore + nmse + spread_err + normalized_mid_sim_spread + frequency_error + rate_increase_error
 
         # Check if the composite error is NaN or infinite. In that case, set all errors to -1
         if np.isnan(composite_error) or np.isinf(composite_error):
-            isnan_indices = np.isnan([center_err, nmse, spread_diff_error, aim_spread_error, frequency_error, rate_change_error])
-            isinf_indices = np.isinf([center_err, nmse, spread_diff_error, aim_spread_error, frequency_error, rate_change_error])
+            isnan_indices = np.isnan([cwce, angular_Zscore, nmse, spread_err, normalized_mid_sim_spread, frequency_error, rate_increase_error])
+            isinf_indices = np.isinf([cwce, angular_Zscore, nmse, spread_err, normalized_mid_sim_spread, frequency_error, rate_increase_error])
 
             print(f"Composite error is NaN for solution {solution_idx}. Setting errors to -1. The values that caused NaN are: cwce: {isnan_indices[0]}, angular_Zscore: {isnan_indices[1]}, nmse: {isnan_indices[2]}, spread_err: {isnan_indices[3]}, normalized_mid_sim_spread: {isnan_indices[4]}, frequency_error: {isnan_indices[5]}, rate_increase_error: {isnan_indices[6]}, out_rates: {np.any(np.isnan(out_rates))}, GT_input: {np.any(np.isnan(GT_input))}. Values that are inf are: cwce: {isinf_indices[0]}, angular_Zscore: {isinf_indices[1]}, nmse: {isinf_indices[2]}, spread_err: {isinf_indices[3]}, normalized_mid_sim_spread: {isinf_indices[4]}, frequency_error: {isinf_indices[5]}, rate_increase_error: {isinf_indices[6]}.")
             
 
-            center_err = -1
+            cwce = -1
+            angular_Zscore = -1
             nmse = -1
-            spread_diff_error = -1
-            aim_spread_error = -1
+            spread_err = -1
+            normalized_mid_sim_spread = -1
             frequency_error = -1
-            rate_change_error = -1
+            rate_increase_error = -1
 
     # For now, if there is any exception raised, just give very low fitness value to this solution.
     except Exception as e:
-        center_err = -1
+        cwce = -1
+        angular_Zscore = -1
         nmse = -1
-        spread_diff_error = -1
-        aim_spread_error = -1
+        spread_err = -1
+        normalized_mid_sim_spread = -1
         frequency_error = -1
-        rate_change_error = -1
+        rate_increase_error = -1
 
-        
-    fitness_center = 1 / (center_err + 1e-8)
+
+    fitness_cwce = 1 / (cwce + 1e-8)
+    fitness_angular_Zscore = 1 / (angular_Zscore + 1e-8)
     fitness_nmse = 1 / (nmse + 1e-8)
-    fitness_spread_diff = 1 / (spread_diff_error + 1e-8)
-    fitness_aim_spread = 1 / (aim_spread_error + 1e-8)
+    fitness_spread = 1 / (spread_err + 1e-8)
+    fitness_mid_sim_spread = 1 / (normalized_mid_sim_spread + 1e-8)
     fitness_frequency = 1 / (frequency_error + 1e-8)
-    fitness_rate_change = 1 / (rate_change_error + 1e-8)
+    fitness_rate_increase = 1 / (rate_increase_error + 1e-8)
 
-    return [fitness_center, fitness_nmse, fitness_spread_diff, fitness_aim_spread, fitness_frequency, fitness_rate_change]
+    return [fitness_cwce, fitness_angular_Zscore, fitness_nmse, fitness_spread, fitness_mid_sim_spread, fitness_frequency, fitness_rate_increase]
 
 
 # Create the GA instance with the specified parameters
@@ -506,37 +521,45 @@ if __name__ == '__main__':
     plt.figure()
     plt.plot(best_errors[:, 0])
     plt.xlabel('Generation')
-    plt.ylabel('Center Error')
-    plt.title('Best Center Error Over Generations')
+    plt.ylabel('CWCE Error')
+    plt.title('Best CWCE Error Over Generations')
     plt.legend()
-    plt.savefig(f"{current_results_dirname}/best_center_errors.png")
+    plt.savefig(f"{current_results_dirname}/best_cwce_errors.png")
 
     plt.figure()
-    plt.plot(best_errors[:, 1], label='Best NMSE')
+    plt.plot(best_errors[:, 1], label='Best Angular Z-score')
     plt.xlabel('Generation')
-    plt.ylabel('NMSE')
-    plt.title('Best NMSE Over Generations')
+    plt.ylabel('Angular Z-score Error')
+    plt.title('Best Angular Z-score Error Over Generations')
+    plt.legend()
+    plt.savefig(f"{current_results_dirname}/best_angular_zscore_errors.png")
+
+    plt.figure()
+    plt.plot(best_errors[:, 2], label='Best NMSE')
+    plt.xlabel('Generation')
+    plt.ylabel('NMSE Error')
+    plt.title('Best NMSE Error Over Generations')
     plt.legend()
     plt.savefig(f"{current_results_dirname}/best_nmse_errors.png")
 
     plt.figure()
-    plt.plot(best_errors[:, 2], label='Best Spread Difference Error')
+    plt.plot(best_errors[:, 3], label='Best Norm. Spread Difference')
     plt.xlabel('Generation')
-    plt.ylabel('Spread Difference Error')
-    plt.title('Best Spread Difference Error Over Generations')
+    plt.ylabel('Norm. Spread Difference Error')
+    plt.title('Best Norm. Spread Difference Error Over Generations')
     plt.legend()
-    plt.savefig(f"{current_results_dirname}/best_spread_diff_errors.png")
+    plt.savefig(f"{current_results_dirname}/best_norm_spread_diff_errors.png")
 
     plt.figure()
-    plt.plot(best_errors[:, 3], label='Best Aim Spread Difference')
+    plt.plot(best_errors[:, 4], label='Best Mid-sim Spread Error')
     plt.xlabel('Generation')
-    plt.ylabel('Aim Spread Difference Error')
-    plt.title('Best Aim Spread Difference Error Over Generations')
+    plt.ylabel('Mid-sim Spread Error')
+    plt.title('Best Mid-sim Spread Error Over Generations')
     plt.legend()
-    plt.savefig(f"{current_results_dirname}/best_aim_spread_diff_errors.png")
+    plt.savefig(f"{current_results_dirname}/best_mid_sim_spread_errors.png")
 
     plt.figure()
-    plt.plot(best_errors[:, 4], label='Best Frequency Error')
+    plt.plot(best_errors[:, 5], label='Best Frequency Error')
     plt.xlabel('Generation')
     plt.ylabel('Frequency Error')
     plt.title('Best Frequency Error Over Generations')
@@ -544,13 +567,12 @@ if __name__ == '__main__':
     plt.savefig(f"{current_results_dirname}/best_frequency_errors.png")
 
     plt.figure()
-    plt.plot(best_errors[:, 5], label='Best Rate Change Error')
+    plt.plot(best_errors[:, 6], label='Best Rate Increase Error')
     plt.xlabel('Generation')
-    plt.ylabel('Rate Change Error')
-    plt.title('Best Rate Change Error Over Generations')
+    plt.ylabel('Rate Increase Error')
+    plt.title('Best Rate Increase Error Over Generations')
     plt.legend()
-    plt.savefig(f"{current_results_dirname}/best_rate_change_errors.png")
-
+    plt.savefig(f"{current_results_dirname}/best_rate_increase_errors.png")
 
 
     plt.figure()
@@ -566,76 +588,88 @@ if __name__ == '__main__':
     plt.savefig(f"{current_results_dirname}/mean_errors.png")
 
     plt.figure()
-    plt.plot(mean_center_error_working_specimens, label='Mean Center Error (Working Specimens)')
-    plt.fill_between(range(len(mean_center_error_working_specimens)), 
-                     np.array(mean_center_error_working_specimens) - np.array(std_center_error_working_specimens), 
-                     np.array(mean_center_error_working_specimens) + np.array(std_center_error_working_specimens), 
+    plt.plot(mean_first_errors_working_specimens, label='Mean CWCE (Working Specimens)')
+    plt.fill_between(range(len(mean_first_errors_working_specimens)), 
+                     np.array(mean_first_errors_working_specimens) - np.array(std_first_errors_working_specimens), 
+                     np.array(mean_first_errors_working_specimens) + np.array(std_first_errors_working_specimens), 
                      alpha=0.2)
     plt.xlabel('Generation')
-    plt.ylabel('Mean Center Error')
-    plt.title('Mean Center Error Over Generations')
+    plt.ylabel('Mean CWCE')
+    plt.title('Mean CWCE Over Generations')
     plt.legend()
-    plt.savefig(f"{current_results_dirname}/mean_center_errors.png")
+    plt.savefig(f"{current_results_dirname}/mean_first_errors.png")
 
     plt.figure()
-    plt.plot(mean_nmse_working_specimens, label='Mean NMSE (Working Specimens)')
-    plt.fill_between(range(len(mean_nmse_working_specimens)), 
-                     np.array(mean_nmse_working_specimens) - np.array(std_nmse_working_specimens), 
-                     np.array(mean_nmse_working_specimens) + np.array(std_nmse_working_specimens), 
+    plt.plot(mean_second_errors_working_specimens, label='Mean Angular Z-score (Working Specimens)')
+    plt.fill_between(range(len(mean_second_errors_working_specimens)), 
+                     np.array(mean_second_errors_working_specimens) - np.array(std_second_errors_working_specimens), 
+                     np.array(mean_second_errors_working_specimens) + np.array(std_second_errors_working_specimens), 
+                     alpha=0.2)
+    plt.xlabel('Generation')
+    plt.ylabel('Mean Angular Z-score')
+    plt.title('Mean Angular Z-score Over Generations')
+    plt.legend()
+    plt.savefig(f"{current_results_dirname}/mean_second_errors.png")
+
+    plt.figure()
+    plt.plot(mean_third_errors_working_specimens, label='Mean NMSE (Working Specimens)')
+    plt.fill_between(range(len(mean_third_errors_working_specimens)), 
+                     np.array(mean_third_errors_working_specimens) - np.array(std_third_errors_working_specimens), 
+                     np.array(mean_third_errors_working_specimens) + np.array(std_third_errors_working_specimens), 
                      alpha=0.2)
     plt.xlabel('Generation')
     plt.ylabel('Mean NMSE')
     plt.title('Mean NMSE Over Generations')
     plt.legend()
-    plt.savefig(f"{current_results_dirname}/mean_nmses.png")
+    plt.savefig(f"{current_results_dirname}/mean_third_errors.png")
 
     plt.figure()
-    plt.plot(mean_spread_diff_error_working_specimens, label='Mean Spread Difference Error (Working Specimens)')
-    plt.fill_between(range(len(mean_spread_diff_error_working_specimens)), 
-                     np.array(mean_spread_diff_error_working_specimens) - np.array(std_spread_diff_error_working_specimens), 
-                     np.array(mean_spread_diff_error_working_specimens) + np.array(std_spread_diff_error_working_specimens), 
+    plt.plot(mean_fourth_errors_working_specimens, label='Mean Norm. Spread Difference (Working Specimens)')
+    plt.fill_between(range(len(mean_fourth_errors_working_specimens)), 
+                     np.array(mean_fourth_errors_working_specimens) - np.array(std_fourth_errors_working_specimens), 
+                     np.array(mean_fourth_errors_working_specimens) + np.array(std_fourth_errors_working_specimens), 
                      alpha=0.2)
     plt.xlabel('Generation')
-    plt.ylabel('Mean Spread Difference Error')
-    plt.title('Mean Spread Difference Error Over Generations')
-    plt.legend()
-    plt.savefig(f"{current_results_dirname}/mean_spread_diff_errors.png")
-
-    plt.figure()
-    plt.plot(mean_aim_spread_error_working_specimens, label='Mean Aim Spread Error (Working Specimens)')
-    plt.fill_between(range(len(mean_aim_spread_error_working_specimens)), 
-                     np.array(mean_aim_spread_error_working_specimens) - np.array(std_aim_spread_error_working_specimens), 
-                     np.array(mean_aim_spread_error_working_specimens) + np.array(std_aim_spread_error_working_specimens), 
-                     alpha=0.2)
-    plt.xlabel('Generation')
-    plt.ylabel('Mean Aim Spread Error')
-    plt.title('Mean Aim Spread Error Over Generations')
+    plt.ylabel('Mean Norm. Spread Difference')
+    plt.title('Mean Norm. Spread Difference Over Generations')
     plt.legend()
     plt.savefig(f"{current_results_dirname}/mean_fourth_errors.png")
 
     plt.figure()
-    plt.plot(mean_frequency_error_working_specimens, label='Mean Frequency Error (Working Specimens)')
-    plt.fill_between(range(len(mean_frequency_error_working_specimens)),
-                     np.array(mean_frequency_error_working_specimens) - np.array(std_frequency_error_working_specimens), 
-                     np.array(mean_frequency_error_working_specimens) + np.array(std_frequency_error_working_specimens), 
+    plt.plot(mean_fifth_errors_working_specimens, label='Mean Mid-sim Spread Error (Working Specimens)')
+    plt.fill_between(range(len(mean_fifth_errors_working_specimens)),
+                     np.array(mean_fifth_errors_working_specimens) - np.array(std_fifth_errors_working_specimens), 
+                     np.array(mean_fifth_errors_working_specimens) + np.array(std_fifth_errors_working_specimens), 
                      alpha=0.2)
     plt.xlabel('Generation')
-    plt.ylabel('Mean Frequency Error')
-    plt.title('Mean Frequency Error Over Generations')
+    plt.ylabel('Mean Mid-sim Spread Error')
+    plt.title('Mean Mid-sim Spread Error Over Generations')
     plt.legend()
     plt.savefig(f"{current_results_dirname}/mean_fifth_errors.png")
 
     plt.figure()
-    plt.plot(mean_rate_change_error_working_specimens, label='Mean Rate Change Error (Working Specimens)')
-    plt.fill_between(range(len(mean_rate_change_error_working_specimens)),
-                     np.array(mean_rate_change_error_working_specimens) - np.array(std_rate_change_error_working_specimens), 
-                     np.array(mean_rate_change_error_working_specimens) + np.array(std_rate_change_error_working_specimens), 
+    plt.plot(mean_sixth_errors_working_specimens, label='Mean Frequency Error (Working Specimens)')
+    plt.fill_between(range(len(mean_sixth_errors_working_specimens)),
+                     np.array(mean_sixth_errors_working_specimens) - np.array(std_sixth_errors_working_specimens), 
+                     np.array(mean_sixth_errors_working_specimens) + np.array(std_sixth_errors_working_specimens), 
                      alpha=0.2)
     plt.xlabel('Generation')
     plt.ylabel('Mean Frequency Error')
     plt.title('Mean Frequency Error Over Generations')
     plt.legend()
     plt.savefig(f"{current_results_dirname}/mean_sixth_errors.png")
+
+    plt.figure()
+    plt.plot(mean_seventh_errors_working_specimens, label='Mean Rate Increase Error (Working Specimens)')
+    plt.fill_between(range(len(mean_seventh_errors_working_specimens)),
+                        np.array(mean_seventh_errors_working_specimens) - np.array(std_seventh_errors_working_specimens),
+                        np.array(mean_seventh_errors_working_specimens) + np.array(std_seventh_errors_working_specimens),
+                        alpha=0.2)
+    plt.xlabel('Generation')
+    plt.ylabel('Mean Rate Increase Error')
+    plt.title('Mean Rate Increase Error Over Generations')
+    plt.legend()
+    plt.savefig(f"{current_results_dirname}/mean_seventh_errors.png")
 
     plt.figure()
     plt.plot(mean_gene_stddevs, label='Mean Gene Standard Deviations')

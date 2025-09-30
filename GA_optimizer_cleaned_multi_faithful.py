@@ -389,7 +389,7 @@ def fitness_func(ga_instance, solution, solution_idx):
         elif mid_sim_spread <= 0 or mid_sim_spread >= num_neurons:
             aim_spread_error = 5
         else:
-            aim_spread_error = np.clip((1/(spread_variation_squared)) * (mid_sim_spread - aim_spread)**2, a_max=5)
+            aim_spread_error = np.clip((1/(spread_variation_squared)) * (mid_sim_spread - aim_spread)**2, a_min=None, a_max=5)
         
 
 
@@ -403,7 +403,7 @@ def fitness_func(ga_instance, solution, solution_idx):
             high_error = highest_active_neuron_rate / max_firing_rate
             # Lowest active neuron should be above 40% of the Iff firing rate, but not
             # necessarily as high as possible.
-            low_error = np.clip((0.4 * Iff_firing_rate - lowest_active_neuron_rate) / (0.4 * Iff_firing_rate), a_min=0)
+            low_error = np.clip((0.4 * Iff_firing_rate - lowest_active_neuron_rate) / (0.4 * Iff_firing_rate), a_min=0, a_max=None)
             frequency_error = high_error + low_error
         else:
             frequency_error = 1000

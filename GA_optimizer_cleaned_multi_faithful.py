@@ -340,6 +340,7 @@ def on_generation(ga_instance):
 # Specimens for which the simulation fails are given a composite error of -1,
 # so that they can easily be identified and excluded from the statistics.
 def fitness_func(ga_instance, solution, solution_idx):
+    global aim_spread, spread_variation, spread_variation_squared
     np.random.seed(rand_seed)
     seed(rand_seed)
 

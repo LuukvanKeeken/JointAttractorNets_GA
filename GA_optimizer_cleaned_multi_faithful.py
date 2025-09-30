@@ -370,11 +370,18 @@ def fitness_func(ga_instance, solution, solution_idx):
         spread_diff_error = np.abs(spread_difference / num_neurons) + 1
 
         # Force bump spread at halfway the simulation to be near num_neurons/10.
-        # Spreads different from this value are punished exponentially, though
-        # spreads within the range [num_neurons/20, 3*num_neurons/20] get relatively low error.
+        # Spreads within +/- num_neurons/20 of this are punished lightly, and outside
+        # this range are punished quadratically with a maximum of 5.
         aim_spread = num_neurons/10
-        abs_diff = np.abs(mid_sim_spread - aim_spread)
-        aim_spread_error = np.exp(abs_diff - (num_neurons/20))
+        lower_lim = (int(num_neurons/20) - 1)
+        upper_lim = (3*int(num_neurons/20) + 1)
+        if (mid_sim_spread > lower_lim) and (mid_sim_spread < upper_lim):
+            aim_spread_error = -2/((mid_sim_spread - lower_lim)*(mid_sim_spread - upper_lim) + 1e-8)
+        elif mid_sim_spread <= 0 or mid_sim_spread >= num_neurons:
+            aim_spread_error = 5
+        else:
+            aim_spread_error = min(5, 1/((num_neurons/20)**2) * (mid_sim_spread - aim_spread)**2)
+
 
         # If no neurons are active, give high punishment
         if np.any(out_rates > 0):

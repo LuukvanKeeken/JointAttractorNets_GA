@@ -153,7 +153,7 @@ def find_spread(N, gaps):
 
 
 # Calculates the spread
-def calculate_spreads(spikemon, t1=None, t2=None, window=0.005 * second):
+def calculate_spreads(spikemon, t1=None, t2=None, window=0.01 * second):
     if t1 == None or t2 == None:
         raise ValueError("Need values for timepoint 1 and timepoint 2.")
     
@@ -174,9 +174,9 @@ def calculate_spreads(spikemon, t1=None, t2=None, window=0.005 * second):
                 # to list of neurons active at t1 (or t2). Because the spike
                 # times are in order, if a spike in the range before t2 is
                 # found, we can stop the search.
-                if (spike_time >= t1-window) and (spike_time <= t1):
+                if (spike_time >= t1-window) and (spike_time <= t1) and (idx not in active_at_t1):
                     active_at_t1.append(idx)
-                if (spike_time >= t2-window) and (spike_time <= t2):
+                if (spike_time >= t2-window) and (spike_time <= t2) and (idx not in active_at_t2):
                     active_at_t2.append(idx)
                     break
     

@@ -32,10 +32,10 @@ num_neurons = 120
 
 if connectivity_profile == 'cosine':
     # Cosine profile parameters - optimize g_cosine and w_inh
-    g_cosine_range = np.linspace(0.001, 80.0, 22)   # cosine gain with smaller scale
-    w_inh_range = np.linspace(-100.0, 0.0, 22)    # global inhibition weight
+    g_cosine_range = np.linspace(0.001, 80.0, 100)   # cosine gain with smaller scale
+    w_inh_range = np.linspace(-100.0, 0.0, 100)    # global inhibition weight
     Iff_range = np.linspace(80, 80, 1)
-    tau_s_range = np.linspace(0.5, 100, 22)
+    tau_s_range = np.linspace(13, 13, 1)
     # Create parameter grid with conditional logic
     param_grid = []
     for g in g_cosine_range:
@@ -113,11 +113,18 @@ def worker_run(params_tuple):
         spread_diff_error = np.abs(spread_difference / num_neurons) + 1
 
         # Force bump spread at halfway the simulation to be near num_neurons/10.
-        # Spreads different from this value are punished exponentially, though
-        # spreads within the range [num_neurons/20, 3*num_neurons/20] get relatively low error.
+        # Spreads within +/- num_neurons/20 of this are punished lightly, and outside
+        # this range are punished quadratically with a maximum of 5.
         aim_spread = num_neurons/10
-        abs_diff = np.abs(mid_sim_spread - aim_spread)
-        aim_spread_error = np.exp(abs_diff - (num_neurons/20))
+        lower_lim = (int(num_neurons/20) - 1)
+        upper_lim = (3*int(num_neurons/20) + 1)
+        if (mid_sim_spread > lower_lim) and (mid_sim_spread < upper_lim):
+            aim_spread_error = -2/((mid_sim_spread - lower_lim)*(mid_sim_spread - upper_lim) + 1e-8)
+        elif mid_sim_spread <= 0 or mid_sim_spread >= num_neurons:
+            aim_spread_error = 5
+        else:
+            aim_spread_error = min(5, 1/((num_neurons/20)**2) * (mid_sim_spread - aim_spread)**2)
+        
 
 
 
@@ -145,11 +152,11 @@ def worker_run(params_tuple):
         # Adjust weights to prioritize center accuracy if desired
         w_center = 0.1667
         w_nmse = 0.1667
-        w_spread = 0.1667
+        w_spread_diff = 0.1667
         w_aim_spread = 0.1667
         w_frequency = 0.1667
         w_rate_change = 0.1667
-        composite_error = w_center * center_err + w_nmse * nmse + w_spread * spread_diff_error + w_aim_spread * aim_spread_error + w_frequency * frequency_error + w_rate_change * rate_change_error
+        composite_error = w_center * center_err + w_nmse * nmse + w_spread_diff * spread_diff_error + w_aim_spread * aim_spread_error + w_frequency * frequency_error + w_rate_change * rate_change_error
 
         # Create result dictionary with profile-specific parameters
         result = {
@@ -172,7 +179,8 @@ def worker_run(params_tuple):
             result.update({
                 'g_cosine': g_cosine,
                 'w_inh': w_inh,
-                'Iff': Iff
+                'Iff': Iff,
+                'tau_s': tau_s
             })
             
         return result
@@ -200,7 +208,8 @@ def worker_run(params_tuple):
             result.update({
                 'g_cosine': g_cosine,
                 'w_inh': w_inh,
-                'Iff': Iff
+                'Iff': Iff,
+                'tau_s': tau_s
             })
         
         return result

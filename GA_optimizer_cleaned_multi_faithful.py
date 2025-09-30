@@ -264,7 +264,7 @@ def on_generation(ga_instance):
     mean_rate_change_error_working_specimens.append(mean_rate_change_errors)
     std_rate_change_error_working_specimens.append(std_rate_change_errors)
 
-    mean_specimen_fitnesses = np.mean(np.stack([center_fitness_vals, nmse_fitness_vals, spread_diff_fitness_vals, aim_spread_fitness_vals, frequency_fitness_vals, rate_change_fitness_vals, seventh_fitness_vals]), axis=0)
+    mean_specimen_fitnesses = np.mean(np.stack([center_fitness_vals, nmse_fitness_vals, spread_diff_fitness_vals, aim_spread_fitness_vals, frequency_fitness_vals, rate_change_fitness_vals]), axis=0)
 
 
     mean_specimen_errors = np.mean(np.stack([center_errors, nmses, spread_diff_errors, aim_spread_errors, frequency_errors, rate_change_errors]), axis=0)

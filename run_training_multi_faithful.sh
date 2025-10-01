@@ -17,14 +17,14 @@ python -m pip install -U matplotlib
 
 
 num_processes=(16)
-pop_size=(100)
-num_parents_mating=(50)
-mut_prob1=(0.5)
-mut_prob2=(0.3)
-num_gens=(100)
+pop_size=(150)
+num_parents_mating=(75)
+mut_prob1=(0.4)
+mut_prob2=(0.2)
+num_gens=(200)
 con_prof="cosine"
 
-initial_ranges_cos=(0.0001 3 -3 0.0 23 100 0.5 100)
+initial_ranges_cos=(0.0001 100 -100 0.0 23 100 0.5 100)
 
 for i in "${!num_processes[@]}"; do
     num_proc="${num_processes[$i]}"

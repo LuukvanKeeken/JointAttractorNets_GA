@@ -34,8 +34,8 @@ spread_variation_squared = spread_variation ** 2
 
 if connectivity_profile == 'cosine':
     # Cosine profile parameters - optimize g_cosine and w_inh
-    g_cosine_range = np.linspace(0.001, 100.0, 21) 
-    w_inh_range = np.linspace(-100.0, 0.0, 21)    # global inhibition weight
+    g_cosine_range = np.linspace(0.001, 1.0, 21) 
+    w_inh_range = np.linspace(-1.0, 0.0, 21)    # global inhibition weight
     Iff_range = np.linspace(80, 80, 1)
     tau_s_range = np.linspace(0.5, 100, 21)
     # Create parameter grid with conditional logic

@@ -19,8 +19,8 @@ python -m pip install -U matplotlib
 num_processes=(16)
 pop_size=(150)
 num_parents_mating=(75)
-mut_prob1=(0.6)
-mut_prob2=(0.3)
+mut_prob1=(0.7)
+mut_prob2=(0.35)
 num_gens=(200)
 con_prof="cosine"
 

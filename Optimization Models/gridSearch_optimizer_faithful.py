@@ -27,15 +27,17 @@ if not os.path.exists(result_dir):
     os.makedirs(result_dir)
 
 num_neurons = 120
-
+aim_spread = int(num_neurons / 10)
+spread_variation = int(num_neurons / 20)
+spread_variation_squared = spread_variation ** 2
 
 
 if connectivity_profile == 'cosine':
     # Cosine profile parameters - optimize g_cosine and w_inh
-    g_cosine_range = np.linspace(0.001, 1.0, 22)   # cosine gain with smaller scale
-    w_inh_range = np.linspace(-1.0, 0.0, 22)    # global inhibition weight
+    g_cosine_range = np.linspace(0.001, 100.0, 21) 
+    w_inh_range = np.linspace(-100.0, 0.0, 21)    # global inhibition weight
     Iff_range = np.linspace(80, 80, 1)
-    tau_s_range = np.linspace(0.5, 100, 22)
+    tau_s_range = np.linspace(0.5, 100, 21)
     # Create parameter grid with conditional logic
     param_grid = []
     for g in g_cosine_range:
@@ -115,15 +117,14 @@ def worker_run(params_tuple):
         # Force bump spread at halfway the simulation to be near num_neurons/10.
         # Spreads within +/- num_neurons/20 of this are punished lightly, and outside
         # this range are punished quadratically with a maximum of 5.
-        aim_spread = num_neurons/10
-        lower_lim = (int(num_neurons/20) - 1)
-        upper_lim = (3*int(num_neurons/20) + 1)
+        lower_lim = (spread_variation - 1)
+        upper_lim = (3*spread_variation + 1)
         if (mid_sim_spread > lower_lim) and (mid_sim_spread < upper_lim):
             aim_spread_error = -2/((mid_sim_spread - lower_lim)*(mid_sim_spread - upper_lim) + 1e-8)
         elif mid_sim_spread <= 0 or mid_sim_spread >= num_neurons:
             aim_spread_error = 5
         else:
-            aim_spread_error = min(5, 1/((num_neurons/20)**2) * (mid_sim_spread - aim_spread)**2)
+            aim_spread_error = np.clip((1/(spread_variation_squared)) * (mid_sim_spread - aim_spread)**2, a_min=None, a_max=5)
         
 
 
@@ -137,7 +138,7 @@ def worker_run(params_tuple):
             high_error = highest_active_neuron_rate / max_firing_rate
             # Lowest active neuron should be above 40% of the Iff firing rate, but not
             # necessarily as high as possible.
-            low_error = max(0, (0.4 * Iff_firing_rate - lowest_active_neuron_rate) / (0.4 * Iff_firing_rate))
+            low_error = np.clip((0.4 * Iff_firing_rate - lowest_active_neuron_rate) / (0.4 * Iff_firing_rate), a_min=0, a_max=None)
             frequency_error = high_error + low_error
         else:
             frequency_error = 1000
@@ -237,7 +238,7 @@ if __name__ == '__main__':
     
     # Save the complete results to a CSV file with profile name in the filename inside the folder
     results_filename = os.path.join(result_dir, f"optimization_results_{connectivity_profile}.csv")
-    results_df.to_csv(results_filename, index=False)
+    results_df.sort_values(by='composite_error', ascending=True).to_csv(results_filename, index=False)
     print(f"Results saved to {results_filename}")
     
     # Results Analysis
@@ -257,27 +258,27 @@ if __name__ == '__main__':
             f.write(best_result.to_string())
         print(f"Best result saved to {best_result_filename}")
 
-        # For each unique Iff value, create a separate heatmap
-        for Iff_val in sorted(results_df['Iff'].unique()):
-            sub_df = results_df[results_df['Iff'] == Iff_val].copy()
-            sub_df.loc[sub_df['composite_error'] > 1, 'composite_error'] = np.nan
-            pivot = sub_df.pivot_table(index='g_cosine', columns='w_inh', values='composite_error')
+        # # For each unique Iff value, create a separate heatmap
+        # for Iff_val in sorted(results_df['Iff'].unique()):
+        #     sub_df = results_df[results_df['Iff'] == Iff_val].copy()
+        #     sub_df.loc[sub_df['composite_error'] > 1, 'composite_error'] = np.nan
+        #     pivot = sub_df.pivot_table(index='g_cosine', columns='w_inh', values='composite_error')
 
-            plt.figure(figsize=(8, 6))
-            plt.imshow(pivot, aspect='auto', origin='lower', cmap='viridis')
-            plt.colorbar(label='Composite Error')
-            plt.xlabel('w_inh')
-            plt.ylabel('g_cosine')
-            plt.title(f'Composite Error Grid (Iff={Iff_val})')
+        #     plt.figure(figsize=(8, 6))
+        #     plt.imshow(pivot, aspect='auto', origin='lower', cmap='viridis')
+        #     plt.colorbar(label='Composite Error')
+        #     plt.xlabel('w_inh')
+        #     plt.ylabel('g_cosine')
+        #     plt.title(f'Composite Error Grid (Iff={Iff_val})')
 
-            # Limit ticks to 10 evenly spaced values for coarse view
-            num_xticks = min(10, len(pivot.columns))
-            num_yticks = min(10, len(pivot.index))
-            xtick_indices = np.linspace(0, len(pivot.columns)-1, num_xticks, dtype=int)
-            ytick_indices = np.linspace(0, len(pivot.index)-1, num_yticks, dtype=int)
-            plt.xticks(ticks=xtick_indices, labels=[f"{pivot.columns[i]:.2f}" for i in xtick_indices])
-            plt.yticks(ticks=ytick_indices, labels=[f"{pivot.index[i]:.2f}" for i in ytick_indices])
-            plt.savefig(os.path.join(result_dir, f'composite_error_heatmap_{connectivity_profile}_Iff_{Iff_val:.2f}.png'))
-            plt.close()
+        #     # Limit ticks to 10 evenly spaced values for coarse view
+        #     num_xticks = min(10, len(pivot.columns))
+        #     num_yticks = min(10, len(pivot.index))
+        #     xtick_indices = np.linspace(0, len(pivot.columns)-1, num_xticks, dtype=int)
+        #     ytick_indices = np.linspace(0, len(pivot.index)-1, num_yticks, dtype=int)
+        #     plt.xticks(ticks=xtick_indices, labels=[f"{pivot.columns[i]:.2f}" for i in xtick_indices])
+        #     plt.yticks(ticks=ytick_indices, labels=[f"{pivot.index[i]:.2f}" for i in ytick_indices])
+        #     plt.savefig(os.path.join(result_dir, f'composite_error_heatmap_{connectivity_profile}_Iff_{Iff_val:.2f}.png'))
+        #     plt.close()
     else:
         print("No valid simulation results found.")

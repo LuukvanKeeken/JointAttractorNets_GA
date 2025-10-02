@@ -36,24 +36,28 @@ stim_center = 1.57
 
 
 if connectivity_profile == 'cosine':
-    
-    m_range = np.linspace(0, 100, 100) 
-    d_range = np.linspace(-10, 10, 100)    # global inhibition weight
+    # Cosine profile parameters - optimize g_cosine and w_inh
+    # g_cosine_range = np.linspace(5.000950, 5.000950, 1) 
+    # w_inh_range = np.linspace(-85.000, -85.000, 1)    # global inhibition weight
+    # Iff_range = np.linspace(80, 80, 1)
+    # tau_s_range = np.linspace(0.5, 100, 1)
+    g_cosine_range = np.linspace(54.141737, 54.141737, 1) 
+    w_inh_range = np.linspace(-54.545455, -54.545455, 1)    # global inhibition weight
     Iff_range = np.linspace(80, 80, 1)
     tau_s_range = np.linspace(13, 13, 1)
     # Create parameter grid with conditional logic
     param_grid = []
-    for m in m_range:
-        for d in d_range:
+    for g in g_cosine_range:
+        for w in w_inh_range:
             for Iff in Iff_range:
                 for tau_s in tau_s_range:
-                    param_grid.append((m, d, Iff, tau_s))
+                    param_grid.append((g, w, Iff, tau_s))
 
     # Store the ranges in a txt file in the results dir
     with open(os.path.join(result_dir, "parameter_ranges.txt"), "w") as f:
         f.write("Cosine Profile Parameter Ranges:\n")
-        f.write(f"M range: {m_range}\n")
-        f.write(f"D range: {d_range}\n")
+        f.write(f"Gain Cosine: {g_cosine_range}\n")
+        f.write(f"Weight Inhibition: {w_inh_range}\n")
         f.write(f"Iff: {Iff_range}\n")
         f.write(f"Tau_s: {tau_s_range}\n")
 else:
@@ -82,10 +86,11 @@ def worker_run(params_tuple):
 
     
     if connectivity_profile == 'cosine':
-        m, d, Iff, tau_s = params_tuple
+        # Two parameters being optimized: g_cosine and w_inh
+        g_cosine, w_inh, Iff, tau_s = params_tuple
         params.update({
-            'm': m,
-            'd': d,
+            'g_cosine': g_cosine,
+            'w_inh_val': w_inh,
             'Iff_val': Iff,
             'tau_s': tau_s
         })
@@ -181,10 +186,8 @@ def worker_run(params_tuple):
         # Add profile-specific parameters to results
         if connectivity_profile == 'cosine':
             result.update({
-                'm': m,
-                'd': d,
-                'g_cosine': m + d,
-                'w_inh': -m + d,
+                'g_cosine': g_cosine,
+                'w_inh': w_inh,
                 'Iff': Iff,
                 'tau_s': tau_s
             })
@@ -212,10 +215,8 @@ def worker_run(params_tuple):
         # Add profile-specific parameters to error results
         if connectivity_profile == 'cosine':
             result.update({
-                'm': m,
-                'd': d,
-                'g_cosine': m + d,
-                'w_inh': -m + d,
+                'g_cosine': g_cosine,
+                'w_inh': w_inh,
                 'Iff': Iff,
                 'tau_s': tau_s
             })
@@ -265,5 +266,27 @@ if __name__ == '__main__':
             f.write(best_result.to_string())
         print(f"Best result saved to {best_result_filename}")
 
+        # # For each unique Iff value, create a separate heatmap
+        # for Iff_val in sorted(results_df['Iff'].unique()):
+        #     sub_df = results_df[results_df['Iff'] == Iff_val].copy()
+        #     sub_df.loc[sub_df['composite_error'] > 1, 'composite_error'] = np.nan
+        #     pivot = sub_df.pivot_table(index='g_cosine', columns='w_inh', values='composite_error')
+
+        #     plt.figure(figsize=(8, 6))
+        #     plt.imshow(pivot, aspect='auto', origin='lower', cmap='viridis')
+        #     plt.colorbar(label='Composite Error')
+        #     plt.xlabel('w_inh')
+        #     plt.ylabel('g_cosine')
+        #     plt.title(f'Composite Error Grid (Iff={Iff_val})')
+
+        #     # Limit ticks to 10 evenly spaced values for coarse view
+        #     num_xticks = min(10, len(pivot.columns))
+        #     num_yticks = min(10, len(pivot.index))
+        #     xtick_indices = np.linspace(0, len(pivot.columns)-1, num_xticks, dtype=int)
+        #     ytick_indices = np.linspace(0, len(pivot.index)-1, num_yticks, dtype=int)
+        #     plt.xticks(ticks=xtick_indices, labels=[f"{pivot.columns[i]:.2f}" for i in xtick_indices])
+        #     plt.yticks(ticks=ytick_indices, labels=[f"{pivot.index[i]:.2f}" for i in ytick_indices])
+        #     plt.savefig(os.path.join(result_dir, f'composite_error_heatmap_{connectivity_profile}_Iff_{Iff_val:.2f}.png'))
+        #     plt.close()
     else:
         print("No valid simulation results found.")

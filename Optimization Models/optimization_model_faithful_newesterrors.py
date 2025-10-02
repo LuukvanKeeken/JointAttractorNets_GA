@@ -48,10 +48,8 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     V_rest = -70*mV
     I0 = 10 * mV
     # sim_duration = duration_val*second
-    m = params.get('m')
-    d = params.get('d')
-    g_cosine = np.clip(m + d, 0.0, 100)*mV
-    w_inh_v = np.clip(-m + d, -100, 0.0)*mV
+    g_cosine = params.get('g_cosine')*mV
+    w_inh_v = params.get('w_inh_val')*mV
     
     Iff_val = params.get('Iff_val', 80)*mA
     I0_CONST = Iff_val * ohm
@@ -62,8 +60,8 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     positions = linspace(0, 2*pi, num_neurons, endpoint=False)
 
     # Calculate external input
-    angles = np.angle(np.exp(1j * (positions - stimulus_center)))
-    I_ext_array = I0 * np.exp(-(angles**2) / (2 * stimulus_width**2)) + I0_CONST
+    d = np.angle(np.exp(1j * (positions - stimulus_center)))
+    I_ext_array = I0 * np.exp(-(d**2) / (2 * stimulus_width**2)) + I0_CONST
 
     # Set up neuron model
     # neuron_eq = Equations(LIF_xi_vel_eq, tau=tau, V_rest=V_rest, sigma_noise=sigma_noise)

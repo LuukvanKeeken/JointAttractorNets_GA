@@ -53,10 +53,10 @@ if not os.path.exists(current_results_dirname):
 parser = argparse.ArgumentParser(description='Run GA optimization for ring attractor model.')
 
 parser.add_argument('--num_processes', type=int, default=1, help='Number of processes for parallel processing.')
-parser.add_argument('--population_size', type=int, default=10, help='Population size for the genetic algorithm.')
+parser.add_argument('--population_size', type=int, default=4, help='Population size for the genetic algorithm.')
 parser.add_argument('--random_seed', type=int, default=24, help='Random seed for reproducibility.')
-parser.add_argument('--num_generations', type=int, default=10, help='Number of generations for the genetic algorithm.')
-parser.add_argument('--num_parents_mating', type=int, default=5, help='Number of parents mating in each generation.')
+parser.add_argument('--num_generations', type=int, default=2, help='Number of generations for the genetic algorithm.')
+parser.add_argument('--num_parents_mating', type=int, default=2, help='Number of parents mating in each generation.')
 parser.add_argument('--mutation_type', type=str, default='adaptive', choices=['random', 'swap', 'inversion', 'scramble', 'adaptive', ], help='Type of mutation to use in the genetic algorithm.') # Options: "random", "swap", "inversion", "scramble", "adaptive", or a custom function
 parser.add_argument('--mutation_probability', type=float, default=[0.4, 0.2], nargs=2, help='Probability of mutation for each gene. If using adaptive mutation, this should be a list of two values: the first for lower-than-average fitness solutions, the second for higher-than-average fitness solutions. If using random mutation, this should be a single value for all solutions.')
 parser.add_argument('--parent_selection_type', type=str, default='tournament_nsga2', choices=['nsga2', 'tournament_nsga2'], help='Parent selection method for the genetic algorithm.')
@@ -377,7 +377,8 @@ def fitness_func(ga_instance, solution, solution_idx):
         angular_Zscore = center_err / circular_std
         
         # Compute the NMSE between the observed firing rates and the ideal Gaussian profile.
-        nmse = compute_nmse_normalized(out_rates, GT_input, norm_type='max')
+        # nmse = compute_nmse_normalized(out_rates, GT_input, norm_type='max')
+        nmse = gaussianity_nmse(out_rates)
 
         # Normalize the spread difference by the number of neurons, and take the
         # absolute value to punish increases and decreases equally. Add 1 to make sure

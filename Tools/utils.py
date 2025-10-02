@@ -1,6 +1,7 @@
 from brian2 import *
 import sys
 from lmfit import Model, Parameters
+from scipy.optimize import curve_fit
 
 
 class ProgressBar(object):
@@ -304,6 +305,45 @@ def compute_nmse_normalized(observed_rates, ideal_input, norm_type='max'):
     denominator = np.sum(normalized_ideal ** 2)
     nmse = numerator / denominator
     return nmse
+
+
+def gaussian(x, amp, mu, sigma, baseline):
+    return amp * np.exp(-((x - mu) ** 2) / (2 * sigma ** 2)) + baseline
+
+def gaussianity_nmse(observed_rates):
+    """
+    Measures how Gaussian the observed_rates profile is by fitting a Gaussian
+    and returning the NMSE between the observed and fitted Gaussian.
+
+    Parameters:
+        observed_rates (numpy.ndarray): Observed firing rates.
+
+    Returns:
+        float: NMSE between observed_rates and its best-fit Gaussian.
+    """
+    n = len(observed_rates)
+    x = np.arange(n)
+
+    # Remove baseline activity by subtracting the minimum value
+    observed_rates = observed_rates - np.min(observed_rates)
+
+    # Initial guess: amplitude, mean, std, baseline
+    amp_guess = np.max(observed_rates) - np.min(observed_rates)
+    mu_guess = np.sum(x * observed_rates) / np.sum(observed_rates)
+    sigma_guess = np.std(x)
+    baseline_guess = np.min(observed_rates)
+    p0 = [amp_guess, mu_guess, sigma_guess, baseline_guess]
+
+    try:
+        popt, _ = curve_fit(gaussian, x, observed_rates, p0=p0, maxfev=10000)
+        fitted = gaussian(x, *popt)
+        numerator = np.sum((observed_rates - fitted) ** 2)
+        denominator = np.sum(fitted ** 2)
+        nmse = numerator / denominator
+        return nmse
+    except Exception as e:
+        # If fitting fails, return NaN
+        return np.nan
 
 
 #################################################

@@ -58,8 +58,8 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     
 
     # Sample g_cosine from normal distributions
-    g_cosine = (m + (d_sign * d))*mV
-    w_inh_v = (-m + (d_sign * d))*mV
+    g_cosine = np.clip((m + (d_sign * d)), 0.0, 100.0)*mV
+    w_inh_v = np.clip((-m + (d_sign * d)), -100.0, 0.0)*mV
 
     Iff_val = params.get('Iff_val', 80)*mA
     I0_CONST = Iff_val * ohm

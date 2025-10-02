@@ -108,8 +108,7 @@ def worker_run(params_tuple):
         angular_Zscore = center_err / circular_std
         
         # Compute the NMSE between the observed firing rates and the ideal Gaussian profile.
-        # nmse = compute_nmse_normalized(out_rates, GT_input, norm_type='max')
-        nmse = gaussianity_nmse(out_rates)
+        nmse = compute_nmse_normalized(out_rates, GT_input, norm_type='max')
         
 
         # Normalize the spread difference by the number of neurons, and take the

@@ -320,7 +320,7 @@ def on_generation(ga_instance):
     gens_completed = ga_instance.generations_completed
     with open(f"{current_results_dirname}/exp_results.txt", "a") as f:
         if connectivity_profile == 'cosine':
-            f.write(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (m: {solution[0]}, d: {solution[1]}, Iff: {solution[2]}, tau_s: {solution[3]}, d_sign: {solution[4]})\n")
+            f.write(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (m: {solution[0]}, log d: {solution[1]}, d: {np.exp(solution[1])}, Iff: {solution[2]}, tau_s: {solution[3]}, d_sign: {solution[4]})\n")
         f.write(f"Generation mean FITNESS: {np.mean(positive_fitnesses):.4f} +/- {np.std(positive_fitnesses):.4f} | {len(positive_fitnesses)} working, {len(negative_fitnesses)} failed solutions\n")
         f.write(f"Generation mean ERROR (working solutions): {mean_errors:.4f} +/- {std_errors:.4f}\n")
         f.write(f"      mean center error: {mean_center_errors:.4f} +/- {std_center_errors:.4f}\n")
@@ -332,7 +332,7 @@ def on_generation(ga_instance):
         f.write(f"Generation mean gene standard deviations: {np.mean(gene_std_devs):.4f}\n")
         f.write(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")
     if connectivity_profile == 'cosine':
-        print(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (m: {solution[0]}, d: {solution[1]}, Iff: {solution[2]}, tau_s: {solution[3]}, d_sign: {solution[4]})")
+        print(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (m: {solution[0]}, log d: {solution[1]}, d: {np.exp(solution[1])}, Iff: {solution[2]}, tau_s: {solution[3]}, d_sign: {solution[4]})")
     print(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")
 
     previous_gen_start_time = time.time()

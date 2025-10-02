@@ -238,7 +238,7 @@ def conf_weighted_CE(pva_angle, stimulus_center, pva_magnitude=None, epsilon=1e-
         cwce = center_error / (pva_magnitude + epsilon)
         return center_error, cwce    
 
-def compute_nmse_normalized(observed_rates, ideal_input, norm_type='max'):
+def compute_nmse_normalized_old(observed_rates, ideal_input, norm_type='max'):
     """
     Compute the NMSE between normalized observed and ideal firing rate profiles.
 
@@ -264,6 +264,42 @@ def compute_nmse_normalized(observed_rates, ideal_input, norm_type='max'):
     else:
         raise ValueError("Normalization type not recognized. Use 'max' or 'area'.")
     
+    numerator = np.sum((normalized_obs - normalized_ideal) ** 2)
+    denominator = np.sum(normalized_ideal ** 2)
+    nmse = numerator / denominator
+    return nmse
+
+
+def compute_nmse_normalized(observed_rates, ideal_input, norm_type='max'):
+    """
+    Compute the NMSE between normalized observed and ideal firing rate profiles.
+
+    Parameters:
+        observed_rates (numpy.ndarray): Observed firing rates.
+        ideal_input (numpy.ndarray): Ideal input firing rate profile.
+        norm_type (str): Type of normalization ('max' or 'area').
+    
+    Returns:
+        float: The computed NMSE.
+    """
+    if len(observed_rates) != len(ideal_input):
+        raise ValueError("Observed rates and ideal input must have the same length.")
+    if np.sum(observed_rates) == 0:
+        return np.nan
+    
+    # Remove baseline activity by subtracting the minimum value
+    ideal_input_cleaned = ideal_input - np.min(ideal_input)
+    observed_rates_cleaned = observed_rates - np.min(observed_rates)
+
+    if norm_type == 'max':
+        normalized_ideal = ideal_input_cleaned / np.max(ideal_input_cleaned)
+        normalized_obs = observed_rates_cleaned / np.max(observed_rates_cleaned)
+    elif norm_type == 'area':
+        normalized_ideal = ideal_input_cleaned / np.sum(ideal_input_cleaned)
+        normalized_obs = observed_rates_cleaned / np.sum(observed_rates_cleaned)
+    else:
+        raise ValueError("Normalization type not recognized. Use 'max' or 'area'.")
+
     numerator = np.sum((normalized_obs - normalized_ideal) ** 2)
     denominator = np.sum(normalized_ideal ** 2)
     nmse = numerator / denominator

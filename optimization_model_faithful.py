@@ -48,9 +48,10 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     V_rest = -70*mV
     I0 = 10 * mV
     # sim_duration = duration_val*second
-    # Get mean, difference, and sign of difference
+    # Get mean, log difference, and sign of difference
     m = params.get('m')
     d = params.get('d')
+    d = np.exp(d)
     d_sign = params.get('d_sign')
     if not d_sign in [-1, 1]:
         raise ValueError("d_sign must be either -1 or 1")

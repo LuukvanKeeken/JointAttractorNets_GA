@@ -53,10 +53,10 @@ if not os.path.exists(current_results_dirname):
 parser = argparse.ArgumentParser(description='Run GA optimization for ring attractor model.')
 
 parser.add_argument('--num_processes', type=int, default=1, help='Number of processes for parallel processing.')
-parser.add_argument('--population_size', type=int, default=4, help='Population size for the genetic algorithm.')
+parser.add_argument('--population_size', type=int, default=100, help='Population size for the genetic algorithm.')
 parser.add_argument('--random_seed', type=int, default=24, help='Random seed for reproducibility.')
-parser.add_argument('--num_generations', type=int, default=4, help='Number of generations for the genetic algorithm.')
-parser.add_argument('--num_parents_mating', type=int, default=2, help='Number of parents mating in each generation.')
+parser.add_argument('--num_generations', type=int, default=500, help='Number of generations for the genetic algorithm.')
+parser.add_argument('--num_parents_mating', type=int, default=50, help='Number of parents mating in each generation.')
 parser.add_argument('--mutation_type', type=str, default='adaptive', choices=['random', 'swap', 'inversion', 'scramble', 'adaptive', ], help='Type of mutation to use in the genetic algorithm.') # Options: "random", "swap", "inversion", "scramble", "adaptive", or a custom function
 parser.add_argument('--mutation_probability', type=float, default=[0.4, 0.2], nargs=2, help='Probability of mutation for each gene. If using adaptive mutation, this should be a list of two values: the first for lower-than-average fitness solutions, the second for higher-than-average fitness solutions. If using random mutation, this should be a single value for all solutions.')
 parser.add_argument('--parent_selection_type', type=str, default='tournament_nsga2', choices=['nsga2', 'tournament_nsga2'], help='Parent selection method for the genetic algorithm.')
@@ -65,8 +65,8 @@ parser.add_argument('--crossover_type', type=str, default='single_point', choice
 parser.add_argument('--keep_elitism', type=int, default=1, help='Number of best solutions to keep in the next generation.')
 parser.add_argument('--rand_mut_min_val', type=float, default=-0.1, help='Minimum value for random mutation.')
 parser.add_argument('--rand_mut_max_val', type=float, default=0.1, help='Maximum value for random mutation.')
-parser.add_argument('--initial_ranges_cos', type=float, nargs=8, default=[0.0, 100, np.log(0.01), np.log(10), 23, 100, 0.5, 100], help='Initial ranges for Cosine connectivity profile: m_min, m_max, d_min, d_max, Iff_min, Iff_max, tau_s_min, tau_s_max.')
-parser.add_argument('--gene_spaces_cos', type=float, nargs=8, default=[0.0, 100, np.log(0.01), np.log(10), 23, 100, 0.5, 100], help='Cosine gene spaces/limits for the optimization: m_min, m_max, d_min, d_max, Iff_min, Iff_max, tau_s_min, tau_s_max.')
+parser.add_argument('--initial_ranges_cos', type=float, nargs=8, default=[0.0001, 100, -100, 0.0, 23, 100, 0.5, 100], help='Initial ranges for Cosine connectivity profile: g_cosine_min, g_cosine_max, w_inh_min, w_inh_max, Iff_min, Iff_max, tau_s_min, tau_s_max.')
+parser.add_argument('--gene_spaces_cos', type=float, nargs=8, default=[0.0001, 100, -100, 0.0, 23, 100, 0.5, 100], help='Cosine gene spaces/limits for the optimization: g_cosine_min, g_cosine_max, w_inh_min, w_inh_max, Iff_min, Iff_max, tau_s_min, tau_s_max.')
 parser.add_argument('--stim_center', type=float, default=1.571, help='Center of the stimulus for the ring attractor model.')
 parser.add_argument('--stim_width', type=float, default=0.5, help='Width of the stimulus for the ring attractor model.')
 parser.add_argument('--tau', type=float, default=10.0, help='Time constant for the ring attractor model in ms.')
@@ -155,21 +155,19 @@ fixed_params = {
 # Note: during optimization, the values can go outside these ranges,
 # but it is possible to set limits for that as well.
 if connectivity_profile == 'cosine':
-    m_range = initial_ranges_cos[:2]    # cosine gain
-    d_range = initial_ranges_cos[2:4]      # global inhibition weight
+    g_cosine_range = initial_ranges_cos[:2]    # cosine gain
+    w_inh_range = initial_ranges_cos[2:4]      # global inhibition weight
     Iff_range = initial_ranges_cos[4:6]        # feedforward input strength
     tau_s_range = initial_ranges_cos[6:8]      # synaptic time constant
     gene_0_stddevs = []
     gene_1_stddevs = []
     gene_2_stddevs = []
     gene_3_stddevs = []
-    gene_4_stddevs = []
 
-    m_space = {'low': gene_spaces_cos[0], 'high': gene_spaces_cos[1]}
-    d_space = {'low': gene_spaces_cos[2], 'high': gene_spaces_cos[3]}
+    g_cosine_space = {'low': gene_spaces_cos[0], 'high': gene_spaces_cos[1]}
+    w_inh_space = {'low': gene_spaces_cos[2], 'high': gene_spaces_cos[3]}
     Iff_space = {'low': gene_spaces_cos[4], 'high': gene_spaces_cos[5]}
     tau_s_space = {'low': gene_spaces_cos[6], 'high': gene_spaces_cos[7]}
-    d_sign_space = [-1, 1]
 else:
     raise ValueError("Unsupported connectivity profile. Choose 'cosine'.")
 
@@ -178,7 +176,7 @@ else:
 
 # Number of genes based on the connectivity profile
 if connectivity_profile == 'cosine':
-    num_genes = 5  # m, d, Iff, tau_s, d_sign
+    num_genes = 4  # g_cosine, w_inh, Iff, tau_s
 else:  
     raise ValueError("Unsupported connectivity profile. Choose 'cosine'.")
 
@@ -202,7 +200,7 @@ def on_generation(ga_instance):
     global std_frequency_error_working_specimens
     global std_rate_change_error_working_specimens
     global current_results_dirname
-    global gene_0_stddevs, gene_1_stddevs, gene_2_stddevs, gene_3_stddevs, gene_4_stddevs
+    global gene_0_stddevs, gene_1_stddevs, gene_2_stddevs, gene_3_stddevs
     global mean_gene_stddevs
     
 
@@ -217,12 +215,10 @@ def on_generation(ga_instance):
         gene_1_stddevs.append(gene_std_devs[1])
         gene_2_stddevs.append(gene_std_devs[2])
         gene_3_stddevs.append(gene_std_devs[3])
-        gene_4_stddevs.append(gene_std_devs[4])
         np.savetxt(f"{current_results_dirname}/gene_0_stddevs.txt", np.array(gene_0_stddevs))
         np.savetxt(f"{current_results_dirname}/gene_1_stddevs.txt", np.array(gene_1_stddevs))
         np.savetxt(f"{current_results_dirname}/gene_2_stddevs.txt", np.array(gene_2_stddevs))
         np.savetxt(f"{current_results_dirname}/gene_3_stddevs.txt", np.array(gene_3_stddevs))
-        np.savetxt(f"{current_results_dirname}/gene_4_stddevs.txt", np.array(gene_4_stddevs))
     else:
         raise ValueError("Unsupported connectivity profile. Choose 'cosine'.")
     
@@ -320,7 +316,7 @@ def on_generation(ga_instance):
     gens_completed = ga_instance.generations_completed
     with open(f"{current_results_dirname}/exp_results.txt", "a") as f:
         if connectivity_profile == 'cosine':
-            f.write(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (m: {solution[0]}, d: {solution[1]}, Iff: {solution[2]}, tau_s: {solution[3]}, d_sign: {solution[4]})\n")
+            f.write(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (g_cosine: {solution[0]}, w_inh: {solution[1]}, Iff: {solution[2]}, tau_s: {solution[3]})\n")
         f.write(f"Generation mean FITNESS: {np.mean(positive_fitnesses):.4f} +/- {np.std(positive_fitnesses):.4f} | {len(positive_fitnesses)} working, {len(negative_fitnesses)} failed solutions\n")
         f.write(f"Generation mean ERROR (working solutions): {mean_errors:.4f} +/- {std_errors:.4f}\n")
         f.write(f"      mean center error: {mean_center_errors:.4f} +/- {std_center_errors:.4f}\n")
@@ -332,7 +328,7 @@ def on_generation(ga_instance):
         f.write(f"Generation mean gene standard deviations: {np.mean(gene_std_devs):.4f}\n")
         f.write(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")
     if connectivity_profile == 'cosine':
-        print(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (m: {solution[0]}, d: {solution[1]}, Iff: {solution[2]}, tau_s: {solution[3]}, d_sign: {solution[4]})")
+        print(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (g_cosine: {solution[0]}, w_inh: {solution[1]}, Iff: {solution[2]}, tau_s: {solution[3]})")
     print(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")
 
     previous_gen_start_time = time.time()
@@ -352,11 +348,10 @@ def fitness_func(ga_instance, solution, solution_idx):
 
     if connectivity_profile == 'cosine':
         params.update({
-            'm': solution[0],
-            'd': solution[1],
+            'g_cosine': solution[0],
+            'w_inh_val': solution[1],
             'Iff_val': solution[2],
-            'tau_s': solution[3],
-            'd_sign': solution[4]
+            'tau_s': solution[3]
         })
     else:
         raise ValueError("Unsupported connectivity profile. Choose 'cosine'.")
@@ -473,7 +468,7 @@ ga_instance = pygad.GA(num_generations=num_generations,
                        random_seed=rand_seed,
                        random_mutation_min_val= rand_mut_min_val,
                        random_mutation_max_val= rand_mut_max_val,
-                       gene_space=[m_space, d_space, Iff_space, tau_s_space, d_sign_space]
+                       gene_space=[g_cosine_space, w_inh_space, Iff_space, tau_s_space]
 )
 
 
@@ -496,29 +491,19 @@ if __name__ == '__main__':
     if connectivity_profile == 'cosine':
         print(f"""Best solution found:
         errors: {1/solution_fitness}
-        average error: {np.mean(1/solution_fitness)}
-        m: {solution[0]}
-        log d: {solution[1]}
-        d: {np.exp(solution[1])}
-        g_cosine: {solution[0] + (solution[4] * np.exp(solution[1]))} mV
-        w_inh: {-solution[0] + (solution[4] * np.exp(solution[1]))} mV
+        g_cosine: {solution[0]} mV
+        w_inh: {solution[1]}
         Iff: {solution[2]}
         tau_s: {solution[3]} ms
-        d_sign: {solution[4]}
     """)
         
         with open(f"{current_results_dirname}/exp_results.txt", "a") as f:
             f.write(f"Best solution found:\n")
             f.write(f"errors: {1/solution_fitness}\n")
-            f.write(f"average error: {np.mean(1/solution_fitness)}\n")
-            f.write(f"m: {solution[0]}\n")
-            f.write(f"log d: {solution[1]}\n")
-            f.write(f"d: {np.exp(solution[1])}\n")
-            f.write(f"g_cosine: {solution[0] + (solution[4] * np.exp(solution[1]))} mV\n")
-            f.write(f"w_inh: {-solution[0] + (solution[4] * np.exp(solution[1]))} mV\n")
+            f.write(f"g_cosine: {solution[0]} mV\n")
+            f.write(f"w_inh: {solution[1]}\n")
             f.write(f"Iff: {solution[2]}\n")
             f.write(f"tau_s: {solution[3]} ms\n")
-            f.write(f"d_sign: {solution[4]}\n")
     else:
         raise ValueError("Unsupported connectivity profile. Choose 'cosine'.")
     
@@ -532,11 +517,10 @@ if __name__ == '__main__':
     np.savetxt(f"{current_results_dirname}/std_errors_working_specimens.txt", np.array(std_errors_working_specimens))
     np.savetxt(f"{current_results_dirname}/best_errors.txt", np.array(best_errors))
     np.savetxt(f"{current_results_dirname}/mean_gene_stddevs.txt", np.array(mean_gene_stddevs))
-    np.savetxt(f"{current_results_dirname}/m_stddevs.txt", np.array(gene_0_stddevs))
-    np.savetxt(f"{current_results_dirname}/d_stddevs.txt", np.array(gene_1_stddevs))
-    np.savetxt(f"{current_results_dirname}/Iff_stddevs.txt", np.array(gene_2_stddevs))
-    np.savetxt(f"{current_results_dirname}/tau_s_stddevs.txt", np.array(gene_3_stddevs))
-    np.savetxt(f"{current_results_dirname}/d_sign_stddevs.txt", np.array(gene_4_stddevs))
+    np.savetxt(f"{current_results_dirname}/gene_0_stddevs.txt", np.array(gene_0_stddevs))
+    np.savetxt(f"{current_results_dirname}/gene_1_stddevs.txt", np.array(gene_1_stddevs))
+    np.savetxt(f"{current_results_dirname}/gene_2_stddevs.txt", np.array(gene_2_stddevs))
+    np.savetxt(f"{current_results_dirname}/gene_3_stddevs.txt", np.array(gene_3_stddevs))
 
     best_errors = np.array(best_errors)
 
@@ -683,20 +667,20 @@ if __name__ == '__main__':
     plt.savefig(f"{current_results_dirname}/mean_gene_stddevs.png")
 
     plt.figure()
-    plt.plot(gene_0_stddevs, label='m Std Dev')
+    plt.plot(gene_0_stddevs, label='g_cosine Std Dev')
     plt.xlabel('Generation')
-    plt.ylabel('m Std Dev')
-    plt.title('m Standard Deviations Over Generations')
+    plt.ylabel('g_cosine Std Dev')
+    plt.title('g_cosine Standard Deviations Over Generations')
     plt.legend()
-    plt.savefig(f"{current_results_dirname}/m_stddevs.png")
+    plt.savefig(f"{current_results_dirname}/g_cosine_stddevs.png")
 
     plt.figure()
-    plt.plot(gene_1_stddevs, label='d Std Dev')
+    plt.plot(gene_1_stddevs, label='w_inh Std Dev')
     plt.xlabel('Generation')
-    plt.ylabel('d Std Dev')
-    plt.title('d Standard Deviations Over Generations')
+    plt.ylabel('w_inh Std Dev')
+    plt.title('w_inh Standard Deviations Over Generations')
     plt.legend()
-    plt.savefig(f"{current_results_dirname}/d_stddevs.png")
+    plt.savefig(f"{current_results_dirname}/w_inh_stddevs.png")
 
     plt.figure()
     plt.plot(gene_2_stddevs, label='I_ff Std Dev')
@@ -713,11 +697,3 @@ if __name__ == '__main__':
     plt.title('tau_s Standard Deviations Over Generations')
     plt.legend()
     plt.savefig(f"{current_results_dirname}/tau_s_stddevs.png")
-
-    plt.figure()
-    plt.plot(gene_4_stddevs, label='d_sign Std Dev')
-    plt.xlabel('Generation')
-    plt.ylabel('d_sign Std Dev')
-    plt.title('d_sign Standard Deviations Over Generations')
-    plt.legend()
-    plt.savefig(f"{current_results_dirname}/d_sign_stddevs.png")

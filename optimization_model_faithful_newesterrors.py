@@ -48,19 +48,9 @@ def opt_ring_attractor(params, stim_center=0, stim_width=0.5):
     V_rest = -70*mV
     I0 = 10 * mV
     # sim_duration = duration_val*second
-    # Get mean, log difference, and sign of difference
-    m = params.get('m')
-    d = params.get('d')
-    d = np.exp(d)
-    d_sign = params.get('d_sign')
-    if not d_sign in [-1, 1]:
-        raise ValueError("d_sign must be either -1 or 1")
+    g_cosine = params.get('g_cosine')*mV
+    w_inh_v = params.get('w_inh_val')*mV
     
-
-    # Sample g_cosine from normal distributions
-    g_cosine = (m + (d_sign * d))*mV
-    w_inh_v = (-m + (d_sign * d))*mV
-
     Iff_val = params.get('Iff_val', 80)*mA
     I0_CONST = Iff_val * ohm
     

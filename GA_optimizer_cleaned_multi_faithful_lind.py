@@ -53,10 +53,10 @@ if not os.path.exists(current_results_dirname):
 parser = argparse.ArgumentParser(description='Run GA optimization for ring attractor model.')
 
 parser.add_argument('--num_processes', type=int, default=1, help='Number of processes for parallel processing.')
-parser.add_argument('--population_size', type=int, default=10, help='Population size for the genetic algorithm.')
+parser.add_argument('--population_size', type=int, default=4, help='Population size for the genetic algorithm.')
 parser.add_argument('--random_seed', type=int, default=24, help='Random seed for reproducibility.')
-parser.add_argument('--num_generations', type=int, default=10, help='Number of generations for the genetic algorithm.')
-parser.add_argument('--num_parents_mating', type=int, default=5, help='Number of parents mating in each generation.')
+parser.add_argument('--num_generations', type=int, default=2, help='Number of generations for the genetic algorithm.')
+parser.add_argument('--num_parents_mating', type=int, default=2, help='Number of parents mating in each generation.')
 parser.add_argument('--mutation_type', type=str, default='adaptive', choices=['random', 'swap', 'inversion', 'scramble', 'adaptive', ], help='Type of mutation to use in the genetic algorithm.') # Options: "random", "swap", "inversion", "scramble", "adaptive", or a custom function
 parser.add_argument('--mutation_probability', type=float, default=[0.4, 0.2], nargs=2, help='Probability of mutation for each gene. If using adaptive mutation, this should be a list of two values: the first for lower-than-average fitness solutions, the second for higher-than-average fitness solutions. If using random mutation, this should be a single value for all solutions.')
 parser.add_argument('--parent_selection_type', type=str, default='tournament_nsga2', choices=['nsga2', 'tournament_nsga2'], help='Parent selection method for the genetic algorithm.')
@@ -65,8 +65,8 @@ parser.add_argument('--crossover_type', type=str, default='single_point', choice
 parser.add_argument('--keep_elitism', type=int, default=1, help='Number of best solutions to keep in the next generation.')
 parser.add_argument('--rand_mut_min_val', type=float, default=-0.1, help='Minimum value for random mutation.')
 parser.add_argument('--rand_mut_max_val', type=float, default=0.1, help='Maximum value for random mutation.')
-parser.add_argument('--initial_ranges_cos', type=float, nargs=8, default=[0.0, 100, np.log(0.001), np.log(10), 23, 100, 0.5, 100], help='Initial ranges for Cosine connectivity profile: m_min, m_max, d_min, d_max, Iff_min, Iff_max, tau_s_min, tau_s_max.')
-parser.add_argument('--gene_spaces_cos', type=float, nargs=8, default=[0.0, 100, np.log(0.001), np.log(10), 23, 100, 0.5, 100], help='Cosine gene spaces/limits for the optimization: m_min, m_max, d_min, d_max, Iff_min, Iff_max, tau_s_min, tau_s_max.')
+parser.add_argument('--initial_ranges_cos', type=float, nargs=8, default=[0.0, 100, 0.001, 10, 23, 100, 0.5, 100], help='Initial ranges for Cosine connectivity profile: m_min, m_max, d_min, d_max, Iff_min, Iff_max, tau_s_min, tau_s_max.')
+parser.add_argument('--gene_spaces_cos', type=float, nargs=8, default=[0.0, 100, 0.001, 10, 23, 100, 0.5, 100], help='Cosine gene spaces/limits for the optimization: m_min, m_max, d_min, d_max, Iff_min, Iff_max, tau_s_min, tau_s_max.')
 parser.add_argument('--stim_center', type=float, default=1.571, help='Center of the stimulus for the ring attractor model.')
 parser.add_argument('--stim_width', type=float, default=0.1, help='Width of the stimulus for the ring attractor model.')
 parser.add_argument('--tau', type=float, default=10.0, help='Time constant for the ring attractor model in ms.')
@@ -320,7 +320,7 @@ def on_generation(ga_instance):
     gens_completed = ga_instance.generations_completed
     with open(f"{current_results_dirname}/exp_results.txt", "a") as f:
         if connectivity_profile == 'cosine':
-            f.write(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (m: {solution[0]}, log d: {solution[1]}, d: {np.exp(solution[1])}, g_cosine: {np.clip(solution[0] + (solution[4] * np.exp(solution[1])), m_space['low'], m_space['high'])}, w_inh: {np.clip(-solution[0] + (solution[4] * np.exp(solution[1])), -m_space['high'], m_space['low'])}, Iff: {solution[2]}, tau_s: {solution[3]}, d_sign: {solution[4]})\n")
+            f.write(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (m: {solution[0]}, d: {solution[1]}, g_cosine: {np.clip(solution[0] + (solution[4] * solution[1]), m_space['low'], m_space['high'])}, w_inh: {np.clip(-solution[0] + (solution[4] * solution[1]), -m_space['high'], m_space['low'])}, Iff: {solution[2]}, tau_s: {solution[3]}, d_sign: {solution[4]})\n")
         f.write(f"Generation mean FITNESS: {np.mean(positive_fitnesses):.4f} +/- {np.std(positive_fitnesses):.4f} | {len(positive_fitnesses)} working, {len(negative_fitnesses)} failed solutions\n")
         f.write(f"Generation mean ERROR (working solutions): {mean_errors:.4f} +/- {std_errors:.4f}\n")
         f.write(f"      mean center error: {mean_center_errors:.4f} +/- {std_center_errors:.4f}\n")
@@ -332,7 +332,7 @@ def on_generation(ga_instance):
         f.write(f"Generation mean gene standard deviations: {np.mean(gene_std_devs):.4f}\n")
         f.write(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")
     if connectivity_profile == 'cosine':
-        print(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (m: {solution[0]}, log d: {solution[1]}, d: {np.exp(solution[1])}, g_cosine: {np.clip(solution[0] + (solution[4] * np.exp(solution[1])), m_space['low'], m_space['high'])}, w_inh: {np.clip(-solution[0] + (solution[4] * np.exp(solution[1])), -m_space['high'], m_space['low'])}, Iff: {solution[2]}, tau_s: {solution[3]}, d_sign: {solution[4]})")
+        print(f"Generation {gens_completed} - Best specimen's errors: {1/(solution_fitness) - 1e-8} (m: {solution[0]}, d: {solution[1]}, g_cosine: {np.clip(solution[0] + (solution[4] * solution[1]), m_space['low'], m_space['high'])}, w_inh: {np.clip(-solution[0] + (solution[4] * solution[1]), -m_space['high'], m_space['low'])}, Iff: {solution[2]}, tau_s: {solution[3]}, d_sign: {solution[4]})")
     print(f"Generation time: {time.time() - previous_gen_start_time:.2f} seconds\n")
 
     previous_gen_start_time = time.time()
@@ -498,10 +498,9 @@ if __name__ == '__main__':
         errors: {1/solution_fitness}
         average error: {np.mean(1/solution_fitness)}
         m: {solution[0]}
-        log d: {solution[1]}
-        d: {np.exp(solution[1])}
-        g_cosine: {np.clip(solution[0] + (solution[4] * np.exp(solution[1])), m_space['low'], m_space['high'])} mV
-        w_inh: {np.clip(-solution[0] + (solution[4] * np.exp(solution[1])), -m_space['high'], m_space['low'])} mV
+        d: {solution[1]}
+        g_cosine: {np.clip(solution[0] + (solution[4] * solution[1]), m_space['low'], m_space['high'])} mV
+        w_inh: {np.clip(-solution[0] + (solution[4] * solution[1]), -m_space['high'], m_space['low'])} mV
         Iff: {solution[2]}
         tau_s: {solution[3]} ms
         d_sign: {solution[4]}
@@ -512,10 +511,9 @@ if __name__ == '__main__':
             f.write(f"errors: {1/solution_fitness}\n")
             f.write(f"average error: {np.mean(1/solution_fitness)}\n")
             f.write(f"m: {solution[0]}\n")
-            f.write(f"log d: {solution[1]}\n")
-            f.write(f"d: {np.exp(solution[1])}\n")
-            f.write(f"g_cosine: {solution[0] + (solution[4] * np.exp(solution[1]))} mV\n")
-            f.write(f"w_inh: {-solution[0] + (solution[4] * np.exp(solution[1]))} mV\n")
+            f.write(f"d: {solution[1]}\n")
+            f.write(f"g_cosine: {solution[0] + (solution[4] * solution[1])} mV\n")
+            f.write(f"w_inh: {-solution[0] + (solution[4] * solution[1])} mV\n")
             f.write(f"Iff: {solution[2]}\n")
             f.write(f"tau_s: {solution[3]} ms\n")
             f.write(f"d_sign: {solution[4]}\n")
